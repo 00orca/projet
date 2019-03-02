@@ -70,7 +70,7 @@ int destruction_piece(piece_t ** piece){
     (*piece)=NULL;
 }
 
-
+/*TEST*/
 int main(int argc, char const *argv[]) {
     piece_t * knight1 = NULL;
     printf("création.............\n");
