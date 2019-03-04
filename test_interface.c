@@ -14,9 +14,9 @@ int main() {
 	int bW, bH;
 	SDL_QueryTexture(background, NULL, NULL, &bW, &bH);
 	apply_surface(0, 0, background, renderer);
-	ApplySurface(bW, 0, background, renderer);
-	ApplySurface(0, bH, background, renderer);
-	ApplySurface(bW, bH, background, renderer);
+	apply_surface(bW, 0, background, renderer);
+	apply_surface(0, bH, background, renderer);
+	apply_surface(bW, bH, background, renderer);
 
 	SDL_RenderPresent(renderer);
 	SDL_Delay(2000);
