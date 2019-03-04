@@ -71,7 +71,6 @@ void apply_surface(int x, int y, SDL_Texture *tex, SDL_Renderer *rend) {
 
 SDL_Texture* RenderText(char* message, char* fontFile, SDL_Color color, int fontSize)
 {
-	font = NULL;
 	font = TTF_OpenFont(fontFile, fontSize);
 	if (font == NULL)
 		fprintf(stderr, "erreur chargement font\n");
