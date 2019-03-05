@@ -2,8 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+* \file piece.c
+* \brief Structure pieces.
+*\author Willhem Liban
+*\version 0.5
+*\date 01 mars 2019
+*/
+
 typedef enum {
-    soldat, archer,cavalier
+    knight, scout,priest,magician
 }classe_t;
 typedef struct piece_s{
     char * nom_classe;

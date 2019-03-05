@@ -4,7 +4,10 @@
 #include "piece.h"
 /**
 * \file piece.c
-* \brief Structure des pieces et les fonctions operants dessus
+* \brief Fonctions operants sur les pieces.
+*\author Willhem Liban
+*\version 0.5
+*\date 01 mars 2019
 */
 
 
@@ -12,35 +15,44 @@ piece_t * init_piece(classe_t classe){
     piece_t * piece=malloc(sizeof(piece_t));
     switch (classe){
         case 0:
-            piece->nom_classe=malloc(sizeof(char)*strlen("soldat")+1);
-            piece->nom_classe = "soldat";
-            piece->pdv=100;
-            piece->puissance = 50;
-            piece->armure=40;
-            piece->block=50;
+            piece->nom_classe=malloc(sizeof(char)*strlen("knight")+1);
+            piece->nom_classe = "knight";
+            piece->pdv=50;
+            piece->puissance = 22;
+            piece->armure=25;
+            piece->block=80;
             piece->portee=1;
-            piece->deplacement=2;
+            piece->deplacement=3;
             break;
         case 1:
-            piece->nom_classe=malloc(sizeof(char)*strlen("archer")+1);
-            piece->nom_classe = "archer";
-            piece->pdv=60;
-            piece->puissance = 20;
-            piece->armure=20;
-            piece->block=20;
-            piece->portee=3;
-            piece->deplacement=2;
-            break;
-        case 2:
-            piece->nom_classe=malloc(sizeof(char)*strlen("cavalier")+1);
-            piece->nom_classe = "cavalier";
-            piece->pdv=110;
-            piece->puissance = 30;
-            piece->armure=20;
-            piece->block=30;
-            piece->portee=1;
+            piece->nom_classe=malloc(sizeof(char)*strlen("scout")+1);
+            piece->nom_classe = "scout";
+            piece->pdv=40;
+            piece->puissance = 18;
+            piece->armure=8;
+            piece->block=60;
+            piece->portee=6;
             piece->deplacement=4;
             break;
+        case 2:
+            piece->nom_classe=malloc(sizeof(char)*strlen("priest")+1);
+            piece->nom_classe = "priest";
+            piece->pdv=24;
+            piece->puissance = 12;
+            piece->armure=0;
+            piece->block=0;
+            piece->portee=3;
+            piece->deplacement=3;
+            break;
+        case 3:
+            piece->nom_classe=malloc(sizeof(char)*strlen("magician")+1);
+            piece->nom_classe = "magician";
+            piece->pdv=28;
+            piece->puissance = 24;
+            piece->armure=0;
+            piece->block=20;
+            piece->portee=4;
+            piece->deplacement=4;
         default: printf("erreur dans la création d'une piece\n");
     }
     return (piece);
@@ -65,12 +77,16 @@ void afficher_piece(piece_t * piece){
 }
 
 int destruction_piece(piece_t ** piece){
-    //free((*piece)->nom_classe);
-    free(*piece);
-    (*piece)=NULL;
+    if(piece_existe(*piece)){
+        //free((*piece)->nom_classe);
+        free(*piece);
+        (*piece)=NULL;
+        return 1;
+    }
+    return 0;
 }
 
-/*TEST*/
+
 int main(int argc, char const *argv[]) {
     piece_t * knight1 = NULL;
     printf("création.............\n");
