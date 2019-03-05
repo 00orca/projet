@@ -1,0 +1,4 @@
+combat: combat.o
+	gcc -o combat combat.o
+combat.o: combat.c piece.h
+	gcc -o combat.o -c combat.c
