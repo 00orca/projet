@@ -7,7 +7,7 @@ void logErreur()
 	SDL_ClearError();
 }
 
-init(SDL_Window** win, SDL_Renderer** ren,char *titre)
+bool init(SDL_Window** win, SDL_Renderer** ren,char *titre)
 {
 	/* vérifier les parametres */
 	if (win == NULL || ren == NULL)
