@@ -1,52 +1,78 @@
-﻿#include "interface.h"
+#include "interface.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-SDL_Surface *gpScreen;
-SDL_Renderer *renderer;
-TTF_Font *font;
-
-bool init()
+void logErreur() 
 {
-	/*init SDL*/
-	if (SDL_Init(SDL_INIT_EVERYTHING) == -1)
+	SDL_Log("Erreur: %s.", SDL_GetError());
+	SDL_ClearError();
+}
+
+init(SDL_Window** win, SDL_Renderer** ren,char *titre)
+{
+	/* vérifier les parametres */
+	if (win == NULL || ren == NULL)
 	{
-		fprintf(stdout, "Echec de l'initialisation de la SDL (%s)\n", SDL_GetError());
 		return FALSE;
 	}
 
-	/* Initialisation TTF */
-	if (TTF_Init() == -1) {
-		fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
+	/* init SDL2 */
+	if (0 != SDL_Init(SDL_INIT_EVERYTHING))
+	{
+		logErreur();
 		return FALSE;
 	}
+
+	/* creation de fenetre */
+	SDL_Window* window = SDL_CreateWindow(titre, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	if (window == NULL)
+	{
+		logErreur();
+		SDL_Quit();
+		return FALSE;
+	}
+
+	/* creer Renderer */
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	if (renderer == NULL)
+	{
+		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+
+		if (renderer == NULL)
+		{
+			logErreur();
+			SDL_DestroyWindow(window);
+			SDL_Quit();
+			return FALSE;
+		}
+	}
+	*win = window;
+	*ren = renderer;
 	return TRUE;
 }
 
-bool create_fenetre(char* titre, SDL_Window* window)
+void draw(SDL_Renderer* renderer)
 {
-	window = SDL_CreateWindow(
-		titre,
-		SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED,
-		SCREEN_WIDTH,                               // width
-		SCREEN_HEIGHT,                              // height
-		SDL_WINDOW_SHOWN                  // flags - see below
-	);
-	if (window == NULL) {
-		fprintf(stderr, "Erreur à la création de la fenetre : %s\n", SDL_GetError());
-		return FALSE;
+	/* Vérifier les couleur qu'on va utiliser */
+	if (0 != SDL_SetRenderDrawColor(renderer, 0xbb, 0xbb, 0xbb, 0xff))logErreur();
+	if (0 != SDL_RenderClear(renderer))logErreur();
+	if (0 != SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xbb))logErreur();
+
+	int longeur = SCREEN_WIDTH - 40;
+	int part = longeur / 15;
+	if (0 != SDL_RenderDrawLine(renderer, part, part, part, longeur))logErreur();
+	if (0 != SDL_RenderDrawLine(renderer, longeur, part, longeur, longeur))logErreur();
+	
+	for (int y = part; y <= longeur; y +=( longeur- part)/5)
+	{
+		if (0 != SDL_RenderDrawLine(renderer, part, y, longeur, y))
+			logErreur();
 	}
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (renderer == NULL) {
-		fprintf(stderr, "Erreur à la creation du renderer\n");
-		return FALSE;
-	}
-	gpScreen = SDL_GetWindowSurface(window);
-	return TRUE;
+
+	SDL_RenderPresent(renderer);
 }
 
-SDL_Texture* load_image(char * filename){
+SDL_Texture* load_image(char * filename, SDL_Renderer *renderer){
 	SDL_Surface *image = NULL;
 	SDL_Texture *texture = NULL;
 
@@ -60,6 +86,7 @@ SDL_Texture* load_image(char * filename){
 	return texture;
 }
 
+
 void apply_surface(int x, int y, SDL_Texture *tex, SDL_Renderer *rend) {
 	SDL_Rect indice;
 	indice.x = x;
@@ -69,8 +96,9 @@ void apply_surface(int x, int y, SDL_Texture *tex, SDL_Renderer *rend) {
 	SDL_RenderCopy(rend, tex, NULL, &indice);
 }
 
-SDL_Texture* RenderText(char* message, char* fontFile, SDL_Color color, int fontSize)
+SDL_Texture* RenderText(char* message, char* fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer)
 {
+	TTF_Font *font = NULL;
 	font = TTF_OpenFont(fontFile, fontSize);
 	if (font == NULL)
 		fprintf(stderr, "erreur chargement font\n");
