@@ -11,17 +11,17 @@ int main()
 	SDL_Rect rect = { 0,0,10,10 };
 	Uint8 r = 0xff, g = 0xff, b = 0xff;
 	SDL_Event event;
+	SDL_Renderer* original = renderer;
 	while (1) {
 		SDL_PollEvent(&event);
-		SDL_RenderFillRect(renderer, &rect);
-		SDL_RenderPresent(renderer);
-		if (event.type == SDL_MOUSEMOTION)
+		if (event.type == SDL_MOUSEMOTION && ((event.motion.y - 20) / 112 >= 0 )&&((event.motion.y - 20) / 112 < 1))
 		{
-			rect.x = event.motion.x;
-			rect.y = event.motion.y;
+			SDL_RenderDrawLine(renderer, 15, 15, 15, 200);
+			SDL_RenderPresent(renderer);
 		}
-		if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
+		else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
 		{
+	
 			int row = (event.button.y - 20) / 112;
 			int column = (event.button.x - 20) / 600;
 
