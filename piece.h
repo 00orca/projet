@@ -74,6 +74,6 @@ int destruction_piece(piece_t * piece);
 void pathfinding(case_t terrain[N][M], int x, int y);
 int pathfinding_combat(case_t terrain[N][M], int x, int y);
 /*effectue le calcul des dommages*/
-void combat(case_t * terrain [N][M],int x_att, int y_att, int x_def,int y_def);
-void soin(case_t * terrain [N][M],int x_att, int y_att, int x_def,int y_def);
+void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def);
+void soin(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def);
 void move(case_t terrain[N][M],int x,int y, int joueur,joueurs_t tab[J]);

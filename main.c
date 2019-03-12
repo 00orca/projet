@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 	SDL_Window* pWindow = NULL;
 	SDL_Renderer *renderer=NULL;
   SDL_Rect imgDestRect;
-
+	char variable[50];
 
 	int preset=1;
   int alea;
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 	int joueur_actu=0;
 
 
-	SDL_Color c = {0,0,0,125};
+	SDL_Color c = {0,0,0,0};
 	SDL_Texture *texte1;//*texte2,*texte3,*texte4,*texte5,*texte6,*texte7,*texte8,*texte9,*texte10,*texte11;
 	SDL_Rect txtDestRect;
 
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 												  900,
 												  SDL_WINDOW_SHOWN|SDL_WINDOW_RESIZABLE);
 
-	gpScreen = SDL_GetWindowSurface(pWindow);
+
 
 	if(!pWindow){
 		fprintf(stderr, "Erreur à la création de la fenetre : %s\n", SDL_GetError());
@@ -200,6 +200,7 @@ int main(int argc, char** argv)
 			terrain[i][j].y4=0;
 			terrain[i][j].piece=NULL;
 			terrain[i][j].deplacement=0;
+			terrain[i][j].attaque=0;
 
 		}
 	}
@@ -391,6 +392,7 @@ int main(int argc, char** argv)
 												}
 												//=================DEPLACEMENT D'UNE PIECE====================//
 												move(terrain,compteur,compteur2,joueur_actu,tab);
+												//combat
 											}
 										}
 									}
@@ -400,6 +402,55 @@ int main(int argc, char** argv)
 
 				}
 			}
+
+			gpScreen = SDL_GetWindowSurface(pWindow);
+			if( e.motion.x >0 && e.motion.x <30){
+				for (int compteur=0;compteur<N;compteur++){
+					for (int compteur2=0;compteur2<M;compteur2++){
+						terrain[compteur][compteur2].xImg+=scroll_speed;
+						terrain[compteur][compteur2].x1+=scroll_speed;
+						terrain[compteur][compteur2].x2+=scroll_speed;
+						terrain[compteur][compteur2].x3+=scroll_speed;
+						terrain[compteur][compteur2].x4+=scroll_speed;
+					}
+				}
+			}
+			if(e.motion.x > gpScreen->w - 30 && e.motion.x < gpScreen->w){
+				for (int compteur=0;compteur<N;compteur++){
+					for (int compteur2=0;compteur2<M;compteur2++){
+						terrain[compteur][compteur2].xImg-=scroll_speed;
+						terrain[compteur][compteur2].x1-=scroll_speed;
+						terrain[compteur][compteur2].x2-=scroll_speed;
+						terrain[compteur][compteur2].x3-=scroll_speed;
+						terrain[compteur][compteur2].x4-=scroll_speed;
+					}
+				}
+			}
+			if( e.motion.y >0 && e.motion.y <30){
+				for (int compteur=0;compteur<N;compteur++){
+					for (int compteur2=0;compteur2<M;compteur2++){
+						terrain[compteur][compteur2].yImg+=scroll_speed;
+						terrain[compteur][compteur2].y1+=scroll_speed;
+						terrain[compteur][compteur2].y2+=scroll_speed;
+						terrain[compteur][compteur2].y3+=scroll_speed;
+						terrain[compteur][compteur2].y4+=scroll_speed;
+					}
+				}
+			}
+			if(e.motion.y > gpScreen->h - 30 && e.motion.y < gpScreen->h){
+				for (int compteur=0;compteur<N;compteur++){
+					for (int compteur2=0;compteur2<M;compteur2++){
+						terrain[compteur][compteur2].yImg-=scroll_speed;
+						terrain[compteur][compteur2].y1-=scroll_speed;
+						terrain[compteur][compteur2].y2-=scroll_speed;
+						terrain[compteur][compteur2].y3-=scroll_speed;
+						terrain[compteur][compteur2].y4-=scroll_speed;
+					}
+				}
+			}
+
+
+
 							//======================================AFFICHAGE=========================================//
 
 
@@ -468,30 +519,21 @@ int main(int argc, char** argv)
 										}
 									}
 								}
-													//attaque
-													/*
-													for(int i=compteur-terrain[compteur][compteur2].piece->portee;i<=compteur+terrain[compteur][compteur2].piece->portee;i++){
-														for(int j=compteur2-terrain[compteur][compteur2].piece->portee;j<=compteur2+terrain[compteur][compteur2].piece->portee;j++){
-															if(terrain[i][j].piece){
-																if(terrain[i][j].piece->joueur!=joueur_actu){
-																	imgDestRect.x = terrain[i][j].xImg-bordure-10;
-																	imgDestRect.y = terrain[i][j].yImg-bordure-10;
-																	SDL_QueryTexture(image_attaque, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-																	SDL_RenderCopy(renderer, image_attaque, NULL, &imgDestRect);
-																}
-															}
-														}
-													}*/
+									//attaque
+								pathfinding_combat(terrain,compteur,compteur2);
+
+								for (int ind=0;ind<N;ind++){
+									for (int ind2=0;ind2<M;ind2++){
+										if(terrain[ind][ind2].attaque==1){
+											imgDestRect.x = terrain[ind][ind2].xImg-bordure;
+											imgDestRect.y = terrain[ind][ind2].yImg-bordure;
+											SDL_QueryTexture(image_attaque, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
+											SDL_RenderCopy(renderer, image_attaque, NULL, &imgDestRect);
+										}
+									}
+								}
 							}
-							else{
-													//affiche dans un cadre les stats de l'ennemi + une fleche montrant le sens d'arret de l'ennemi
-
-
-							}
-
-										//autre affichages :
 						}
-										//
 					}
 				}
 			}
@@ -502,45 +544,40 @@ int main(int argc, char** argv)
 			SDL_QueryTexture(image_inter, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
 			SDL_RenderCopy(renderer,image_inter , NULL, &imgDestRect);
 
-			texte1=RenderText("JOUEUR:","arial.ttf",c,12,renderer);
+
+			texte1=RenderText("PDV        :","arial.ttf",c,12,renderer);
 			txtDestRect.x = 30;
-			txtDestRect.y = 125;
+			txtDestRect.y = 155;
 			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
 			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
 
-			texte1=RenderText("PDV:","arial.ttf",c,12,renderer);
+			texte1=RenderText("ATK        :","arial.ttf",c,12,renderer);
 			txtDestRect.x = 30;
-			txtDestRect.y = 150;
+			txtDestRect.y = 175;
 			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
 			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
 
-			texte1=RenderText("ATK :","arial.ttf",c,12,renderer);
+			texte1=RenderText("DEF        :","arial.ttf",c,12,renderer);
 			txtDestRect.x = 30;
-			txtDestRect.y = 170;
+			txtDestRect.y = 195;
 			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
 			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
 
-			texte1=RenderText("DEF :","arial.ttf",c,12,renderer);
+			texte1=RenderText("BLOCK  :","arial.ttf",c,12,renderer);
 			txtDestRect.x = 30;
-			txtDestRect.y = 190;
+			txtDestRect.y = 215;
 			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
 			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
 
-			texte1=RenderText("BLOCK :","arial.ttf",c,12,renderer);
+			texte1=RenderText("RANGE  :","arial.ttf",c,12,renderer);
 			txtDestRect.x = 30;
-			txtDestRect.y = 210;
+			txtDestRect.y = 235;
 			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
 			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
 
-			texte1=RenderText("RANGE :","arial.ttf",c,12,renderer);
+			texte1=RenderText("MS          :","arial.ttf",c,12,renderer);
 			txtDestRect.x = 30;
-			txtDestRect.y = 230;
-			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
-
-			texte1=RenderText("MS :","arial.ttf",c,12,renderer);
-			txtDestRect.x = 30;
-			txtDestRect.y = 250;
+			txtDestRect.y = 255;
 			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
 			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
 
@@ -575,10 +612,52 @@ int main(int argc, char** argv)
 							break;
 						}
 						//text
+						sprintf(variable, "%d",  terrain[i][j].piece->joueur);
+						texte1=RenderText(variable,"arial.ttf",c,25,renderer);
+						txtDestRect.x = 65;
+						txtDestRect.y = 110;
+						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
 
-						texte1=RenderText("JOUEUR :","arial.ttf",c,12,renderer);
-						txtDestRect.x = 30;
-						txtDestRect.y = 125;
+						sprintf(variable, "%d", terrain[i][j].piece->pdv);
+						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
+						txtDestRect.x = 90;
+						txtDestRect.y = 155;
+						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+						sprintf(variable, "%d", terrain[i][j].piece->puissance);
+						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
+						txtDestRect.x = 90;
+						txtDestRect.y = 175;
+						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+						sprintf(variable, "%d", terrain[i][j].piece->armure);
+						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
+						txtDestRect.x = 90;
+						txtDestRect.y = 195;
+						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+						sprintf(variable, "%d", terrain[i][j].piece->block);
+						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
+						txtDestRect.x = 90;
+						txtDestRect.y = 215;
+						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+						sprintf(variable, "%d", terrain[i][j].piece->portee);
+						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
+						txtDestRect.x = 90;
+						txtDestRect.y = 235;
+						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+						sprintf(variable, "%d", terrain[i][j].piece->deplacement);
+						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
+						txtDestRect.x = 90;
+						txtDestRect.y = 255;
 						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
 						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
 
