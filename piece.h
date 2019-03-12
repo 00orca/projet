@@ -42,6 +42,7 @@ typedef struct case_s{
 	int climat;
 	piece_t *piece;		//piece sur cette case
 	int deplacement;  // 1 -> droit de se deplacer , 0pas le droit de se deplacer
+	int attaque;    // 1 -> droit d'attaquer , 0 -> pas le droit d'attaquer
 	int xImg; // ccordonné reel de l'image
 	int yImg;
 	int x1; // coordonné du losange représentant une case(pour gerer les coordonnées du clic souris)
