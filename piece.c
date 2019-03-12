@@ -164,11 +164,39 @@ void pathfinding(case_t terrain[N][M], int x, int y){
 
 
 
-int move(case_t terrain[N][M],int x,int y,piece_t *piece){
+void move(case_t terrain[N][M],int x,int y,int joueur,joueurs_t tab[J]){
   if(terrain[x][y].deplacement==1){
-    terrain[x][y].piece=piece;
-    destruction_piece(piece);
-    return 1;
+    for(int compteur=0;compteur<N;compteur++){
+      for(int compteur2=0;compteur2<M; compteur2++){
+        if(terrain[compteur][compteur2].piece && terrain[compteur][compteur2].piece->select==1 && terrain[compteur][compteur2].piece->joueur==joueur){
+
+
+          terrain[x][y].piece=malloc(sizeof(piece_t));
+          fprintf(stderr,"compteur compteur2 = %d\n",terrain[compteur][compteur2].piece->classe);
+          terrain[x][y].piece->classe = terrain[compteur][compteur2].piece->classe;
+          terrain[x][y].piece->pdv = terrain[compteur][compteur2].piece->pdv;
+          terrain[x][y].piece->puissance = terrain[compteur][compteur2].piece->puissance;
+          terrain[x][y].piece->armure = terrain[compteur][compteur2].piece->armure;
+          terrain[x][y].piece->block = terrain[compteur][compteur2].piece->block;
+          terrain[x][y].piece->portee = terrain[compteur][compteur2].piece->portee;
+          terrain[x][y].piece->deplacement = terrain[compteur][compteur2].piece->deplacement;
+          terrain[x][y].piece->select = terrain[compteur][compteur2].piece->select;
+          terrain[x][y].piece->joueur = terrain[compteur][compteur2].piece->joueur;
+
+
+          //destruction_piece(terrain[compteur][compteur2].piece);
+          free(terrain[compteur][compteur2].piece);
+          terrain[compteur][compteur2].piece=NULL;
+
+          terrain[x][y].piece->select=1;
+          //pathfinding(terrain,x,y);
+
+          tab[joueur].pts_action_actu--;
+
+          return;
+        }
+      }
+    }
+
   }
-  return 0;
 }

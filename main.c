@@ -36,7 +36,6 @@ int main(int argc, char** argv)
 
 
 
-
     /* Initialisation SDL*/
     if (SDL_Init(SDL_INIT_VIDEO) != 0 ) {
         fprintf(stdout,"Échec de l'initialisation de la SDL (%s)\n",SDL_GetError());
@@ -244,21 +243,22 @@ int main(int argc, char** argv)
 
 
 //=========================================================INITIALISATION DES UNITEES===========================================//
-	for(int i=0;i<J;i++){
-		int unit_gen=0;
-		while(unit_gen<tab[i].nb_unite){
-			for(int compteur=0;compteur<N; compteur++){
-				for(int compteur2=0;compteur2<M; compteur2++){
-					if(terrain[compteur][compteur2].piece==NULL && terrain[compteur][compteur2].type != 5){
-						if(rand()%100 ==1 && unit_gen<tab[i].nb_unite){
-							terrain[compteur][compteur2].piece=init_piece(((rand()%5)+1),i); //
-							unit_gen++;
+		int unit_gen;
+		for(int i=0;i<J;i++){
+			unit_gen=0;
+			while(unit_gen<tab[i].nb_unite){
+				for(int compteur=0;compteur<N; compteur++){
+					for(int compteur2=0;compteur2<M; compteur2++){
+						if(terrain[compteur][compteur2].piece==NULL && terrain[compteur][compteur2].type != 5){
+							if(rand()%100 ==1 && unit_gen<tab[i].nb_unite){
+								terrain[compteur][compteur2].piece=init_piece(((rand()%4)+1),i); //
+								unit_gen++;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
 
 
 //========================================FENETRE=====================================//
@@ -329,8 +329,8 @@ int main(int argc, char** argv)
 					  	switch (e.button.button)
 					    {
 					    	case SDL_BUTTON_LEFT:
-									fprintf(stderr,"x : %d \n",e.motion.x);
-									fprintf(stderr,"x : %d \n",e.motion.y);
+
+
 
 									//int a,b,a2,b2,a3,b3,a4,b4,res1,res2,res3,res4;
 									for(int compteur=0;compteur<N;compteur++){
@@ -366,6 +366,8 @@ int main(int argc, char** argv)
 											//VERSION BASIQUE QUI FONCTIONNE MAL
 											if(e.motion.y > terrain[compteur][compteur2].y1+10 && e.motion.y < terrain[compteur][compteur2].y3-10 && e.motion.x > terrain[compteur][compteur2].x4+10 && e.motion.x < terrain[compteur][compteur2].x2-10){
 												fprintf(stderr,"la case %d | %d a été selectionné. \n",compteur,compteur2);
+
+												//=================SELECTION D'UNE PIECE====================//
 												if(terrain[compteur][compteur2].piece){
 													for(int indice=0;indice<N;indice++){
 														for(int indice2=0;indice2<M; indice2++){
@@ -375,8 +377,10 @@ int main(int argc, char** argv)
 														}
 													}
 													terrain[compteur][compteur2].piece->select=1;
-
+													//+AFFICHAGE DE LA PIECE DANS L'INTERFACE
 												}
+												//=================DEPLACEMENT D'UNE PIECE====================//
+												move(terrain,compteur,compteur2,joueur_actu,tab);
 											}
 										}
 									}
@@ -430,6 +434,11 @@ int main(int argc, char** argv)
 					}
 				}
 			}
+
+
+
+
+
 			for (int compteur=0;compteur<N;compteur++){
 				for (int compteur2=0;compteur2<M;compteur2++){
 					if(terrain[compteur][compteur2].piece){
@@ -482,8 +491,21 @@ int main(int argc, char** argv)
 			imgDestRect.y = 0;
 			SDL_QueryTexture(image_inter, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
 			SDL_RenderCopy(renderer,image_inter , NULL, &imgDestRect);
+			for(int i=0;i<N;i++){
+				for(int j=0;j<N;j++){
+					if(terrain[i][j].allie && terrain[i][j].allie.select==1){
+
+					}
+				}
+			}
+
+
+
+
+
 
 			SDL_RenderPresent(renderer);
+			SDL_Delay(16);
 							//===================================DEROULEMENT DU JEU==========================================//
 							/*
 
@@ -521,9 +543,9 @@ int main(int argc, char** argv)
 				running=0;
 			}
 
-			if(tab[joueur_actu].pts_action_actu==0){
+			if(tab[joueur_actu].pts_action_actu==0){				//gestion des tours de jeu
 				tab[joueur_actu].pts_action_actu=tab[joueur_actu].pts_action_max;
-				joueur_actu++;
+				joueur_actu=(joueur_actu+1)%J;
 			}
 
 

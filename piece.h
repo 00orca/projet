@@ -67,3 +67,4 @@ piece_t * init_piece(classe_t classe,int id_joueur);
 int piece_existe(piece_t * piece);
 int destruction_piece(piece_t * piece);
 void pathfinding(case_t terrain[N][M], int x, int y);
+void move(case_t terrain[N][M],int x,int y, int joueur,joueurs_t tab[J]);
