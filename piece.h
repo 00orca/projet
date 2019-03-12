@@ -63,8 +63,16 @@ typedef struct joueurs_s{
 
 }joueurs_t;
 
+/*Fonction pour creer les pieces*/
 piece_t * init_piece(classe_t classe,int id_joueur);
+/*Renvoi 1 si la piece passée en parametre existe*/
 int piece_existe(piece_t * piece);
+/*Detruit une piece*/
 int destruction_piece(piece_t * piece);
+/*Affiche les chemins possible pour la piece selectionnée dont les coordonnées sont passée en param*/
 void pathfinding(case_t terrain[N][M], int x, int y);
+int pathfinding_combat(case_t terrain[N][M], int x, int y);
+/*effectue le calcul des dommages*/
+void combat(case_t * terrain [N][M],int x_att, int y_att, int x_def,int y_def);
+void soin(case_t * terrain [N][M],int x_att, int y_att, int x_def,int y_def);
 void move(case_t terrain[N][M],int x,int y, int joueur,joueurs_t tab[J]);
