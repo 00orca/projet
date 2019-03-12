@@ -21,7 +21,8 @@ int main(int argc, char** argv)
 {
 	SDL_Window* pWindow = NULL;
 	SDL_Renderer *renderer=NULL;
-  SDL_Rect  imgDestRect;
+  SDL_Rect imgDestRect;
+
 
 	int preset=1;
   int alea;
@@ -34,6 +35,10 @@ int main(int argc, char** argv)
 	int nb_joueur_restant;
 	int joueur_actu=0;
 
+
+	SDL_Color c = {0,0,0,125};
+	SDL_Texture *texte1;//*texte2,*texte3,*texte4,*texte5,*texte6,*texte7,*texte8,*texte9,*texte10,*texte11;
+	SDL_Rect txtDestRect;
 
 
     /* Initialisation SDL*/
@@ -53,6 +58,8 @@ int main(int argc, char** argv)
 												  900,
 												  SDL_WINDOW_SHOWN|SDL_WINDOW_RESIZABLE);
 
+	gpScreen = SDL_GetWindowSurface(pWindow);
+
 	if(!pWindow){
 		fprintf(stderr, "Erreur à la création de la fenetre : %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
@@ -63,6 +70,9 @@ int main(int argc, char** argv)
 		fprintf(stderr, "Erreur à la création du renderer\n");
 		exit(EXIT_FAILURE);
 	}
+
+
+
 
 //===================================TEXTURES==========================================//
 
@@ -408,22 +418,22 @@ int main(int argc, char** argv)
 					if(terrain[compteur][compteur2].piece){ 		//AFFICHAGE DES UNITEES
 
 						switch (terrain[compteur][compteur2].piece->classe){
-								case 1:
+							case 1:
 								SDL_QueryTexture(image_knight, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
 								SDL_RenderCopy(renderer, image_knight, NULL, &imgDestRect);
-								break;
-								case 2:
+							break;
+							case 2:
 								SDL_QueryTexture(image_scout, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
 								SDL_RenderCopy(renderer, image_scout, NULL, &imgDestRect);
-								break;
-								case 3:
+							break;
+							case 3:
 								SDL_QueryTexture(image_priest, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
 								SDL_RenderCopy(renderer, image_priest, NULL, &imgDestRect);
-								break;
-								case 4:
+							break;
+							case 4:
 								SDL_QueryTexture(image_magician, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
 								SDL_RenderCopy(renderer, image_magician, NULL, &imgDestRect);
-								break;
+							break;
 							}
 					}
 
@@ -491,9 +501,87 @@ int main(int argc, char** argv)
 			imgDestRect.y = 0;
 			SDL_QueryTexture(image_inter, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
 			SDL_RenderCopy(renderer,image_inter , NULL, &imgDestRect);
+
+			texte1=RenderText("JOUEUR:","arial.ttf",c,12,renderer);
+			txtDestRect.x = 30;
+			txtDestRect.y = 125;
+			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+			texte1=RenderText("PDV:","arial.ttf",c,12,renderer);
+			txtDestRect.x = 30;
+			txtDestRect.y = 150;
+			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+			texte1=RenderText("ATK :","arial.ttf",c,12,renderer);
+			txtDestRect.x = 30;
+			txtDestRect.y = 170;
+			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+			texte1=RenderText("DEF :","arial.ttf",c,12,renderer);
+			txtDestRect.x = 30;
+			txtDestRect.y = 190;
+			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+			texte1=RenderText("BLOCK :","arial.ttf",c,12,renderer);
+			txtDestRect.x = 30;
+			txtDestRect.y = 210;
+			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+			texte1=RenderText("RANGE :","arial.ttf",c,12,renderer);
+			txtDestRect.x = 30;
+			txtDestRect.y = 230;
+			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+			texte1=RenderText("MS :","arial.ttf",c,12,renderer);
+			txtDestRect.x = 30;
+			txtDestRect.y = 250;
+			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
+
+
+
+
 			for(int i=0;i<N;i++){
-				for(int j=0;j<N;j++){
-					if(terrain[i][j].allie && terrain[i][j].allie.select==1){
+				for(int j=0;j<M;j++){
+					if(terrain[i][j].piece && terrain[i][j].piece->select==1){
+						//affichage des infos de l'unité en haut a gauche.
+						imgDestRect.w=100;//image
+						imgDestRect.h=100;
+						imgDestRect.x = 20;
+						imgDestRect.y = 20;
+						switch (terrain[i][j].piece->classe){
+							case 1:
+								SDL_QueryTexture(image_knight, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
+								SDL_RenderCopy(renderer, image_knight, NULL, &imgDestRect);
+							break;
+							case 2:
+								SDL_QueryTexture(image_scout, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
+								SDL_RenderCopy(renderer, image_scout, NULL, &imgDestRect);
+							break;
+							case 3:
+								SDL_QueryTexture(image_priest, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
+								SDL_RenderCopy(renderer, image_priest, NULL, &imgDestRect);
+							break;
+							case 4:
+								SDL_QueryTexture(image_magician, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
+								SDL_RenderCopy(renderer, image_magician, NULL, &imgDestRect);
+							break;
+						}
+						//text
+
+						texte1=RenderText("JOUEUR :","arial.ttf",c,12,renderer);
+						txtDestRect.x = 30;
+						txtDestRect.y = 125;
+						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
+						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+
 
 					}
 				}

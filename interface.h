@@ -39,5 +39,5 @@ extern bool init();
 extern bool create_fenetre(char* titre, SDL_Window* window);
 extern SDL_Texture* load_image(char * filename,SDL_Renderer * renderer);
 extern void apply_surface(int x, int y, SDL_Texture *tex, SDL_Renderer *rend);
-extern SDL_Texture* RenderText(char* message, char* fontFile, SDL_Color color, int fontSize);
+extern SDL_Texture* RenderText(char* message, char* fontFile, SDL_Color color, int fontSize,SDL_Renderer *renderer);
 #endif

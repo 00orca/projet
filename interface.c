@@ -69,7 +69,7 @@ void apply_surface(int x, int y, SDL_Texture *tex, SDL_Renderer *rend) {
 	SDL_RenderCopy(rend, tex, NULL, &indice);
 }
 
-SDL_Texture* RenderText(char* message, char* fontFile, SDL_Color color, int fontSize)
+SDL_Texture* RenderText(char* message, char* fontFile, SDL_Color color, int fontSize,SDL_Renderer *renderer)
 {
 	font = TTF_OpenFont(fontFile, fontSize);
 	if (font == NULL)
