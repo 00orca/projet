@@ -200,3 +200,71 @@ void move(case_t terrain[N][M],int x,int y,int joueur,joueurs_t tab[J]){
 
   }
 }
+int pathfinding_combat(case_t terrain[N][M], int x, int y){
+  int attaque[N][M];
+  int i,j;
+  int cpt;
+  //initialisation des attaques possibles
+  for (i=0;i<N;i++){//parcours du terrain
+      for(j=0;j<M;j++){
+        terrain[i][j].attaque=0;
+      }
+  }
+
+  for (i=0;i<N;i++){//parcours du terrain
+      for(j=0;j<M;j++){
+          attaque[i][j]=0;
+      }
+  }
+
+
+    }
+    attaque[x][y]=1;//case ou se trouve la piece
+
+    for(cpt=1;cpt<=terrain[x][y].piece->portee;cpt++){//tant qu'il y a des point de la portée
+        for (i=0;i<N;i++){//parcours du terrain
+            for(j=0;j<M;j++){
+                if (attaque[i][j]==cpt){
+                    attaque[i+1][j]=cpt+1;
+                    attaque[i-1][j]=cpt+1;
+                    attaque[i][j+1]=cpt+1;
+                    attaque[i][j-1]=cpt+1;
+                }
+
+            }
+        }
+    }
+
+    for (i=0;i<N;i++){//parcours du terrain
+        for(j=0;j<M;j++){
+            if(attaque[i][j]>1)
+              terrain[i][j].attaque=1;
+        }
+    }
+}
+
+void combat(case_t * terrain [N][M],int x_att, int y_att, int x_def,int y_def){
+    if(terrain[x_att][y_att].piece->classe=priest){//soin si c'est un pretre
+        soin(terrain,x_att,y_att,x_def,y_def);
+        return;
+    }
+    srand(time(NULL));
+    int blockd=(rand() % (100 - 1 + 1)) + 1);//att bloquée ou non
+    /*if (attaque dans le dos)blockd=100; block inutile*/
+    /*if(attaque de coté) blockd=(rand() % (100 - 25 + 1)) + 25);moins de chance de bloquer*/
+    if(terrain[x_def][y_def].attaque==1){//si la piece attaquée est sur une case a portée
+        if(blockd>terrain[x_def][y_def].block){
+            terrain[x_def][y_def]->pdv-=terrain[x_att][y_att]->puissance*(armure/100);//armure=absorption de dégats
+        }
+    }
+    else
+        printf("echec de l'attaque (hors de portée).\n");
+}
+
+void soin(case_t * terrain [N][M],int x_att, int y_att, int x_def,int y_def){
+    if(terrain[x_def][y_def].attaque==1){
+        terrain[x_def][y_def]->pdv+=terrain[x_att][y_att]->puissance*(armure/100);
+    }
+    else
+        printf("echec du soin (hors de portée).\n");
+}
