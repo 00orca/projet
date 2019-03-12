@@ -1,0 +1,45 @@
+
+
+case SDL_MOUSEMOTION:
+							gpScreen = SDL_GetWindowSurface(pWindow);
+							if( e.motion.x <10){
+								for (int compteur=0;compteur<N;compteur++){
+									for (int compteur2=0;compteur2<M;compteur2++){
+										terrain[compteur][compteur2].xImg+=scroll_speed;
+										terrain[compteur][compteur2].x1+=scroll_speed;
+										terrain[compteur][compteur2].x2+=scroll_speed;
+										terrain[compteur][compteur2].x3+=scroll_speed;
+										terrain[compteur][compteur2].x4+=scroll_speed;
+									}
+								}
+							}else if(e.motion.x > gpScreen->w - 10){
+								for (int compteur=0;compteur<N;compteur++){
+									for (int compteur2=0;compteur2<M;compteur2++){
+										terrain[compteur][compteur2].xImg-=scroll_speed;
+										terrain[compteur][compteur2].x1-=scroll_speed;
+										terrain[compteur][compteur2].x2-=scroll_speed;
+										terrain[compteur][compteur2].x3-=scroll_speed;
+										terrain[compteur][compteur2].x4-=scroll_speed;
+									}
+								}
+							}else if( e.motion.y <10){
+								for (int compteur=0;compteur<N;compteur++){
+									for (int compteur2=0;compteur2<M;compteur2++){
+										terrain[compteur][compteur2].yImg+=scroll_speed;
+										terrain[compteur][compteur2].y1+=scroll_speed;
+										terrain[compteur][compteur2].y2+=scroll_speed;
+										terrain[compteur][compteur2].y3+=scroll_speed;
+										terrain[compteur][compteur2].y4+=scroll_speed;
+									}
+								}
+							}else if(e.motion.y > gpScreen->h - 10){
+								for (int compteur=0;compteur<N;compteur++){
+									for (int compteur2=0;compteur2<M;compteur2++){
+										terrain[compteur][compteur2].yImg-=scroll_speed;
+										terrain[compteur][compteur2].y1-=scroll_speed;
+										terrain[compteur][compteur2].y2-=scroll_speed;
+										terrain[compteur][compteur2].y3-=scroll_speed;
+										terrain[compteur][compteur2].y4-=scroll_speed;
+									}
+								}
+						}
