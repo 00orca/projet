@@ -2,28 +2,45 @@
 #define SDL_PROJET_H
 
 #include <stdio.h>
-#include "SDL.h"
-#include "SDL_image.h"
-#include "SDL_ttf.h"
-/* booleen */
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
+
+//define booleen
 typedef int bool;
 #define TRUE  1
-#define FALSE 0
+#define FALSE 0#define Z 20 //nb images
+#define Z 20 //nb images
 
-/* coleur */
-#define WHITE 0xff
-#define BLACK 0x00
 
 //Resolution d'ecran
-#define  SCREEN_WIDTH  640
-#define  SCREEN_HEIGHT  640
-#define  SCREEN_BPP  32
+
+//Declaration de surface et fenetre
+extern SDL_Surface *gpScreen;
+
+extern SDL_Renderer *renderer;
+//Declaration de l'evenement
+extern SDL_Event myEvent;
+
+//Declaration de police
+extern TTF_Font *font;
+
+typedef struct image_s{
+  SDL_Texture * texture;
+  char loc_image[50];
+}image_t;
+
+/*Declarer les couleurs communes*/
+extern const SDL_Color RGB_Black;
+extern const SDL_Color RGB_Red;
+extern const SDL_Color RGB_Green;
+extern const SDL_Color RGB_Blue;
+extern const SDL_Color RGB_Yellow;
+extern const SDL_Color RGB_White;
 
 /*Declaration les fonctions*/
-void logErreur();
-bool init(SDL_Window** win, SDL_Renderer** ren, char *titre);
-void draw(SDL_Renderer* renderer);
+void afficher_img(int x,int y,int h,int w,char img[50],image_t image[Z],SDL_Renderer *renderer,float coefZoom);
+void loadImage(image_t image[Z],SDL_Renderer *renderer);
+void AfficherText(char* message, char* fontFile, SDL_Color color, int fontSize,SDL_Renderer *renderer,int x,int y);
 
-SDL_Texture* load_image(char * filename,SDL_Renderer *renderer);
-void apply_surface(int x, int y, SDL_Texture *tex, SDL_Renderer *rend);
 #endif

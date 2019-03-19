@@ -1,104 +1,40 @@
-#include "interface.h"
 #include <stdio.h>
 #include <stdlib.h>
-void logErreur() 
-{
-	SDL_Log("Erreur: %s.", SDL_GetError());
-	SDL_ClearError();
+#include "interface.h"
+
+SDL_Surface *gpScreen;
+SDL_Renderer *renderer;
+TTF_Font *font;
+FILE *fp2;
+
+void loadImage(image_t image[Z],SDL_Renderer *renderer){
+	fp2=fopen ("images/lien_image.txt","r");
+	for(int i=0;i<Z && !feof(fp2);i++){
+
+		fscanf(fp2, "%s", image[i].loc_image);
+		image[i].texture=IMG_LoadTexture(renderer,image[i].loc_image);
+	}
+
+	fclose(fp2);
 }
 
-bool init(SDL_Window** win, SDL_Renderer** ren,char *titre)
-{
-	/* vérifier les parametres */
-	if (win == NULL || ren == NULL)
-	{
-		return FALSE;
-	}
-
-	/* init SDL2 */
-	if (0 != SDL_Init(SDL_INIT_EVERYTHING))
-	{
-		logErreur();
-		return FALSE;
-	}
-
-	/* creation de fenetre */
-	SDL_Window* window = SDL_CreateWindow(titre, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-	if (window == NULL)
-	{
-		logErreur();
-		SDL_Quit();
-		return FALSE;
-	}
-
-	/* creer Renderer */
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	if (renderer == NULL)
-	{
-		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-
-		if (renderer == NULL)
-		{
-			logErreur();
-			SDL_DestroyWindow(window);
-			SDL_Quit();
-			return FALSE;
+void afficher_img(int x,int y,int h,int w,char img[50],image_t image[Z],SDL_Renderer *renderer,float coefZoom){
+	SDL_Rect imgDestRect;
+	imgDestRect.x = x;
+	imgDestRect.y = y;
+	imgDestRect.w=w*coefZoom;
+	imgDestRect.h=h*coefZoom;
+	for(int i=0;i<Z;i++){
+		if(!strcmp(image[i].loc_image,img)){
+			SDL_RenderCopy(renderer, image[i].texture, NULL, &imgDestRect);
+			return;
 		}
 	}
-	*win = window;
-	*ren = renderer;
-	return TRUE;
 }
 
-void draw(SDL_Renderer* renderer)
+void AfficherText(char* message, char* fontFile, SDL_Color color, int fontSize,SDL_Renderer *renderer,int x,int y)
 {
-	/* Vérifier les couleur qu'on va utiliser */
-	if (0 != SDL_SetRenderDrawColor(renderer, 0xbb, 0xbb, 0xbb, 0xff))logErreur();
-	if (0 != SDL_RenderClear(renderer))logErreur();
-	if (0 != SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xbb))logErreur();
-
-	int longeur = SCREEN_WIDTH - 40;
-	int part = longeur / 15;
-	if (0 != SDL_RenderDrawLine(renderer, part, part, part, longeur))logErreur();
-	if (0 != SDL_RenderDrawLine(renderer, longeur, part, longeur, longeur))logErreur();
-	
-	for (int y = part; y <= longeur; y +=( longeur- part)/5)
-	{
-		if (0 != SDL_RenderDrawLine(renderer, part, y, longeur, y))
-			logErreur();
-	}
-
-	SDL_RenderPresent(renderer);
-}
-
-SDL_Texture* load_image(char * filename, SDL_Renderer *renderer){
-	SDL_Surface *image = NULL;
-	SDL_Texture *texture = NULL;
-
-	image = IMG_Load(filename);
-	if (image != NULL) {
-		texture = SDL_CreateTextureFromSurface(renderer, image);
-		SDL_FreeSurface(image);
-	}
-	else
-		fprintf(stderr, "Erreur au chargement de l'image : %s\n", SDL_GetError());
-	return texture;
-}
-
-
-void apply_surface(int x, int y, SDL_Texture *tex, SDL_Renderer *rend) {
-	SDL_Rect indice;
-	indice.x = x;
-	indice.y = y;
-	SDL_QueryTexture(tex, NULL, NULL, &indice.w, &indice.h);
-
-	SDL_RenderCopy(rend, tex, NULL, &indice);
-}
-
-SDL_Texture* RenderText(char* message, char* fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer)
-{
-	TTF_Font *font = NULL;
+	SDL_Rect txtDestRect;
 	font = TTF_OpenFont(fontFile, fontSize);
 	if (font == NULL)
 		fprintf(stderr, "erreur chargement font\n");
@@ -109,6 +45,9 @@ SDL_Texture* RenderText(char* message, char* fontFile, SDL_Color color, int font
 	SDL_FreeSurface(surf);
 	TTF_CloseFont(font);
 
-	return texture;
-}
+	txtDestRect.x = x;
+	txtDestRect.y = y;
+	SDL_QueryTexture(texture,NULL,NULL,&txtDestRect.w,&txtDestRect.h);
+	SDL_RenderCopy(renderer, texture, NULL, &txtDestRect);
 
+}
