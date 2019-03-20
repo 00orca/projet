@@ -12,15 +12,16 @@ typedef int bool;
 #define FALSE 0#define Z 20 //nb images
 #define Z 20 //nb images
 
-typedef enum {Menu,HvsH,HvsO,About,Quit}menu_e;
+typedef enum {Menu,Menu2,Play,Load,About,Quit,In_menu,Help}menu_e;
+//typedef enum {None,Reculer,Save,Help,Quitg,Ok}ingame_menu_e;
+
+menu_e running;
 //Resolution d'ecran
 
 //Declaration de surface et fenetre
 extern SDL_Surface *gpScreen;
 
 extern SDL_Renderer *renderer;
-//Declaration de l'evenement
-extern SDL_Event myEvent;
 
 //Declaration de police
 extern TTF_Font *font;
@@ -37,4 +38,7 @@ void AfficherText(char* message, char* fontFile, SDL_Color color, int fontSize,S
 
 int draw_menu(SDL_Renderer *renderer,SDL_Window* pWindow);
 void about();
+void ingame_menu(SDL_Renderer *renderer,SDL_Window* pWindow);
+void help(SDL_Renderer *renderer,SDL_Window* pWindow);
+void mod_menu(SDL_Renderer *renderer,SDL_Window* pWindow,int nb_j,int nb_o,int taille,int nb_unit);
 #endif

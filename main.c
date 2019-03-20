@@ -9,7 +9,6 @@
 #include "piece.h"
 #include "interface.h"
 
-
 //=======STRUCT========//
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +22,6 @@ int main(int argc, char** argv)
 	SDL_Renderer *renderer=NULL;
   SDL_Rect imgDestRect;
 	char variable[50];
-
 	float coefZoom=1;
   int alea;
   int var1;
@@ -230,9 +228,9 @@ loadImage(image,renderer);
 
 	if( pWindow )
 	{
-		menu_e running = Menu;
+		running = Menu;
+		SDL_Event e;
 		while(running != Quit) {
-			SDL_Event e;
 			if(running == Menu){
 				int longeur = draw_menu(renderer,pWindow);
 				while(SDL_PollEvent(&e)) {
@@ -242,17 +240,75 @@ loadImage(image,renderer);
 						break;
 						case SDL_MOUSEBUTTONDOWN:
 							if(e.button.button == SDL_BUTTON_LEFT){
-								if (e.button.y > longeur && e.button.y < longeur*2)running = HvsH;
-								if (e.button.y > longeur*2 && e.button.y < longeur*3)running = HvsO;
+								if (e.button.y > longeur && e.button.y < longeur*2)running = Menu2;
+								if (e.button.y > longeur*2 && e.button.y < longeur*3)running = Load;
 								if (e.button.y > longeur*3 && e.button.y < longeur*4)running = About;
 								if (e.button.y > longeur*4 && e.button.y < longeur*5)running = Quit;
 							}
 						break;
 					}
 				}
+			}else if(running == Menu2){
+				int nb_j=J,nb_o=0,nb_unit=NB_CLASSE,taille=N;
+				int x1 = gpScreen->w - gpScreen->w/5;
+				int x2 = gpScreen->w - gpScreen->w/10;
+				int fontsize = gpScreen->h/10;
+				int y = fontsize/2;
+				while(SDL_PollEvent(&e)||running == Menu2) {
+					mod_menu(renderer,pWindow,nb_j,nb_o,taille,nb_unit);
+					switch(e.type) {
+						case SDL_QUIT:	//cas ou l'on souhaite quitter
+							running = Quit;
+						break;
+						case SDL_MOUSEBUTTONDOWN:
+							if(e.button.button == SDL_BUTTON_LEFT){
+								if((nb_j+nb_o)<5){
+									if(e.button.x>x1&&e.button.x<x1+fontsize){
+										if(e.button.y>y && e.button.y<y+fontsize)nb_j++;
+										if(e.button.y>y*5 && e.button.y<y*5+fontsize)nb_o++;
+									}
+								}
+								if((nb_j+nb_o)>0){
+									if(e.button.x>x2&&e.button.x<x2+fontsize){
+										if(e.button.y>y && e.button.y<y+fontsize&&nb_j>0)nb_j--;
+										if(e.button.y>y*5 && e.button.y<y*5+fontsize&&nb_o>0)nb_o--;
+									}
+								}
+								if(taille>=10&&taille<=25){
+									if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*9&&e.button.y<y*9+fontsize&&taille<25)taille++;
+									if(e.button.x>x2&&e.button.x<x2+fontsize&&e.button.y>y*9&&e.button.y<y*9+fontsize&&taille>10)taille--;
+								}
+								if(nb_unit>=1&&nb_unit<=5){
+									if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*13&&e.button.y<y*13+fontsize&&nb_unit<5)nb_unit++;
+									if(e.button.x>x2&&e.button.x<x2+fontsize&&e.button.y>y*13&&e.button.y<y*13+fontsize&&nb_unit>1)nb_unit--;
+								}
+								if(e.button.y > gpScreen->h/5*4 && e.button.y < gpScreen->h){
+									running = Play;
+								}
+							}
+						break;
+					}
+				}
+			}else if(running == Load){
+				running = Play;
+			}else if(running == Help){
+				help(renderer,pWindow);
+				while(SDL_PollEvent(&e)) {
+					switch(e.type) {
+						case SDL_QUIT:	//cas ou l'on souhaite quitter
+							running = Quit;
+						break;
+						case SDL_MOUSEBUTTONDOWN:
+							if(e.button.button == SDL_BUTTON_LEFT){
+								if(e.button.x > gpScreen->w - 60 && e.button.y >  gpScreen->h - 30){
+									running = Play;
+								}
+							}
+						break;
+					}
+				}
 			}else if(running == About){
 				about(renderer,pWindow);
-				gpScreen = SDL_GetWindowSurface(pWindow);
 				while(SDL_PollEvent(&e)) {
 					switch(e.type) {
 						case SDL_QUIT:	//cas ou l'on souhaite quitter
@@ -267,7 +323,7 @@ loadImage(image,renderer);
 						break;
 					}
 				}
-			}else if(running == HvsH || running == HvsO){
+			}else if(running == Play){
 				while(SDL_PollEvent(&e)) {
 					switch(e.type) {
 						case SDL_QUIT:	//cas ou l'on souhaite quitter
@@ -321,6 +377,31 @@ loadImage(image,renderer);
 										}
 									}
 									break;
+								case SDLK_SPACE:
+									ingame_menu(renderer,pWindow);
+									running = In_menu;
+									while(running == In_menu){
+										while(SDL_PollEvent(&e)){
+												switch(e.type) {
+												case SDL_QUIT:	//cas ou l'on souhaite quitter
+													running = Quit;
+												break;
+												case SDL_MOUSEBUTTONDOWN:
+													if(e.button.button == SDL_BUTTON_LEFT){
+														if(e.button.x > gpScreen->w - 260 && e.button.x < gpScreen->w - 60){
+															if(e.button.y>gpScreen->h - 330 && e.button.y<gpScreen->h - 330+75)running = Play;
+															if(e.button.y>gpScreen->h - 330+75 && e.button.y<gpScreen->h - 330+75*2)running = Play;
+															if(e.button.y>gpScreen->h - 330+75*2 && e.button.y<gpScreen->h - 330+75*3)running = Help;
+															if(e.button.y>gpScreen->h - 330+75*3 && e.button.y<gpScreen->h - 330+75*4)running = Menu;
+														}else{
+															running = Play;
+														}
+													}
+												break;
+											}
+										}
+									}
+									break;
 							}
 							break;
 
@@ -329,7 +410,29 @@ loadImage(image,renderer);
 						    {
 						    	case SDL_BUTTON_LEFT:
 										if(e.button.x > gpScreen->w - 60 && e.button.y >  gpScreen->h - 30){
-											running = Menu;
+											ingame_menu(renderer,pWindow);
+											running = In_menu;
+											while(running == In_menu){
+												while(SDL_PollEvent(&e)){
+														switch(e.type) {
+														case SDL_QUIT:	//cas ou l'on souhaite quitter
+															running = Quit;
+														break;
+														case SDL_MOUSEBUTTONDOWN:
+															if(e.button.button == SDL_BUTTON_LEFT){
+																if(e.button.x > gpScreen->w - 260 && e.button.x < gpScreen->w - 60){
+																	if(e.button.y>gpScreen->h - 330 && e.button.y<gpScreen->h - 330+75)running = Play;
+																	if(e.button.y>gpScreen->h - 330+75 && e.button.y<gpScreen->h - 330+75*2)running = Play;
+																	if(e.button.y>gpScreen->h - 330+75*2 && e.button.y<gpScreen->h - 330+75*3)running = Help;
+																	if(e.button.y>gpScreen->h - 330+75*3 && e.button.y<gpScreen->h - 330+75*4)running = Menu;
+																}else{
+																	running = Play;
+																}
+															}
+														break;
+													}
+												}
+											}
 										}
 										clicout=0;
 										//int a,b,a2,b2,a3,b3,a4,b4,res1,res2,res3,res4;
@@ -635,7 +738,7 @@ loadImage(image,renderer);
 				AfficherText("MS          :","arial.ttf",c,12,renderer,30,255);
 
 
-				AfficherText("BACK", "arial.ttf",b,15,renderer,gpScreen->w - 60,gpScreen->h - 30);
+				AfficherText("MENU", "arial.ttf",b,15,renderer,gpScreen->w - 60,gpScreen->h - 30);
 
 				for(int i=0;i<N;i++){
 					for(int j=0;j<M;j++){
