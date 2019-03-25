@@ -4,34 +4,32 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
-#define N 20 //taille de la grille
-#define M 20
-#define J 5 //nb de joueur
+#define N 10 //taille de la grille
+#define M 10
+#define J 3 //nb de joueur total
+#define J_HUMAIN 1//nb de joueur humain parmis les joueurs totales
+#define NB_UNITE 7 //nb unité pour chaque joueurs au debut de la partie
+#define PTS_ACTION_MAX 4 //pts d'action max pour chaque tours de chaque joueur
+
 #define PRESET 1 //1 pour generation alea, autre pour preset de carte via fichier
-#define NB_CLASSE 5
+#define NB_CLASSE 5 //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
+//facteurs changeant la méthode que les bots utilise pour jouer
+#define DEFENSIF 3 //nb de piece qui peuvent attaquer le bot a patir duquel il jouera cet piece en mode defensif
+#define AGRESSIF 2 //nb de coup (en comptant l'armure) sans prendre en compte le block qui pouraient tuer un ennemi a porter (en comptant les allié a porte aussi)
+#define MOVEMENT 2 //nb d'allié qu'une piece essayera de garder a coté d'elle, un pretre vaut pour 2 piece dans le calcule
 
-/**
+
+/*
 * \file piece.c
-* \brief Fonctions operants sur les pieces.
-*\author Willhem Liban, Eliot Lepoittevin
-*\version 3.0
-*\date 20 mars 2019
+* \brief Structure pieces.
+*\author Willhem Liban
+*\version 0.5
+*\date 01 mars 2019
 */
 
 
-/**
-*\struct piece_s
-*\brief Objet piece qui contient les statistiques d'une piece (unité qui combat)
-*contient : les points de vie, la classe, la uissance, armure,block, portee, si oui ou non la piece est selectionnée, la direction dans laquelle est la piece et le joueur a qui la piece appartient
-*/
-/**
-*\struct case_s
-*\brief Objet qui represente une case, la piece qui est sur cette case, sa position et l'image qui lui corresond
-*/
-/**
-*\struct joueurs_s
-*\brief Objet qui represente un joueur avec ses points d'actions, le nombre d'unités qu'il possede.
-*/
+
+
 typedef enum {
     knight=1,scout,priest,magician,faucheuse
 }classe_t;
@@ -52,7 +50,6 @@ typedef struct piece_s{
     int joueur;
     dir_t direction;
 }piece_t;
-
 
 
 
@@ -80,35 +77,21 @@ typedef struct joueurs_s{
   int pts_action_actu;
   int nb_unite;
   int id_joueur;
-
+  int humain;
 }joueurs_t;
 
-/**
-*\fn piece_t * init_piece(classe_t classe,int id_joueur);
-*\brief Fonction pour creer les pieces
-*
-*\fn int piece_existe(piece_t * piece)
-*\brief Renvoi 1 si la piece passée en parametre existe
-*
-*\fn int destruction_piece(piece_t * piece)
-*\brief Detruit une piece
-*
-*\fn void pathfinding(case_t terrain[N][M], int x, int y)
-*\brief sert a connaitre les cases ou peut se deplacer une unité
-*
-*\fn void pathfinding_combat(case_t terrain[N][M], int x, int y,int joueur_actu)
-*\brief sert a connaitre les cases ou peut attaquer une unité
-*
-*\fn int calc_block(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def)
-*\brief calcul le block d'une unité en fonction d'ou elle est attaquée
-*\fn void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J])
-*\brief calcul les dommages en cas de combat
-*\fn void soin(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J])
-*\brief ajoute les points de vie en cas de soin
-*\fn void move(case_t terrain[N][M],int x,int y, int joueur,joueurs_t tab[J])
-*\brief permet de deplacer les unités sur le terrain
-*/
+
+typedef struct degatx_s{
+  int pos_x;
+  int pos_y;
+  int time;
+  int c; //noire =0 rouge =1 verte =2
+  char txt[20];
+}degatx_t;
+
+/*Fonction pour creer les pieces*/
 piece_t * init_piece(classe_t classe,int id_joueur);
+/*Renvoi 1 si la piece passée en parametre existe*/
 int piece_existe(piece_t * piece);
 /*Detruit une piece*/
 int destruction_piece(piece_t * piece);
@@ -117,6 +100,10 @@ void pathfinding(case_t terrain[N][M], int x, int y);
 void pathfinding_combat(case_t terrain[N][M], int x, int y,int joueur_actu);
 /*effectue le calcul des dommages*/
 int calc_block(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def);
-void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J]);
-void soin(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J]);
+void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J],degatx_t aff_deg[N*M]);
+void soin(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J],degatx_t aff_deg[N*M]);
 void move(case_t terrain[N][M],int x,int y, int joueur,joueurs_t tab[J]);
+void depla_atk_mov(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu,joueurs_t tab[J]);
+void centrer_camera(case_t terrain[N][M],int x,int y,int largeur,int hauteur);
+void ajouter_degat_txt(char txt[20],degatx_t aff_deg[N*M],int x,int y,int c);
+void clean_degat_txt(degatx_t aff_deg[N*M]);

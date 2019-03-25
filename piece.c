@@ -7,9 +7,9 @@
 /**
 * \file piece.c
 * \brief Fonctions operants sur les pieces.
-*\author Willhem Liban, Eliot Lepoittevin
-*\version 3.0
-*\date 20 mars 2019
+*\author Willhem Liban
+*\version 0.5
+*\date 01 mars 2019
 */
 
 
@@ -156,40 +156,41 @@ void pathfinding(case_t terrain[N][M], int x, int y){
 
 
 void move(case_t terrain[N][M],int x,int y,int joueur,joueurs_t tab[J]){
-  if(terrain[x][y].deplacement==1){
-    for(int compteur=0;compteur<N;compteur++){
-      for(int compteur2=0;compteur2<M; compteur2++){
-        if(terrain[compteur][compteur2].piece && terrain[compteur][compteur2].piece->select==1 && terrain[compteur][compteur2].piece->joueur==joueur){
+  if(tab[joueur].pts_action_actu>0){
+    if(terrain[x][y].deplacement==1){
+      for(int compteur=0;compteur<N;compteur++){
+        for(int compteur2=0;compteur2<M; compteur2++){
+          if(terrain[compteur][compteur2].piece && terrain[compteur][compteur2].piece->select==1 && terrain[compteur][compteur2].piece->joueur==joueur){
 
 
-          terrain[x][y].piece=malloc(sizeof(piece_t));
-          fprintf(stderr,"compteur compteur2 = %d\n",terrain[compteur][compteur2].piece->classe);
-          terrain[x][y].piece->classe = terrain[compteur][compteur2].piece->classe;
-          terrain[x][y].piece->pdv = terrain[compteur][compteur2].piece->pdv;
-          terrain[x][y].piece->puissance = terrain[compteur][compteur2].piece->puissance;
-          terrain[x][y].piece->armure = terrain[compteur][compteur2].piece->armure;
-          terrain[x][y].piece->block = terrain[compteur][compteur2].piece->block;
-          terrain[x][y].piece->portee = terrain[compteur][compteur2].piece->portee;
-          terrain[x][y].piece->deplacement = terrain[compteur][compteur2].piece->deplacement;
-          terrain[x][y].piece->select = terrain[compteur][compteur2].piece->select;
-          terrain[x][y].piece->joueur = terrain[compteur][compteur2].piece->joueur;
-          terrain[x][y].piece->direction = terrain[compteur][compteur2].piece->direction;
+            terrain[x][y].piece=malloc(sizeof(piece_t));
+            terrain[x][y].piece->classe = terrain[compteur][compteur2].piece->classe;
+            terrain[x][y].piece->pdv = terrain[compteur][compteur2].piece->pdv;
+            terrain[x][y].piece->puissance = terrain[compteur][compteur2].piece->puissance;
+            terrain[x][y].piece->armure = terrain[compteur][compteur2].piece->armure;
+            terrain[x][y].piece->block = terrain[compteur][compteur2].piece->block;
+            terrain[x][y].piece->portee = terrain[compteur][compteur2].piece->portee;
+            terrain[x][y].piece->deplacement = terrain[compteur][compteur2].piece->deplacement;
+            terrain[x][y].piece->select = terrain[compteur][compteur2].piece->select;
+            terrain[x][y].piece->joueur = terrain[compteur][compteur2].piece->joueur;
+            terrain[x][y].piece->direction = terrain[compteur][compteur2].piece->direction;
 
 
-          //destruction_piece(terrain[compteur][compteur2].piece);
-          free(terrain[compteur][compteur2].piece);
-          terrain[compteur][compteur2].piece=NULL;
+            //destruction_piece(terrain[compteur][compteur2].piece);
+            free(terrain[compteur][compteur2].piece);
+            terrain[compteur][compteur2].piece=NULL;
 
-          terrain[x][y].piece->select=1;
-          //pathfinding(terrain,x,y);
+            terrain[x][y].piece->select=1;
+            //pathfinding(terrain,x,y);
 
-          tab[joueur].pts_action_actu--;
+            tab[joueur].pts_action_actu--;
 
-          return;
+            return;
+          }
         }
       }
-    }
 
+    }
   }
 }
 void pathfinding_combat(case_t terrain[N][M], int x, int y,int joueur_actu){
@@ -246,14 +247,14 @@ void pathfinding_combat(case_t terrain[N][M], int x, int y,int joueur_actu){
 }
 
 int calc_block(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def){
-
     int pos_block[N][M];
-    int i,j;
     int cpt=1;
+    int block=0;
     //init matrice a 0
-    for(i=0;i<N;i++){
-        for(j=0;j<M;j++)
-            pos_block[i][j]=-2;
+    for(int i=0;i<N;i++){
+        for(int j=0;j<M;j++){
+          pos_block[i][j]=-2;
+        }
     }
     pos_block[x_def][y_def]=0;
     //diagonales a -1
@@ -262,10 +263,11 @@ int calc_block(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def){
         cpt++;
     }
     cpt=1;
-    while (x_def+cpt-1<N && y_def+cpt<N){
+    while (x_def+cpt<N && y_def+cpt<N){
         pos_block[x_def+cpt][y_def+cpt]=-1;
         cpt++;
     }
+    cpt=1;
     while (x_def+cpt<N && y_def-cpt>=0){
         pos_block[x_def+cpt][y_def-cpt]=-1;
         cpt++;
@@ -275,95 +277,316 @@ int calc_block(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def){
         pos_block[x_def-cpt][y_def-cpt]=-1;
         cpt++;
     }
-    for(i=0;i<N;i++){
-        for(j=0;j<M;j++){
+    for(int i=0;i<N;i++){
+        for(int j=0;j<M;j++){
             if ((pos_block[i][j-1]==-1 || pos_block[i][j-1]==0 || pos_block[i][j-1]==1) && j>y_def)
                 pos_block[i][j]=1;
         }
     }
-    for(i=0;i<N;i++){
-        for(j=M-1;j>=0;j--){
-            if ((pos_block[i][j+1]==-1 || pos_block[i][j+1]==0 || pos_block[i][j-1]==2) && j<y_def)
-            pos_block[i][j]=2;
+    for(int i=0;i<N;i++){
+        for(int j=M-1;j>=0;j--){
+            if ((pos_block[i][j+1]==-1 || pos_block[i][j+1]==0 || pos_block[i][j+1]==2) && j<y_def)
+              pos_block[i][j]=2;
         }
     }
-    for(j=0;j<M;j++){
-        for(i=0;i<N;i++){
+    for(int j=0;j<M;j++){
+        for(int i=0;i<N;i++){
             if ((pos_block[i-1][j]==-1 || pos_block[i-1][j]==0 || pos_block[i-1][j]==3) && i>x_def)
                 pos_block[i][j]=3;
         }
     }
-    for(j=0;j<M;j++){
-        for(i=0;i<N;i++){
+    for(int j=0;j<M;j++){
+        for(int i=0;i<N;i++){
             if (pos_block[i][j]==-2)
                 pos_block[i][j]=4;
         }
     }
+
+    // pour debugage
+    for(int i=0;i<N;i++){
+      for(int j=0;j<M;j++){
+        fprintf(stderr," %d |",pos_block[i][j]);
+      }
+      fprintf(stderr,"\n");
+    }
+
+
     if(terrain[x_def][y_def].piece->direction==haut){
-        if (pos_block[x_att][y_att]==2)
-            return 0;
-        else if (pos_block[x_att][y_att]==3||pos_block[x_att][y_att]==4||pos_block[x_att][y_att]==-1)
-            return (terrain[x_def][y_def].piece->block/2);
-        else
-            return (terrain[x_def][y_def].piece->block);
+        if (pos_block[x_att][y_att]==2){
+            block= 0;
+        }
+        else if (pos_block[x_att][y_att]==3 || pos_block[x_att][y_att]==4 || pos_block[x_att][y_att]==(-1)){
+            block=((terrain[x_def][y_def].piece->block)/2);
+        }
+        else{
+            block= (terrain[x_def][y_def].piece->block);
+        }
     }
     else if(terrain[x_def][y_def].piece->direction==bas){
-        if (pos_block[x_att][y_att]==1)
-            return 0;
-        else if (pos_block[x_att][y_att]==3||pos_block[x_att][y_att]==4||pos_block[x_att][y_att]==-1)
-            return (terrain[x_def][y_def].piece->block/2);
-        else
-            return (terrain[x_def][y_def].piece->block);
+        if (pos_block[x_att][y_att]==1){
+            block= 0;
+        }
+        else if (pos_block[x_att][y_att]==3 || pos_block[x_att][y_att]==4 || pos_block[x_att][y_att]==-1){
+            block= ((terrain[x_def][y_def].piece->block)/2);
+        }
+        else{
+            block= (terrain[x_def][y_def].piece->block);
+        }
     }
     else if(terrain[x_def][y_def].piece->direction==gauche){
-        if (pos_block[x_att][y_att]==4)
-            return 0;
-        else if (pos_block[x_att][y_att]==1||pos_block[x_att][y_att]==2||pos_block[x_att][y_att]==-1)
-            return (terrain[x_def][y_def].piece->block/2);
-        else
-            return (terrain[x_def][y_def].piece->block);
+        if (pos_block[x_att][y_att]==4){
+            block= 0;
+        }
+        else if (pos_block[x_att][y_att]==1 || pos_block[x_att][y_att]==2 || pos_block[x_att][y_att]==-1){
+            block= ((terrain[x_def][y_def].piece->block)/2);
+        }
+        else{
+            block= (terrain[x_def][y_def].piece->block);
+        }
     }
     else if(terrain[x_def][y_def].piece->direction==droite){
-        if (pos_block[x_att][y_att]==3)
-            return 0;
-        else if (pos_block[x_att][y_att]==1||pos_block[x_att][y_att]==2||pos_block[x_att][y_att]==-1)
-            return (terrain[x_def][y_def].piece->block/2);
-        else
-            return (terrain[x_def][y_def].piece->block);
-    }
-    return -1;
-}
-
-void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J]){
-    if(terrain[x_att][y_att].piece->classe==priest){//soin si la piece selectionné est un pretre
-        soin(terrain,x_att,y_att,x_def,y_def,joueur,tab);
-        return;
-    }
-    srand(time(NULL));
-    if(terrain[x_def][y_def].attaque==1){//si la piece attaquée est sur une case a portée !!!DOUTE!!!
-      int blockd=(rand()%(100) + 1);//att bloquée ou non
-      int blockage=calc_block(terrain,x_att,y_att,x_def,y_def);
-      fprintf(stderr,"blockage : %d\n",blockage);
-      if(blockd>blockage){
-        terrain[x_def][y_def].piece->pdv-=terrain[x_att][y_att].piece->puissance-(terrain[x_def][y_def].piece->armure);//armure=absorption de dégats
-        if(terrain[x_def][y_def].piece->pdv<=0){   //mort ou non de la piece ennemi
-          tab[terrain[x_def][y_def].piece->joueur].nb_unite--;
-          free(terrain[x_def][y_def].piece);
-          terrain[x_def][y_def].piece=NULL;
+        if (pos_block[x_att][y_att]==3){
+            block= 0;
         }
-      }
-      fprintf(stderr,"attaque reussie\n");
-      tab[joueur].pts_action_actu--;
+        else if (pos_block[x_att][y_att]==1 || pos_block[x_att][y_att]==2 || pos_block[x_att][y_att]==-1){
+            block= ((terrain[x_def][y_def].piece->block)/2);
+        }
+        else{
+            block= (terrain[x_def][y_def].piece->block);
+        }
     }
-    else
-        printf("echec de l'attaque (hors de portée).\n");
+    //fprintf(stderr,"block avant changement %d\n",terrain[x_def][y_def].piece->block);
+    fprintf(stderr,"fin, block = %d\n",block);
+    return block;
 }
 
-void soin(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J]){
+
+
+
+void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J],degatx_t aff_deg[N*M]){
+  if(tab[joueur].pts_action_actu>0){
+      if(terrain[x_att][y_att].piece->classe==priest){//soin si la piece selectionné est un pretre
+          soin(terrain,x_att,y_att,x_def,y_def,joueur,tab,aff_deg);
+          return;
+      }
+      if(terrain[x_def][y_def].attaque==1){//si la piece attaquée est sur une case a portée
+        int blockd=((rand()%(100)) + 1);//att bloquée ou non
+        int blockage;
+        char variable[20];
+        blockage = calc_block(terrain,x_att,y_att,x_def,y_def);
+        if(blockd>=blockage){
+
+          int deg=((terrain[x_att][y_att].piece->puissance)-(terrain[x_def][y_def].piece->armure));
+
+          if(deg>=0){
+            terrain[x_def][y_def].piece->pdv-=deg;//armure=absorption de dégats //application des dégats ici
+
+            sprintf(variable, "%d", deg);//sauvegarde des dégat pour affichage
+            ajouter_degat_txt(variable,aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),1);
+
+          }
+          if(terrain[x_def][y_def].piece->pdv<=0){   //mort ou non de la piece ennemi
+            tab[terrain[x_def][y_def].piece->joueur].nb_unite--;
+
+            ajouter_degat_txt("MORT",aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),0);
+
+            free(terrain[x_def][y_def].piece);
+            terrain[x_def][y_def].piece=NULL;
+          }
+        }
+        tab[joueur].pts_action_actu--;
+        fprintf(stderr,"attaque reussie donc pts action --\n");
+      }
+      else
+          printf("echec de l'attaque (hors de portée).\n");
+    }
+}
+
+void soin(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J],degatx_t aff_deg[N*M]){
+    char variable[20];
     if(terrain[x_def][y_def].attaque==1){
         terrain[x_def][y_def].piece->pdv+=terrain[x_att][y_att].piece->puissance;
         tab[joueur].pts_action_actu--;
+        sprintf(variable, "%d", terrain[x_att][y_att].piece->puissance);
+        ajouter_degat_txt(variable,aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),2);
       }
     else
         printf("echec du soin (hors de portée).\n");
+}
+
+
+
+
+
+void depla_atk_mov(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu,joueurs_t tab[J]){
+  int var5=0;
+  int var4;														//A MODIFIER PLUS TARD POUR ALLER VERS UN ENNEMIS     //MARCHE PAS
+  pathfinding(terrain,x_bot,y_bot);
+  pathfinding_combat(terrain,x_bot,y_bot,joueur_actu);
+  int test=rand()%2;
+  for (int compteur=0;compteur<N && var5!=1 ;compteur++){
+    for (int compteur2=0;compteur2<M && var5!=1;compteur2++){
+      if(terrain[compteur][compteur2].piece){
+          //haut bas gauche droite et diagonales
+        if(terrain[compteur][compteur2].piece->joueur==joueur_actu && test==0){
+          for(var4=0;var4<=MOVEMENT && var5!=1 ;var4++){
+            if(compteur+var4<N && terrain[compteur+var4][compteur2].deplacement==1){
+              move(terrain,compteur+var4,compteur2,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur-var4>=0 && terrain[compteur-var4][compteur2].deplacement==1){
+              move(terrain,compteur-var4,compteur2,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur2+var4<N && terrain[compteur][compteur2+var4].deplacement==1){
+              move(terrain,compteur,compteur2+var4,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur2-var4>=0 && terrain[compteur][compteur2-var4].deplacement==1){
+              move(terrain,compteur,compteur2-var4,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur-var4>=0 && compteur2-var4>=0 && terrain[compteur-var4][compteur2-var4].deplacement==1){
+              move(terrain,compteur-var4,compteur2-var4,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur+var4<N && compteur2-var4>=0 && terrain[compteur+var4][compteur2-var4].deplacement==1){
+              move(terrain,compteur+var4,compteur2-var4,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur+var4<N && compteur2+var4<M && terrain[compteur+var4][compteur2+var4].deplacement==1){
+              move(terrain,compteur+var4,compteur2+var4,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur-var4>=0 && compteur2+var4<M && terrain[compteur-var4][compteur2+var4].deplacement==1){
+              move(terrain,compteur-var4,compteur2+var4,joueur_actu,tab);
+              var5++;
+            }
+          }
+        }else if(terrain[compteur][compteur2].piece->joueur!=joueur_actu && test==1){
+          for(var4=0;var4<=MOVEMENT*2 && var5!=1 ;var4++){
+            if(compteur+var4<N && terrain[compteur+var4][compteur2].deplacement==1){
+              move(terrain,compteur+var4,compteur2,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur-var4>=0 && terrain[compteur-var4][compteur2].deplacement==1){
+              move(terrain,compteur-var4,compteur2,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur2+var4<N && terrain[compteur][compteur2+var4].deplacement==1){
+              move(terrain,compteur,compteur2+var4,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur2-var4>=0 && terrain[compteur][compteur2-var4].deplacement==1){
+              move(terrain,compteur,compteur2-var4,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur-var4>=0 && compteur2-var4>=0 && terrain[compteur-var4][compteur2-var4].deplacement==1){
+              move(terrain,compteur-var4,compteur2-var4,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur+var4<N && compteur2-var4>=0 && terrain[compteur+var4][compteur2-var4].deplacement==1){
+              move(terrain,compteur+var4,compteur2-var4,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur+var4<N && compteur2+var4<M && terrain[compteur+var4][compteur2+var4].deplacement==1){
+              move(terrain,compteur+var4,compteur2+var4,joueur_actu,tab);
+              var5++;
+            }
+            else if(compteur-var4>=0 && compteur2+var4<M && terrain[compteur-var4][compteur2+var4].deplacement==1){
+              move(terrain,compteur-var4,compteur2+var4,joueur_actu,tab);
+              var5++;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void centrer_camera(case_t terrain[N][M],int x,int y,int largeur,int hauteur){
+	int x_centre,y_centre,diff_x,diff_y;
+	x_centre=largeur/2;
+	y_centre=hauteur/2;
+	diff_x=abs(x_centre-x);
+	diff_y=abs(y_centre-y);
+  fprintf(stderr,"diff x :%d diff y :%d \n",diff_x,diff_y);
+
+	if(x<=x_centre){
+		for(int i=0;i<N;i++){
+			for(int j=0;j<M;j++){
+				terrain[i][j].xImg+=diff_x;
+				terrain[i][j].x1+=diff_x;
+				terrain[i][j].x2+=diff_x;
+				terrain[i][j].x3+=diff_x;
+				terrain[i][j].x4+=diff_x;
+			}
+		}
+	}else{
+		for(int i=0;i<N;i++){
+			for(int j=0;j<M;j++){
+				terrain[i][j].xImg-=diff_x;
+				terrain[i][j].x1-=diff_x;
+				terrain[i][j].x2-=diff_x;
+				terrain[i][j].x3-=diff_x;
+				terrain[i][j].x4-=diff_x;
+			}
+		}
+	}
+
+	if(y<=y_centre){
+		for(int i=0;i<N;i++){
+			for(int j=0;j<M;j++){
+				terrain[i][j].yImg+=diff_y;
+				terrain[i][j].y1+=diff_y;
+				terrain[i][j].y2+=diff_y;
+				terrain[i][j].y3+=diff_y;
+				terrain[i][j].y4+=diff_y;
+			}
+		}
+	}else{
+		for(int i=0;i<N;i++){
+			for(int j=0;j<M;j++){
+				terrain[i][j].yImg-=diff_y;
+				terrain[i][j].y1-=diff_y;
+				terrain[i][j].y2-=diff_y;
+				terrain[i][j].y3-=diff_y;
+				terrain[i][j].y4-=diff_y;
+			}
+		}
+	}
+}
+
+
+
+void ajouter_degat_txt(char txt[20],degatx_t aff_deg[N*M],int x,int y,int c){
+	for(int i=0;i<N*M;i++){
+		if(aff_deg[i].time<=0){
+      strcpy(aff_deg[i].txt,txt);
+      aff_deg[i].pos_x=x;
+      aff_deg[i].pos_y=y;
+      aff_deg[i].c=c;
+      aff_deg[i].time=100;
+    }
+	}
+}
+
+
+
+void clean_degat_txt(degatx_t aff_deg[N*M]){
+  for(int i=0;i<N*M;i++){
+		if(aff_deg[i].time<=0){
+      for(int j=i;j<(N*M)-1;j++){
+        aff_deg[j].time=aff_deg[j+1].time;
+        aff_deg[j].pos_x=aff_deg[j+1].pos_x;
+        aff_deg[j].pos_y=aff_deg[j+1].pos_y;
+        aff_deg[j].c=aff_deg[j+1].c;
+        strcpy(aff_deg[j].txt,aff_deg[j+1].txt);
+      }
+    }else{
+      aff_deg[i].time-=10;
+      aff_deg[i].pos_x+=(aff_deg[i].time/10);
+      aff_deg[i].pos_y-=(aff_deg[i].time/10);
+    }
+  }
 }
