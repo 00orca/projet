@@ -302,14 +302,6 @@ int calc_block(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def){
         }
     }
 
-    // pour debugage
-    for(int i=0;i<N;i++){
-      for(int j=0;j<M;j++){
-        fprintf(stderr," %d |",pos_block[i][j]);
-      }
-      fprintf(stderr,"\n");
-    }
-
 
     if(terrain[x_def][y_def].piece->direction==haut){
         if (pos_block[x_att][y_att]==2){
@@ -355,8 +347,6 @@ int calc_block(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def){
             block= (terrain[x_def][y_def].piece->block);
         }
     }
-    //fprintf(stderr,"block avant changement %d\n",terrain[x_def][y_def].piece->block);
-    fprintf(stderr,"fin, block = %d\n",block);
     return block;
 }
 
@@ -383,22 +373,20 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
 
             sprintf(variable, "%d", deg);//sauvegarde des dégat pour affichage
             ajouter_degat_txt(variable,aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),1);
+            
 
+          }else{
+            ajouter_degat_txt("0",aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),0);
           }
           if(terrain[x_def][y_def].piece->pdv<=0){   //mort ou non de la piece ennemi
             tab[terrain[x_def][y_def].piece->joueur].nb_unite--;
-
-            ajouter_degat_txt("MORT",aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),0);
-
+            ajouter_degat_txt("MORT",aff_deg,(terrain[x_def][y_def].xImg),(terrain[x_def][y_def].yImg+20),0);
             free(terrain[x_def][y_def].piece);
             terrain[x_def][y_def].piece=NULL;
           }
         }
         tab[joueur].pts_action_actu--;
-        fprintf(stderr,"attaque reussie donc pts action --\n");
       }
-      else
-          printf("echec de l'attaque (hors de portée).\n");
     }
 }
 
@@ -409,9 +397,7 @@ void soin(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int jo
         tab[joueur].pts_action_actu--;
         sprintf(variable, "%d", terrain[x_att][y_att].piece->puissance);
         ajouter_degat_txt(variable,aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),2);
-      }
-    else
-        printf("echec du soin (hors de portée).\n");
+    }
 }
 
 
@@ -510,7 +496,6 @@ void centrer_camera(case_t terrain[N][M],int x,int y,int largeur,int hauteur){
 	y_centre=hauteur/2;
 	diff_x=abs(x_centre-x);
 	diff_y=abs(y_centre-y);
-  fprintf(stderr,"diff x :%d diff y :%d \n",diff_x,diff_y);
 
 	if(x<=x_centre){
 		for(int i=0;i<N;i++){
@@ -559,24 +544,25 @@ void centrer_camera(case_t terrain[N][M],int x,int y,int largeur,int hauteur){
 
 
 
-void ajouter_degat_txt(char txt[20],degatx_t aff_deg[N*M],int x,int y,int c){
-	for(int i=0;i<N*M;i++){
+void ajouter_degat_txt(char txt[20],degatx_t aff_deg[AFF_DEG],int x,int y,int c){
+	for(int i=0;i<AFF_DEG;i++){
 		if(aff_deg[i].time<=0){
       strcpy(aff_deg[i].txt,txt);
       aff_deg[i].pos_x=x;
       aff_deg[i].pos_y=y;
       aff_deg[i].c=c;
       aff_deg[i].time=100;
+      return;
     }
 	}
 }
 
 
 
-void clean_degat_txt(degatx_t aff_deg[N*M]){
-  for(int i=0;i<N*M;i++){
+void clean_degat_txt(degatx_t aff_deg[AFF_DEG]){
+  for(int i=0;i<AFF_DEG;i++){
 		if(aff_deg[i].time<=0){
-      for(int j=i;j<(N*M)-1;j++){
+      for(int j=i;j<(AFF_DEG)-1;j++){
         aff_deg[j].time=aff_deg[j+1].time;
         aff_deg[j].pos_x=aff_deg[j+1].pos_x;
         aff_deg[j].pos_y=aff_deg[j+1].pos_y;
@@ -584,9 +570,18 @@ void clean_degat_txt(degatx_t aff_deg[N*M]){
         strcpy(aff_deg[j].txt,aff_deg[j+1].txt);
       }
     }else{
-      aff_deg[i].time-=10;
-      aff_deg[i].pos_x+=(aff_deg[i].time/10);
-      aff_deg[i].pos_y-=(aff_deg[i].time/10);
+      if(strcmp(aff_deg[i].txt,"MORT")){
+        aff_deg[i].time-=10;
+        aff_deg[i].pos_x+=(aff_deg[i].time/10);
+        aff_deg[i].pos_y-=(aff_deg[i].time/10);
+      }else{
+        aff_deg[i].time-=10;
+        aff_deg[i].pos_y-=(aff_deg[i].time/15);
+      }
     }
   }
 }
+
+
+
+

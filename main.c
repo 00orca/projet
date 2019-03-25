@@ -17,7 +17,7 @@
 
 //=====================================MAIN=============================//
 
-int main(int argc, char** argv)
+int WinMain(int argc, char** argv)
 {
 	SDL_Window* pWindow = NULL;
 	SDL_Renderer *renderer=NULL;
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 
 	SDL_Color c = {0,0,0,0};
 	SDL_Color c_rouge = {255,0,0,0};
-	SDL_Color c_verte = {0,255,0,0};
+	SDL_Color c_verte = {125,255,125,0};
 
 
     /* Initialisation SDL*/
@@ -187,7 +187,7 @@ loadImage(image,renderer);
 
 	(imgDestRect.w)=100;
 	(imgDestRect.h)=100;
-	int bordure=50;                                                                                                                    //les coef ci dessous permettent d'aligner les images car elle ne sont pas totalement droite dans le sprite
+	int bordure=43;                                                                                                                    //les coef ci dessous permettent d'aligner les images car elle ne sont pas totalement droite dans le sprite
 	for(int compteur=0, indice = (*hauteur)/2, indice2=(*largeur)/2; compteur<N; compteur++,indice-=(bordure+(imgDestRect.h)/2)/2.1,indice2-=(bordure+(imgDestRect.w)/2)/1.5){
 		for(int compteur2=0, indice3= indice , indice4 = indice2; compteur2<M; compteur2++,indice3-=(bordure+(imgDestRect.h)/2)/1.5,indice4+=(bordure+(imgDestRect.w)/2)/1.98){
 
@@ -262,69 +262,68 @@ loadImage(image,renderer);
 		int running = 1;
 		while(running) {
 			SDL_Event e;
-			if(tab[joueur_actu].humain==1){			//ACTION DU JOUEUR HUMAIN PDT SON TOURS
-				while(SDL_PollEvent(&e)) {
-					switch(e.type) {
-						case SDL_QUIT:	//cas ou l'on souhaite quitter
-							running = 0;
+			while(SDL_PollEvent(&e)) {
+				if(tab[joueur_actu].humain==1){	
+				switch(e.type) {
+					case SDL_QUIT:	//cas ou l'on souhaite quitter
+						running = 0;
+					break;
+					case SDL_KEYDOWN: //cas ou une touche est pressé
+						switch (e.key.keysym.sym)  //switch qui gere les touches
+						{
+							case SDLK_LEFT:
+								for (int compteur=0;compteur<N;compteur++){
+									for (int compteur2=0;compteur2<M;compteur2++){
+										terrain[compteur][compteur2].xImg+=scroll_speed;
+										terrain[compteur][compteur2].x1+=scroll_speed;
+										terrain[compteur][compteur2].x2+=scroll_speed;
+										terrain[compteur][compteur2].x3+=scroll_speed;
+										terrain[compteur][compteur2].x4+=scroll_speed;
+									}
+								}
+								break;
+							case SDLK_RIGHT:
+								for (int compteur=0;compteur<N;compteur++){
+									for (int compteur2=0;compteur2<M;compteur2++){
+										terrain[compteur][compteur2].xImg-=scroll_speed;
+										terrain[compteur][compteur2].x1-=scroll_speed;
+										terrain[compteur][compteur2].x2-=scroll_speed;
+										terrain[compteur][compteur2].x3-=scroll_speed;
+										terrain[compteur][compteur2].x4-=scroll_speed;
+									}
+								}
+								break;
+							case SDLK_UP:
+								for (int compteur=0;compteur<N;compteur++){
+									for (int compteur2=0;compteur2<M;compteur2++){
+										terrain[compteur][compteur2].yImg+=scroll_speed;
+										terrain[compteur][compteur2].y1+=scroll_speed;
+										terrain[compteur][compteur2].y2+=scroll_speed;
+										terrain[compteur][compteur2].y3+=scroll_speed;
+										terrain[compteur][compteur2].y4+=scroll_speed;
+									}
+								}
+								break;
+							case SDLK_DOWN:
+								for (int compteur=0;compteur<N;compteur++){
+									for (int compteur2=0;compteur2<M;compteur2++){
+										terrain[compteur][compteur2].yImg-=scroll_speed;
+										terrain[compteur][compteur2].y1-=scroll_speed;
+										terrain[compteur][compteur2].y2-=scroll_speed;
+										terrain[compteur][compteur2].y3-=scroll_speed;
+										terrain[compteur][compteur2].y4-=scroll_speed;
+									}
+								}
+								break;
+						}
 						break;
 
-						case SDL_KEYDOWN: //cas ou une touche est pressé
-							switch (e.key.keysym.sym)  //switch qui gere les touches
+						case SDL_MOUSEBUTTONDOWN:
+							switch (e.button.button)
 							{
-								case SDLK_LEFT:
-									for (int compteur=0;compteur<N;compteur++){
-										for (int compteur2=0;compteur2<M;compteur2++){
-											terrain[compteur][compteur2].xImg+=scroll_speed;
-											terrain[compteur][compteur2].x1+=scroll_speed;
-											terrain[compteur][compteur2].x2+=scroll_speed;
-											terrain[compteur][compteur2].x3+=scroll_speed;
-											terrain[compteur][compteur2].x4+=scroll_speed;
-										}
-									}
-									break;
-								case SDLK_RIGHT:
-									for (int compteur=0;compteur<N;compteur++){
-										for (int compteur2=0;compteur2<M;compteur2++){
-											terrain[compteur][compteur2].xImg-=scroll_speed;
-											terrain[compteur][compteur2].x1-=scroll_speed;
-											terrain[compteur][compteur2].x2-=scroll_speed;
-											terrain[compteur][compteur2].x3-=scroll_speed;
-											terrain[compteur][compteur2].x4-=scroll_speed;
-										}
-									}
-									break;
-								case SDLK_UP:
-									for (int compteur=0;compteur<N;compteur++){
-										for (int compteur2=0;compteur2<M;compteur2++){
-											terrain[compteur][compteur2].yImg+=scroll_speed;
-											terrain[compteur][compteur2].y1+=scroll_speed;
-											terrain[compteur][compteur2].y2+=scroll_speed;
-											terrain[compteur][compteur2].y3+=scroll_speed;
-											terrain[compteur][compteur2].y4+=scroll_speed;
-										}
-									}
-									break;
-								case SDLK_DOWN:
-									for (int compteur=0;compteur<N;compteur++){
-										for (int compteur2=0;compteur2<M;compteur2++){
-											terrain[compteur][compteur2].yImg-=scroll_speed;
-											terrain[compteur][compteur2].y1-=scroll_speed;
-											terrain[compteur][compteur2].y2-=scroll_speed;
-											terrain[compteur][compteur2].y3-=scroll_speed;
-											terrain[compteur][compteur2].y4-=scroll_speed;
-										}
-									}
-									break;
-							}
-							break;
+								case SDL_BUTTON_LEFT:
 
-							case SDL_MOUSEBUTTONDOWN:
-						  	switch (e.button.button)
-						    {
-						    	case SDL_BUTTON_LEFT:
-
-
+											//ACTION DU JOUEUR HUMAIN PDT SON TOURS
 										clicout=0;
 										//int a,b,a2,b2,a3,b3,a4,b4,res1,res2,res3,res4;
 										for(int compteur=0;compteur<N;compteur++){
@@ -415,50 +414,52 @@ loadImage(image,renderer);
 												}
 											}
 										}
-						      break;
-						   	}
-					break;
-					/*case SDL_MOUSEWHEEL:
-						if(e.wheel.y==1){
-							coefZoom+=0.01;
-							for(int a=0;a<N;a++){
-								for(int b=0;b<M;b++){
-									terrain[a][b].xImg-=15;
-									terrain[a][b].yImg-=15;
-									terrain[a][b].x1-=15;
-									terrain[a][b].x2-=15;
-									terrain[a][b].x3-=15;
-									terrain[a][b].x4-=15;
-									terrain[a][b].y1-=15;
-									terrain[a][b].y2-=15;
-									terrain[a][b].y3-=15;
-									terrain[a][b].y4-=15;
-								}
+									}
+								break;
 							}
-
-						}
-						else{
-							coefZoom-=0.01;
-							for(int a=0;a<N;a++){
-								for(int b=0;b<M;b++){
-									terrain[a][b].xImg+=15;
-									terrain[a][b].yImg+=15;
-									terrain[a][b].x1+=15;
-									terrain[a][b].x2+=15;
-									terrain[a][b].x3+=15;
-									terrain[a][b].x4+=15;
-									terrain[a][b].y1+=15;
-									terrain[a][b].y2+=15;
-									terrain[a][b].y3+=15;
-									terrain[a][b].y4+=15;
-								}
+				break;
+				/*case SDL_MOUSEWHEEL:
+					if(e.wheel.y==1){
+						coefZoom+=0.01;
+						for(int a=0;a<N;a++){
+							for(int b=0;b<M;b++){
+								terrain[a][b].xImg-=15;
+								terrain[a][b].yImg-=15;
+								terrain[a][b].x1-=15;
+								terrain[a][b].x2-=15;
+								terrain[a][b].x3-=15;
+								terrain[a][b].x4-=15;
+								terrain[a][b].y1-=15;
+								terrain[a][b].y2-=15;
+								terrain[a][b].y3-=15;
+								terrain[a][b].y4-=15;
 							}
 						}
 
-					break;
-					*/
 					}
+					else{
+						coefZoom-=0.01;
+						for(int a=0;a<N;a++){
+							for(int b=0;b<M;b++){
+								terrain[a][b].xImg+=15;
+								terrain[a][b].yImg+=15;
+								terrain[a][b].x1+=15;
+								terrain[a][b].x2+=15;
+								terrain[a][b].x3+=15;
+								terrain[a][b].x4+=15;
+								terrain[a][b].y1+=15;
+								terrain[a][b].y2+=15;
+								terrain[a][b].y3+=15;
+								terrain[a][b].y4+=15;
+							}
+						}
+					}
+
+				break;
+				*/
 				}
+			}
+			if(tab[joueur_actu].humain==1){	
 				gpScreen = SDL_GetWindowSurface(pWindow);
 				if( e.motion.x >0 && e.motion.x <30 && e.type!=SDL_MOUSEWHEEL){
 					for (int compteur=0;compteur<N;compteur++){
@@ -504,12 +505,13 @@ loadImage(image,renderer);
 						}
 					}
 				}
+			}
 
 
-			}//fin action du joueur
-			else{ 	//===================================================TOUR DU BOT===================================================//
-				if(nb_tour>=15){
-					if(sel==0){
+			//fin action du joueur
+			if(tab[joueur_actu].humain==0){ 	//===================================================TOUR DU BOT===================================================//
+				if(nb_tour>=40){
+					if(sel==0){ //SELECTION
 						fprintf(stderr,"TOUR DU BOT %d \n",joueur_actu);
 						for (int i=0;i<N;i++){ //deselectionne toutes les pieces
 							for (int j=0;j<M;j++){
@@ -519,19 +521,21 @@ loadImage(image,renderer);
 							}
 						}
 						int var5=0;
+						int var6=(rand()%tab[joueur_actu].nb_unite);
 						for (int i=0;i<N;i++){ //selection d'une piece
 							for (int j=0;j<M;j++){
-								if(terrain[i][j].piece && terrain[i][j].piece->select==0 && terrain[i][j].piece->joueur==joueur_actu && var5==0){
+								if(terrain[i][j].piece && terrain[i][j].piece->select==0 && terrain[i][j].piece->joueur==joueur_actu && var5==var6){
 									terrain[i][j].piece->select=1;
 									x_bot=i;
 									y_bot=j;
-									var5=1;
 								}
+								if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu)
+									var5++;
 							}
 						}
 						centrer_camera(terrain,terrain[x_bot][y_bot].xImg,terrain[x_bot][y_bot].yImg,*largeur,*hauteur);
 						sel=1;
-					}else{
+					}else{ //ACTION
 
 						depla_atk_mov(terrain,x_bot,y_bot,joueur_actu,tab);
 						sel=0;
@@ -610,7 +614,7 @@ loadImage(image,renderer);
 								for (int ind=0;ind<N;ind++){
 									for (int ind2=0;ind2<M;ind2++){
 										if(terrain[ind][ind2].attaque==1){
-											afficher_img(terrain[ind][ind2].xImg-bordure/9,terrain[ind][ind2].yImg-bordure/9,100,100,"images/attaque.png",image,renderer,coefZoom);
+											afficher_img(terrain[ind][ind2].xImg-bordure/15+8,terrain[ind][ind2].yImg-bordure/8+3,100,100,"images/attaque.png",image,renderer,coefZoom);
 
 										}
 									}
@@ -626,8 +630,10 @@ loadImage(image,renderer);
 				for (int compteur2=0;compteur2<M;compteur2++){
 					if(terrain[compteur][compteur2].piece){ 		//AFFICHAGE DES UNITEES
 
-						if(terrain[compteur][compteur2].piece->joueur==joueur_actu){ //cercle des unité du joueur_actu affichage
+						if(terrain[compteur][compteur2].piece->joueur==joueur_actu && terrain[compteur][compteur2].piece->select==0){ //cercle des unité du joueur_actu affichage
 							afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg+5,100,100,"images/image_allie.png",image,renderer,coefZoom);
+						}else if(terrain[compteur][compteur2].piece->joueur==joueur_actu && terrain[compteur][compteur2].piece->select==1){ //cercle de l'unité selectionné du joueur_actu
+							afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg+5,100,100,"images/image_select_allie.png",image,renderer,coefZoom);
 						}
 
 
@@ -822,7 +828,7 @@ loadImage(image,renderer);
 				running=0;
 			}
 
-			if((tab[joueur_actu].pts_action_actu<=0 && tab[joueur_actu].humain==0 )|| (tab[joueur_actu].pts_action_actu<=0 && fin_tour==1)){				//gestion des tours de jeu
+			if((tab[joueur_actu].pts_action_actu<=0 && tab[joueur_actu].humain==0 )|| (tab[joueur_actu].pts_action_actu<=0 && fin_tour==1) || (fin_tour==1)){				//gestion des tours de jeu
 				tab[joueur_actu].pts_action_actu=tab[joueur_actu].pts_action_max;
 				do{
 					joueur_actu=(joueur_actu+1)%J;
