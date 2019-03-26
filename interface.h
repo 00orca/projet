@@ -12,8 +12,10 @@ typedef int bool;
 #define FALSE 0#define Z 20 //nb images
 #define Z 35 //nb images
 
+typedef enum {Menu,Menu2,Play,Load,About,Quit,In_menu,Help}menu_e;
+//typedef enum {None,Reculer,Save,Help,Quitg,Ok}ingame_menu_e;
 
-//Resolution d'ecran
+menu_e running;
 
 //Declaration de surface et fenetre
 extern SDL_Surface *gpScreen;
@@ -43,5 +45,9 @@ void afficher_img(int x,int y,int h,int w,char img[50],image_t image[Z],SDL_Rend
 void loadImage(image_t image[Z],SDL_Renderer *renderer);
 void AfficherText(char* message, char* fontFile, SDL_Color color, int fontSize,SDL_Renderer *renderer,int x,int y);
 
-
+int draw_menu(SDL_Renderer *renderer,SDL_Window* pWindow);
+void about();
+void ingame_menu(SDL_Renderer *renderer,SDL_Window* pWindow);
+void help(SDL_Renderer *renderer,SDL_Window* pWindow);
+void mod_menu(SDL_Renderer *renderer,SDL_Window* pWindow,int nb_j,int nb_o,int taille,int nb_unit);
 #endif
