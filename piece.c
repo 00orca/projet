@@ -23,9 +23,9 @@ int AFF_DEG=3; //nombre d'affichage max a la fois par boucle d'affichage d'info 
 int PRESET=1; //1 pour generation alea, autre pour preset de carte via fichier
 int NB_CLASSE=5; //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
 
-int N=10; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
-int M=10;
-int J=3; //nb de joueur total
+int N=15; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
+int M=15;
+int J=5; //nb de joueur total
 
 
 piece_t * init_piece(classe_t classe,int id_joueur){
@@ -431,7 +431,7 @@ void depla_atk_mov(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu,joue
     for (int compteur2=0;compteur2<M && var5!=1;compteur2++){
       if(terrain[compteur][compteur2].piece){
           //haut bas gauche droite et diagonales
-        if(terrain[compteur][compteur2].piece->joueur==joueur_actu && test==0){
+        if(terrain[compteur][compteur2].piece->joueur!=joueur_actu && test==0){
           for(var4=0;var4<=MOVEMENT && var5!=1 ;var4++){
             if(compteur+var4<N && terrain[compteur+var4][compteur2].deplacement==1){
               move(terrain,compteur+var4,compteur2,joueur_actu,tab);
@@ -466,7 +466,7 @@ void depla_atk_mov(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu,joue
               var5++;
             }
           }
-        }else if(terrain[compteur][compteur2].piece->joueur!=joueur_actu && test==1){
+        }else if(((terrain[compteur][compteur2].piece->joueur=joueur_actu) && (test==1))){
           for(var4=0;var4<=MOVEMENT*2 && var5!=1 ;var4++){
             if(compteur+var4<N && terrain[compteur+var4][compteur2].deplacement==1){
               move(terrain,compteur+var4,compteur2,joueur_actu,tab);
@@ -626,15 +626,15 @@ int a_portee(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu){
 
 void attaquer_meilleur_cible(case_t terrain[N][M],int x_bot,int y_bot,int nb_ennemies_portee,int joueur_actu,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG]){
   pathfinding_combat(terrain,x_bot,y_bot,joueur_actu);
-  int x_low,y_low,pv_low=-1;
-  int tab_ennemi_ont_portee[N][M];
-  for(int i=0;i<N;i++){
-    for(int j=0;j<M;j++){
-      tab_ennemi_ont_portee[i][j]=0;
-    }
-  }
 
   if(terrain[x_bot][y_bot].piece->classe==priest){//on heal l'allié avec le moin de pv si on est soigneur ou celui qui a le plus d'ennemi adjacent si tt les points de vie sont supérieur 25
+    int x_low,y_low,pv_low=-1;
+    int tab_ennemi_ont_portee[N][M];
+    for(int i=0;i<N;i++){
+      for(int j=0;j<M;j++){
+        tab_ennemi_ont_portee[i][j]=0;
+      }
+    }
     for(int i=0;i<N;i++){ //minimum de pv des alliés
       for(int j=0;j<M;j++){
         if(terrain[i][j].attaque==1 && pv_low==-1){
@@ -682,8 +682,35 @@ void attaquer_meilleur_cible(case_t terrain[N][M],int x_bot,int y_bot,int nb_enn
       combat(terrain,x_bot,y_bot,x,y,joueur_actu,tab,aff_deg);
     }
   }else{ //cas ou ce n'est pas un soigneur
-    tab[joueur_actu].pts_action_actu--;
-
+    int x_low,y_low,pv_low=-1;
+    for(int i=0;i<N;i++){
+      for(int j=0;j<M;j++){
+        if(terrain[i][j].attaque==1 && pv_low==-1){
+          x_low=i;
+          y_low=j;
+          pv_low=terrain[i][j].piece->pdv;
+        }else if(terrain[i][j].attaque==1 && pv_low>terrain[i][j].piece->pdv){
+          x_low=i;
+          y_low=j;
+          pv_low=terrain[i][j].piece->pdv;
+        }
+      }
+    }
+    combat(terrain,x_bot,y_bot,x_low,y_low,joueur_actu,tab,aff_deg); //attaque l'ennemi avec le moin de pv
   }
 
+}
+
+
+
+int reste_ennemi(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu){
+  int nb=0;
+  for(int i=0;i<N;i++){
+    for(int j=0;j<M;j++){
+      if(terrain[i][j].piece && terrain[i][j].piece->joueur != joueur_actu){
+        nb++;
+      }
+    }
+  }
+  return nb;
 }
