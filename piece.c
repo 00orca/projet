@@ -12,6 +12,21 @@
 *\date 01 mars 2019
 */
 
+int J_HUMAIN=1;//nb de joueur humain parmis les joueurs totales
+int NB_UNITE=3; //nb unité pour chaque joueurs au debut de la partie
+int PTS_ACTION_MAX=4; //pts d'action max pour chaque tours de chaque joueur
+
+int VITESSE_JEU_BOT=25;
+
+int AFF_DEG=3; //nombre d'affichage max a la fois par boucle d'affichage d'info texte de dégats, morts et soins
+
+int PRESET=1; //1 pour generation alea, autre pour preset de carte via fichier
+int NB_CLASSE=5; //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
+
+int N=10; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
+int M=10;
+int J=3; //nb de joueur total
+
 
 piece_t * init_piece(classe_t classe,int id_joueur){
     int pos=((rand()%(4)) + 1);
@@ -384,6 +399,8 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
             free(terrain[x_def][y_def].piece);
             terrain[x_def][y_def].piece=NULL;
           }
+        }else{
+          ajouter_degat_txt("BLOCK",aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),0);
         }
         tab[joueur].pts_action_actu--;
       }

@@ -4,21 +4,27 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
-#define N 10 //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
-#define M 10
-#define J 3 //nb de joueur total
-#define J_HUMAIN 1//nb de joueur humain parmis les joueurs totales
-#define NB_UNITE 7 //nb unité pour chaque joueurs au debut de la partie
-#define PTS_ACTION_MAX 4 //pts d'action max pour chaque tours de chaque joueur
 
-#define AFF_DEG 3 //nombre d'affichage max a la fois par boucle d'affichage d'info texte de dégats, morts et soins
 
-#define PRESET 1 //1 pour generation alea, autre pour preset de carte via fichier
-#define NB_CLASSE 5 //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
 //facteurs changeant la méthode que les bots utilise pour jouer
 #define DEFENSIF 3 //nb de piece qui peuvent attaquer le bot a patir duquel il jouera cet piece en mode defensif
 #define AGRESSIF 2 //nb de coup (en comptant l'armure) sans prendre en compte le block qui pouraient tuer un ennemi a porter (en comptant les allié a porte aussi)
 #define MOVEMENT 2 //nb d'allié qu'une piece essayera de garder a coté d'elle, un pretre vaut pour 2 piece dans le calcule
+
+
+extern int J_HUMAIN;
+extern int NB_UNITE;
+extern int PTS_ACTION_MAX;
+
+extern int VITESSE_JEU_BOT;
+
+extern int AFF_DEG;
+
+extern int PRESET;
+extern int NB_CLASSE;
+extern int N;
+extern int M;
+extern int J;
 
 
 /*

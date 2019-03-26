@@ -10,15 +10,16 @@
 #include "interface.h"
 
 
-//=======STRUCT========//
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 //=====================================MAIN=============================//
 
 int main(int argc, char** argv)
 {
+
+
 	SDL_Window* pWindow = NULL;
 	SDL_Renderer *renderer=NULL;
   SDL_Rect imgDestRect;
@@ -355,6 +356,7 @@ if( pWindow )
 				}
 			}
 		}else if(running == Play){
+			if(tab[joueur_actu].humain==1){
 			while(SDL_PollEvent(&e)) {
 				switch(e.type) {
 					case SDL_QUIT:	//cas ou l'on souhaite quitter
@@ -429,6 +431,11 @@ if( pWindow )
 													}
 												}
 											break;
+											case SDL_KEYDOWN:
+												if(e.key.keysym.sym == SDLK_SPACE){
+													running = Play;
+												}
+											break;
 										}
 									}
 								}
@@ -450,15 +457,14 @@ if( pWindow )
 														running = Quit;
 													break;
 													case SDL_MOUSEBUTTONDOWN:
-														if(e.button.button == SDL_BUTTON_LEFT){
+														if(e.button.button == SDL_BUTTON_LEFT ){
 															if(e.button.x > gpScreen->w - 260 && e.button.x < gpScreen->w - 60){
 																if(e.button.y>gpScreen->h - 330 && e.button.y<gpScreen->h - 330+75)running = Play;
 																if(e.button.y>gpScreen->h - 330+75 && e.button.y<gpScreen->h - 330+75*2)running = Play;
 																if(e.button.y>gpScreen->h - 330+75*2 && e.button.y<gpScreen->h - 330+75*3)running = Help;
 																if(e.button.y>gpScreen->h - 330+75*3 && e.button.y<gpScreen->h - 330+75*4)running = Menu;
-															}else{
+															}else
 																running = Play;
-															}
 														}
 													break;
 												}
@@ -645,11 +651,11 @@ if( pWindow )
 						}
 					}
 				}
-
+			}
 
 			//fin action du joueur
-		else if(tab[joueur_actu].humain==0){ 	//===================================================TOUR DU BOT===================================================//
-				if(nb_tour>=40){
+			if(tab[joueur_actu].humain==0){ 	//===================================================TOUR DU BOT===================================================//
+				if(nb_tour>=VITESSE_JEU_BOT){
 					if(sel==0){ //SELECTION
 						fprintf(stderr,"TOUR DU BOT %d \n",joueur_actu);
 						for (int i=0;i<N;i++){ //deselectionne toutes les pieces
@@ -941,7 +947,7 @@ if( pWindow )
 
 			SDL_RenderPresent(renderer);
 			SDL_Delay(16);
-			nb_tour++;
+			nb_tour=(nb_tour+1)%(VITESSE_JEU_BOT*2);;
 
 
 		//===================================ACTUALISATION DES TOURS==========================================//
