@@ -108,11 +108,13 @@ void pathfinding(case_t terrain[N][M], int x, int y);
 void pathfinding_combat(case_t terrain[N][M], int x, int y,int joueur_actu);
 /*effectue le calcul des dommages*/
 int calc_block(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def);
-void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J],degatx_t aff_deg[N*M]);
-void soin(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J],degatx_t aff_deg[N*M]);
+void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG]);
+void soin(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG]);
 void move(case_t terrain[N][M],int x,int y, int joueur,joueurs_t tab[J]);
 void depla_atk_mov(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu,joueurs_t tab[J]);
 void centrer_camera(case_t terrain[N][M],int x,int y,int largeur,int hauteur);
 void ajouter_degat_txt(char txt[20],degatx_t aff_deg[AFF_DEG],int x,int y,int c);
 void clean_degat_txt(degatx_t aff_deg[AFF_DEG]);
 int vide(degatx_t aff_deg[AFF_DEG]);
+int a_portee(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu);
+void attaquer_meilleur_cible(case_t terrain[N][M],int x_bot,int y_bot,int nb_ennemies_portee,int joueur_actu,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG]);

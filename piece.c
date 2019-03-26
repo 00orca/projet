@@ -606,3 +606,84 @@ int vide(degatx_t aff_deg[AFF_DEG]){
   }
   return 1;
 }
+
+
+
+int a_portee(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu){
+  pathfinding_combat(terrain,x_bot,y_bot,joueur_actu);
+  int nb=0;
+  for(int i=0;i<N;i++){
+    for(int j=0;j<M;j++){
+      if(terrain[i][j].attaque==1){
+        nb++;
+      }
+    }
+  }
+  return nb;
+}
+
+
+
+void attaquer_meilleur_cible(case_t terrain[N][M],int x_bot,int y_bot,int nb_ennemies_portee,int joueur_actu,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG]){
+  pathfinding_combat(terrain,x_bot,y_bot,joueur_actu);
+  int x_low,y_low,pv_low=-1;
+  int tab_ennemi_ont_portee[N][M];
+  for(int i=0;i<N;i++){
+    for(int j=0;j<M;j++){
+      tab_ennemi_ont_portee[i][j]=0;
+    }
+  }
+
+  if(terrain[x_bot][y_bot].piece->classe==priest){//on heal l'allié avec le moin de pv si on est soigneur ou celui qui a le plus d'ennemi adjacent si tt les points de vie sont supérieur 25
+    for(int i=0;i<N;i++){ //minimum de pv des alliés
+      for(int j=0;j<M;j++){
+        if(terrain[i][j].attaque==1 && pv_low==-1){
+          x_low=i;
+          y_low=j;
+          pv_low=terrain[i][j].piece->pdv;
+        }else if(terrain[i][j].attaque==1 && pv_low>terrain[i][j].piece->pdv){
+          x_low=i;
+          y_low=j;
+          pv_low=terrain[i][j].piece->pdv;
+        }
+      }
+    }
+    if(pv_low<=25){//soin si pv <= a 25
+
+      combat(terrain,x_bot,y_bot,x_low,y_low,joueur_actu,tab,aff_deg);
+
+    }else{ //sinon on heal l'allié avec le plus d'ennemi adjacent
+
+      for(int i=0;i<N;i++){
+        for(int j=0;j<M;j++){
+          if(terrain[i][j].piece && terrain[i][j].piece->joueur!=joueur_actu){
+            pathfinding_combat(terrain,i,j,terrain[x_bot][y_bot].piece->joueur);
+            for(int compteur=0;compteur<N;compteur++){
+              for(int compteur2=0;compteur2<M;compteur2++){
+                if(terrain[compteur][compteur2].attaque==1){
+                  tab_ennemi_ont_portee[compteur][compteur2]+=1;
+                }
+              }
+            }
+          }
+        }
+      }
+      int max_atk=0,x,y;
+      pathfinding_combat(terrain,x_bot,y_bot,joueur_actu);
+      for(int i=0;i<N;i++){
+        for(int j=0;j<M;j++){
+          if(terrain[i][j].attaque==1 && tab_ennemi_ont_portee[i][j]>max_atk){
+            max_atk=tab_ennemi_ont_portee[i][j];
+            x=i;
+            y=j;
+          }
+        }
+      }
+      combat(terrain,x_bot,y_bot,x,y,joueur_actu,tab,aff_deg);
+    }
+  }else{ //cas ou ce n'est pas un soigneur
+    tab[joueur_actu].pts_action_actu--;
+
+  }
+
+}

@@ -681,10 +681,14 @@ if( pWindow )
 						centrer_camera(terrain,terrain[x_bot][y_bot].xImg,terrain[x_bot][y_bot].yImg,*largeur,*hauteur);
 						sel=1;
 					}else{ //ACTION
-
-						depla_atk_mov(terrain,x_bot,y_bot,joueur_actu,tab);
+						int var_action=rand()%2; //choix de l'action a faire (a améliorer evidement)
+						int nb_ennemies_portee=a_portee(terrain,x_bot,y_bot,joueur_actu);
+						if(var_action==0 && nb_ennemies_portee>=1){
+							attaquer_meilleur_cible(terrain,x_bot,y_bot,nb_ennemies_portee,joueur_actu,tab,aff_deg);
+						}else{
+							depla_atk_mov(terrain,x_bot,y_bot,joueur_actu,tab);
+						}
 						sel=0;
-
 					}
 					nb_tour=0;
 				}
