@@ -17,7 +17,7 @@
 
 //=====================================MAIN=============================//
 
-int WinMain(int argc, char** argv)
+int main(int argc, char** argv)
 {
 	SDL_Window* pWindow = NULL;
 	SDL_Renderer *renderer=NULL;
@@ -261,9 +261,11 @@ loadImage(image,renderer);
 	{
 		int running = 1;
 		while(running) {
+
 			SDL_Event e;
+			if(tab[joueur_actu].humain==1){
 			while(SDL_PollEvent(&e)) {
-				if(tab[joueur_actu].humain==1){	
+
 				switch(e.type) {
 					case SDL_QUIT:	//cas ou l'on souhaite quitter
 						running = 0;
@@ -412,7 +414,7 @@ loadImage(image,renderer);
 													if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1)
 														terrain[indice][indice2].piece->select=0;
 												}
-											}
+
 										}
 									}
 								break;
@@ -457,9 +459,9 @@ loadImage(image,renderer);
 
 				break;
 				*/
+					}
 				}
 			}
-			if(tab[joueur_actu].humain==1){	
 				gpScreen = SDL_GetWindowSurface(pWindow);
 				if( e.motion.x >0 && e.motion.x <30 && e.type!=SDL_MOUSEWHEEL){
 					for (int compteur=0;compteur<N;compteur++){
@@ -505,11 +507,10 @@ loadImage(image,renderer);
 						}
 					}
 				}
-			}
 
 
 			//fin action du joueur
-			if(tab[joueur_actu].humain==0){ 	//===================================================TOUR DU BOT===================================================//
+		else if(tab[joueur_actu].humain==0){ 	//===================================================TOUR DU BOT===================================================//
 				if(nb_tour>=40){
 					if(sel==0){ //SELECTION
 						fprintf(stderr,"TOUR DU BOT %d \n",joueur_actu);
@@ -783,7 +784,7 @@ loadImage(image,renderer);
 				}
 			}
 
-			for(int i=0;i<N*M;i++){ //affichage des dégats, morts soins etc
+			for(int i=0;i<AFF_DEG;i++){ //affichage des dégats, morts soins etc
 				if(aff_deg[i].time>0){
 					if(aff_deg[i].c==1){//couleur degat
 						AfficherText(aff_deg[i].txt,"arial.ttf",c_rouge,30,renderer,aff_deg[i].pos_x,aff_deg[i].pos_y);

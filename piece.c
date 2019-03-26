@@ -373,7 +373,7 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
 
             sprintf(variable, "%d", deg);//sauvegarde des dégat pour affichage
             ajouter_degat_txt(variable,aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),1);
-            
+
 
           }else{
             ajouter_degat_txt("0",aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),0);
@@ -561,7 +561,7 @@ void ajouter_degat_txt(char txt[20],degatx_t aff_deg[AFF_DEG],int x,int y,int c)
 
 void clean_degat_txt(degatx_t aff_deg[AFF_DEG]){
   for(int i=0;i<AFF_DEG;i++){
-		if(aff_deg[i].time<=0){
+		if(aff_deg[i].time<=0 && !vide(aff_deg)){
       for(int j=i;j<(AFF_DEG)-1;j++){
         aff_deg[j].time=aff_deg[j+1].time;
         aff_deg[j].pos_x=aff_deg[j+1].pos_x;
@@ -582,6 +582,10 @@ void clean_degat_txt(degatx_t aff_deg[AFF_DEG]){
   }
 }
 
-
-
-
+int vide(degatx_t aff_deg[AFF_DEG]){
+  for(int i=0;i<AFF_DEG;i++){
+    if(aff_deg[i].time>0)
+      return 0;
+  }
+  return 1;
+}

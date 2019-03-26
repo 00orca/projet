@@ -4,14 +4,14 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
-#define N 20 //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
-#define M 20
+#define N 10 //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
+#define M 10
 #define J 3 //nb de joueur total
 #define J_HUMAIN 1//nb de joueur humain parmis les joueurs totales
 #define NB_UNITE 7 //nb unité pour chaque joueurs au debut de la partie
 #define PTS_ACTION_MAX 4 //pts d'action max pour chaque tours de chaque joueur
 
-#define AFF_DEG 4 //nombre d'affichage max a la fois par boucle d'affichage d'info texte de dégats, morts et soins
+#define AFF_DEG 3 //nombre d'affichage max a la fois par boucle d'affichage d'info texte de dégats, morts et soins
 
 #define PRESET 1 //1 pour generation alea, autre pour preset de carte via fichier
 #define NB_CLASSE 5 //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
@@ -109,3 +109,4 @@ void depla_atk_mov(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu,joue
 void centrer_camera(case_t terrain[N][M],int x,int y,int largeur,int hauteur);
 void ajouter_degat_txt(char txt[20],degatx_t aff_deg[AFF_DEG],int x,int y,int c);
 void clean_degat_txt(degatx_t aff_deg[AFF_DEG]);
+int vide(degatx_t aff_deg[AFF_DEG]);
