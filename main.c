@@ -681,9 +681,8 @@ if( pWindow )
 						centrer_camera(terrain,terrain[x_bot][y_bot].xImg,terrain[x_bot][y_bot].yImg,*largeur,*hauteur);
 						sel=1;
 					}else{ //ACTION
-						int var_action=rand()%2; //choix de l'action a faire (a améliorer evidement)
 						int nb_ennemies_portee=a_portee(terrain,x_bot,y_bot,joueur_actu);
-						if(var_action==0 && nb_ennemies_portee>=1){
+						if((nb_ennemies_portee>=1 && terrain[x_bot][y_bot].piece->classe!=priest)|| (nb_ennemies_portee>=2 && terrain[x_bot][y_bot].piece->classe==priest) || (reste_allie(terrain,joueur_actu)==1 && terrain[x_bot][y_bot].piece->classe==priest)){
 							attaquer_meilleur_cible(terrain,x_bot,y_bot,nb_ennemies_portee,joueur_actu,tab,aff_deg);
 						}else{
 							depla_atk_mov(terrain,x_bot,y_bot,joueur_actu,tab);
@@ -692,18 +691,6 @@ if( pWindow )
 					}
 					nb_tour=0;
 				}
-
-			/*	pathfinding(terrain,compteur,compteur2);
-				pathfinding_combat(terrain,compteur,compteur2,joueur_actu);
-
-				for (int i=0;i<N;i++){
-					for (int j=0;j<M;j++){
-						//sauvegarde dans une matrice tt les possibilité de déplacement et d'attaque pour les comparer plus tard
-					}
-				}*/
-
-
-
 
 				//ici fonction qui tourne le perso selon la direction la plus intéressante puis delay pour laisser le temps a l'utilisateur de voir l'action faite
 			}

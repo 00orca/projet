@@ -118,4 +118,5 @@ void clean_degat_txt(degatx_t aff_deg[AFF_DEG]);
 int vide(degatx_t aff_deg[AFF_DEG]);
 int a_portee(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu);
 void attaquer_meilleur_cible(case_t terrain[N][M],int x_bot,int y_bot,int nb_ennemies_portee,int joueur_actu,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG]);
-int reste_ennemi(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu);
+int reste_ennemi(case_t terrain[N][M],int joueur_actu);
+int reste_allie(case_t terrain[N][M],int joueur_actu);
