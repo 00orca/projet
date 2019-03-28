@@ -53,6 +53,7 @@ typedef struct piece_s{
     int kill;
     int frame; //pour les images successive utile a l'animation
     int frame_interface;
+    int start_anim;
 }piece_t;
 
 

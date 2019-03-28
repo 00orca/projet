@@ -6,27 +6,27 @@
 #include "interface.h"
 
 //=NB JOUEURS,JOUEUR TOTAUX=====//
-int J= 50 ; //nb de joueur total
+int J= 4 ; //nb de joueur total
 int J_HUMAIN= 1 ;//nb de joueur humain parmis les joueurs totales
 //==============================//
 
 //==UNITEES=====================//
 int NB_CLASSE= 6 ; //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
-int NB_UNITE= 30 ; //nb unité pour chaque joueurs au debut de la partie
+int NB_UNITE= 5 ; //nb unité pour chaque joueurs au debut de la partie
 //==============================//
 
 //===========VITESSE DU JEU=====//
-int PTS_ACTION_MAX= 20 ; //pts d'action max pour chaque tours de chaque joueur
-int VITESSE_JEU_BOT= 1 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
-int VITESSE_ANIM=25;
+int PTS_ACTION_MAX= 5 ; //pts d'action max pour chaque tours de chaque joueur
+int VITESSE_JEU_BOT= 25 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
+int VITESSE_ANIM=15;
 //==============================//
 
 //========AFFICHAGE/GRILLE======//
 int AFF_DEG= 10 ; //nombre d'affichage max a la fois par boucle d'affichage d'info texte de dégats, morts et soins
 int PRESET= 1 ; //1 pour generation alea, autre pour preset de carte via fichier
 
-int N= 100 ; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
-int M= 100 ;
+int N= 10 ; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
+int M= 10 ;
 //==============================//
 
 
@@ -35,6 +35,7 @@ piece_t * init_piece(classe_t classe,int id_joueur){
     piece_t * piece=malloc(sizeof(piece_t));
     int frame=((rand()%2)+1);
     int frame2=((rand()%10)+1);
+    int start_anim=((rand()%VITESSE_ANIM));
     switch (classe){
         case knight:
             piece->classe = knight;
@@ -50,6 +51,7 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame;
             piece->frame_interface=frame;
+            piece->start_anim=start_anim;
         break;
         case scout:
             piece->classe = scout;
@@ -65,6 +67,7 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame;
             piece->frame_interface=frame;
+            piece->start_anim=start_anim;
         break;
         case priest:
             piece->classe = priest;
@@ -80,6 +83,7 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame;
             piece->frame_interface=frame;
+            piece->start_anim=start_anim;
         break;
         case magician:
             piece->classe = magician;
@@ -95,6 +99,7 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame;
             piece->frame_interface=frame;
+            piece->start_anim=start_anim;
         break;
         case faucheuse:
             piece->classe = faucheuse;
@@ -110,6 +115,7 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame;
             piece->frame_interface=frame;
+            piece->start_anim=start_anim;
         break;
         case ange:
             piece->classe = ange;
@@ -125,6 +131,7 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame2;
             piece->frame_interface=frame2;
+            piece->start_anim=start_anim;
         break;
         default: printf("Cette classe n'existe pas.\n");
     }
@@ -234,6 +241,7 @@ void move(case_t terrain[N][M],int x,int y,int joueur,joueurs_t tab[J]){
             terrain[x][y].piece->kill = terrain[compteur][compteur2].piece->kill;
             terrain[x][y].piece->frame = terrain[compteur][compteur2].piece->frame;
             terrain[x][y].piece->frame_interface = terrain[compteur][compteur2].piece->frame_interface;
+            terrain[x][y].piece->start_anim = terrain[compteur][compteur2].piece->start_anim;
 
 
             //destruction_piece(terrain[compteur][compteur2].piece);
@@ -1111,7 +1119,7 @@ SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],in
     //anim a 2 images
   if(inter==0){
     if(classe==knight || classe==scout || classe==magician || classe==priest){
-      if(compteur_anim%VITESSE_ANIM==0){
+      if(compteur_anim%VITESSE_ANIM==terrain[compteur][compteur2].piece->start_anim){
         if(terrain[compteur][compteur2].piece->frame==2){
           terrain[compteur][compteur2].piece->frame=1;
         }else{
@@ -1128,7 +1136,7 @@ SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],in
     }
     //ANIM DE L'ANGE
     else if(classe==ange){
-      if(compteur_anim%VITESSE_ANIM==0){
+      if(compteur_anim%VITESSE_ANIM==terrain[compteur][compteur2].piece->start_anim){
         if(terrain[compteur][compteur2].piece->frame==10){
           terrain[compteur][compteur2].piece->frame=1;
         }else{
@@ -1148,7 +1156,7 @@ SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],in
     }
   }else{ //anim de l'interface en haut a gauche
     if(classe==knight || classe==scout || classe==magician || classe==priest){
-      if(compteur_anim%VITESSE_ANIM==0){
+      if(compteur_anim%VITESSE_ANIM==terrain[compteur][compteur2].piece->start_anim){
         if(terrain[compteur][compteur2].piece->frame_interface==2){
           terrain[compteur][compteur2].piece->frame_interface=1;
         }else{
@@ -1164,7 +1172,7 @@ SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],in
       }
     }
     else if(classe==ange){
-      if(compteur_anim%VITESSE_ANIM==0){
+      if(compteur_anim%VITESSE_ANIM==terrain[compteur][compteur2].piece->start_anim){
         if(terrain[compteur][compteur2].piece->frame_interface==10){
           terrain[compteur][compteur2].piece->frame_interface=1;
         }else{
