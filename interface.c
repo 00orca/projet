@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "interface.h"
 
 SDL_Surface *gpScreen;
@@ -21,7 +22,7 @@ void loadImage(image_t image[Z],SDL_Renderer *renderer){
 	fclose(fp2);
 }
 
-void afficher_img(int x,int y,int h,int w,char img[50],image_t image[Z],SDL_Renderer *renderer,float coefZoom){
+void afficher_img(int x,int y,int h,int w,char img[50],image_t image[Z],SDL_Renderer *renderer,float coefZoom,int anim,SDL_Rect img_anim){
 	SDL_Rect imgDestRect;
 	imgDestRect.x = x;
 	imgDestRect.y = y;
@@ -29,7 +30,11 @@ void afficher_img(int x,int y,int h,int w,char img[50],image_t image[Z],SDL_Rend
 	imgDestRect.h=h*coefZoom;
 	for(int i=0;i<Z;i++){
 		if(!strcmp(image[i].loc_image,img)){
-			SDL_RenderCopy(renderer, image[i].texture, NULL, &imgDestRect);
+			if(anim==0){
+				SDL_RenderCopy(renderer, image[i].texture, NULL, &imgDestRect);
+			}else{
+				SDL_RenderCopy(renderer, image[i].texture,&img_anim, &imgDestRect);
+			}
 			return;
 		}
 	}
@@ -52,7 +57,6 @@ void AfficherText(char* message, char* fontFile, SDL_Color color, int fontSize,S
 	txtDestRect.y = y;
 	SDL_QueryTexture(texture,NULL,NULL,&txtDestRect.w,&txtDestRect.h);
 	SDL_RenderCopy(renderer, texture, NULL, &txtDestRect);
-
 	SDL_DestroyTexture(texture);
 }
 
