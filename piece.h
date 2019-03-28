@@ -125,4 +125,4 @@ void update_stats(case_t terrain[N][M],int x,int y,int joueur_actu,joueurs_t tab
 void IA_blockage_direction(case_t terrain[N][M],int x_def,int y_def,int joueur_actu); //met le blockage de l'unité en x_def et y_def dans la position la plus intéressante
 SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],int compteur,int compteur2,int inter); //return un rectangle pour afficher la bonne frame d'animation
 //void afficher_unitee(int compteur_anim,classe_t classe,case_t terrain[N][M],int compteur,int compteur2,int h,int w,char img[50],image_t image[Z],SDL_Renderer *renderer,float coefZoom,int anim,SDL_Rect imgDestRect); //affichage d'une unité sur la map en x et y de la grille
-int carte_valide(case_t terrain[N][M]); //retourne 1 si la map ne possède pas de zone inaccessible.
+void carte_valide(case_t terrain[N][M]); //corrige la map pour qu'elle ne possède pas de zone inaccessible.

@@ -102,7 +102,6 @@ loadImage(image,renderer);
 
 if( pWindow )
 {
-	int bordure=43;
 	running = Menu;
 	SDL_Event e;
 	while(running != Quit) {
@@ -169,60 +168,62 @@ if( pWindow )
 								N = taille;
 								M = N;
 
+
 								degatx_t aff_deg[N*M];
 								joueurs_t tab[J];
 								case_t terrain[N][M];
+
+
 								if(PRESET>1){
-								    fp = fopen ("fichiers/preset1.txt", "r"); //preset en 7x7
-								  }
-								  do{
-								    for(int i=0;i<N;i++){
-								      for(int j=0;j<M;j++){
+									fp = fopen ("fichiers/preset1.txt", "r"); //preset en 7x7
+								}
+								for(int i=0;i<N;i++){
+									for(int j=0;j<M;j++){
 
-								        if(PRESET==1){			//======preset=======//
+										if(PRESET==1){			//======preset=======//
 
-								          if(i==0 && j==0){
-								            terrain[i][j].type=2;
-								          }
-								          else if(i==0 && j>0){
-								            terrain[i][j].type=4;
-								          }
-								          else if(i>0 && j==0){
-								            terrain[i][j].type=3;
-								          }
-								          else if((j==N-1 && i!=0 )||( i==M-1 && j!=0)){
-								            terrain[i][j].type=1;
-								          }
-								          else{												//ALEA "INTELLIGENTE"//
-								            alea=rand()%(N*M);
-								            if((alea<(0.05*N*M) )||( (i-1<N && terrain[i-1][j].type==5 && alea<(0.4*N*M)) || (j-1<N && terrain[i][j-1].type==5 && alea<(0.4*N*M)) || (i+1<N && terrain[i+1][j].type==5 && alea<(0.4*N*M)) || (i<N && terrain[i][j+1].type==5 && alea<(0.4*N*M)) )){
-								              terrain[i][j].type=5;
+											if(i==0 && j==0){
+												terrain[i][j].type=2;
+											}
+											else if(i==0 && j>0){
+												terrain[i][j].type=4;
+											}
+											else if(i>0 && j==0){
+												terrain[i][j].type=3;
+											}
+											else if((j==N-1 && i!=0 )||( i==M-1 && j!=0)){
+												terrain[i][j].type=1;
+											}
+											else{												//ALEA "INTELLIGENTE"//
+												alea=rand()%(N*M);
+												if((alea<(0.05*N*M) )||( (i-1<N && terrain[i-1][j].type==5 && alea<(0.4*N*M)) || (j-1<N && terrain[i][j-1].type==5 && alea<(0.4*N*M)) || (i+1<N && terrain[i+1][j].type==5 && alea<(0.4*N*M)) || (i<N && terrain[i][j+1].type==5 && alea<(0.4*N*M)) )){
+													terrain[i][j].type=5;
 
-								            }
-								            else if(((alea<(0.15*N*M) && alea>(0.05*N*M) )|| (i-1<N && terrain[i-1][j].type==7 && alea<(0.45*N*M)) || (j-1<N && terrain[i][j-1].type==7 && alea<(0.45*N*M)) || (i+1<N && terrain[i+1][j].type==7 && alea<(0.45*N*M)) || (i<N && terrain[i][j+1].type==7 && alea<(0.45*N*M)) )){
-								              terrain[i][j].type=7;
-								            }
-								            else if(((alea<(0.25*N*M) && alea>(0.15*N*M) )|| (i-1<N && terrain[i-1][j].type==6 && alea<(0.55*N*M)) || (j-1<N && terrain[i][j-1].type==6 && alea<(0.55*N*M)) || (i+1<N && terrain[i+1][j].type==6 && alea<(0.55*N*M)) || (i<N && terrain[i][j+1].type==6 && alea<(0.55*N*M)) )){
-								              terrain[i][j].type=6;
-								            }
-								            else{
-								              terrain[i][j].type=1;
-								            }
-								          }
+												}
+												else if(((alea<(0.15*N*M) && alea>(0.05*N*M) )|| (i-1<N && terrain[i-1][j].type==7 && alea<(0.45*N*M)) || (j-1<N && terrain[i][j-1].type==7 && alea<(0.45*N*M)) || (i+1<N && terrain[i+1][j].type==7 && alea<(0.45*N*M)) || (i<N && terrain[i][j+1].type==7 && alea<(0.45*N*M)) )){
+													terrain[i][j].type=7;
+												}
+												else if(((alea<(0.25*N*M) && alea>(0.15*N*M) )|| (i-1<N && terrain[i-1][j].type==6 && alea<(0.55*N*M)) || (j-1<N && terrain[i][j-1].type==6 && alea<(0.55*N*M)) || (i+1<N && terrain[i+1][j].type==6 && alea<(0.55*N*M)) || (i<N && terrain[i][j+1].type==6 && alea<(0.55*N*M)) )){
+													terrain[i][j].type=6;
+												}
+												else{
+													terrain[i][j].type=1;
+												}
+											}
 
-								        }else{						//=====preset de carte chargé par fichiers=====//
+										}else{						//=====preset de carte chargé par fichiers=====//
 
-								          fscanf(fp, "%i", &var1);
-								          terrain[i][j].type=var1;
-								        }
+											fscanf(fp, "%i", &var1);
+											terrain[i][j].type=var1;
+										}
 
-								      }
+									}
 
-								    }
-								  }while(carte_valide(terrain)==0 && PRESET==1);
-								  if(PRESET>1){
-								    fclose(fp);
-								  }
+								}
+								carte_valide(terrain);
+								if(PRESET>1){
+									fclose(fp);
+								}
 
 								//initialisation de la matrice terrain,variables d'affichages;
 
@@ -689,6 +690,20 @@ if( pWindow )
 									}
 
 
+									for(int i=0;i<J;i++){
+										if(tab[i].nb_unite<=0){
+											tab[i].id_joueur=-1;
+										}
+									}
+
+
+									nb_joueur_restant=0;
+									for(int i=0;i<J;i++){		//fermeture de la fenetre qd il reste un joueur en vie seulement (a modifié pour retourner au menu qd le joueur gagne)
+										if(tab[i].id_joueur!=-1){
+											nb_joueur_restant++;
+										}
+									}
+
 						//=================================================================================================================================//
 						//=================================================================================================================================//
 						//====================================================AFFICHAGE====================================================================//
@@ -899,6 +914,27 @@ if( pWindow )
 
 									AfficherText("MENU", "arial.ttf",b,15,renderer,gpScreen->w - 60,gpScreen->h - 30);
 
+
+
+									//infos générales de la partie
+									afficher_img(150,0,200,300,"images/menu_nord.png",image,renderer,1,0,img_anim);
+
+
+
+									AfficherText("Joueurs Restants :        ","arial.ttf",c,20,renderer,185,25);
+									sprintf(variable, "%d",  nb_joueur_restant);
+									AfficherText(variable,"arial.ttf",c,30,renderer,350,22);
+
+									AfficherText("Allie Restant :        ","arial.ttf",c,20,renderer,185,75);
+									sprintf(variable, "%d",  reste_allie(terrain,joueur_actu));
+									AfficherText(variable,"arial.ttf",c,30,renderer,350,72);
+
+									AfficherText("Ennemis Restants :        ","arial.ttf",c,20,renderer,185,125);
+									sprintf(variable, "%d",  reste_ennemi(terrain,joueur_actu));
+									AfficherText(variable,"arial.ttf",c,30,renderer,350,122);
+
+
+
 									for(int i=0;i<N;i++){
 										for(int j=0;j<M;j++){
 											if(terrain[i][j].piece && terrain[i][j].piece->select==1){
@@ -1048,19 +1084,6 @@ if( pWindow )
 
 
 								//===================================ACTUALISATION DES TOURS==========================================//
-									for(int i=0;i<J;i++){
-										if(tab[i].nb_unite<=0){
-											tab[i].id_joueur=-1;
-										}
-									}
-
-
-									nb_joueur_restant=0;
-									for(int i=0;i<J;i++){		//fermeture de la fenetre qd il reste un joueur en vie seulement (a modifié pour retourner au menu qd le joueur gagne)
-										if(tab[i].id_joueur!=-1){
-											nb_joueur_restant++;
-										}
-									}
 									if(nb_joueur_restant==1){
 										for(int i=0;i<J;i++){
 											if(tab[i].id_joueur!=-1)

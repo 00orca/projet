@@ -6,18 +6,18 @@
 #include "interface.h"
 
 //=NB JOUEURS,JOUEUR TOTAUX=====//
-int J= 5 ; //nb de joueur total
+int J= 50 ; //nb de joueur total
 int J_HUMAIN= 1 ;//nb de joueur humain parmis les joueurs totales
 //==============================//
 
 //==UNITEES=====================//
 int NB_CLASSE= 6 ; //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
-int NB_UNITE= 5 ; //nb unité pour chaque joueurs au debut de la partie
+int NB_UNITE= 30 ; //nb unité pour chaque joueurs au debut de la partie
 //==============================//
 
 //===========VITESSE DU JEU=====//
-int PTS_ACTION_MAX= 5 ; //pts d'action max pour chaque tours de chaque joueur
-int VITESSE_JEU_BOT= 25 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
+int PTS_ACTION_MAX= 20 ; //pts d'action max pour chaque tours de chaque joueur
+int VITESSE_JEU_BOT= 1 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
 int VITESSE_ANIM=25;
 //==============================//
 
@@ -25,8 +25,8 @@ int VITESSE_ANIM=25;
 int AFF_DEG= 10 ; //nombre d'affichage max a la fois par boucle d'affichage d'info texte de dégats, morts et soins
 int PRESET= 1 ; //1 pour generation alea, autre pour preset de carte via fichier
 
-int N= 20 ; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
-int M= 20 ;
+int N= 100 ; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
+int M= 100 ;
 //==============================//
 
 
@@ -1191,7 +1191,7 @@ SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],in
 }
 
 
-int carte_valide(case_t terrain[N][M]){
+void carte_valide(case_t terrain[N][M]){
    int cases[N][M];
    for(int i=0;i<N;i++){
      for(int j=0;j<M;j++){
@@ -1207,30 +1207,38 @@ int carte_valide(case_t terrain[N][M]){
    cases[N-1][M-1]=1;
    cases[0][M-1]=1;
    cases[N-1][0]=1;
-   int cpt=1;
-   while(cpt<N*M){
-     for(int i=0;i<N;i++){
-       for(int j=0;j<M;j++){
-         if (cases[i][j]==cpt){
-           if(i+1<N && cases[i+1][j]==0)
-               cases[i+1][j]=cpt+1;
-           if(i-1>=0 && cases[i-1][j]==0)
-               cases[i-1][j]=cpt+1;
-           if(j+1<M && cases[i][j+1]==0)
-               cases[i][j+1]=cpt+1;
-           if(j-1>=0 && cases[i][j-1]==0)
-               cases[i][j-1]=cpt+1;
+
+   for(int a=0;a<N*M;a++){
+    for(int i=0;i<N;i++){
+      for(int j=0;j<M;j++){
+        if (cases[i][j]==1){
+          if(i+1<N && cases[i+1][j]==0)
+              cases[i+1][j]=1;
+          if(i-1>=0 && cases[i-1][j]==0)
+             cases[i-1][j]=1;
+          if(j+1<M && cases[i][j+1]==0)
+             cases[i][j+1]=1;
+          if(j-1>=0 && cases[i][j-1]==0)
+             cases[i][j-1]=1;
          }
        }
      }
-     cpt++;
    }
+   //verification de la map
    for(int i=0;i<N;i++){
      for(int j=0;j<M;j++){
        if(cases[i][j]==0){
-         return 0;
+         cases[i][j]=2;
        }
      }
    }
-   return 1;
+   //correction de la map
+   for(int i=0;i<N;i++){
+     for(int j=0;j<M;j++){
+       if(cases[i][j]==2){
+         terrain[i][j].type=5;
+       }
+     }
+   }
+   return;
  }
