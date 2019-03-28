@@ -16,7 +16,7 @@
 
 //=====================================MAIN=============================//
 
-int WinMain(int argc, char** argv)
+int main(int argc, char** argv)
 {
 
 
@@ -110,49 +110,51 @@ loadImage(image,renderer);
   if(PRESET>1){
     fp = fopen ("fichiers/preset1.txt", "r"); //preset en 7x7
   }
-	for(int i=0;i<N;i++){
-		for(int j=0;j<M;j++){
+	do{
+		for(int i=0;i<N;i++){
+			for(int j=0;j<M;j++){
 
-			if(PRESET==1){			//======preset=======//
+				if(PRESET==1){			//======preset=======//
 
-				if(i==0 && j==0){
-					terrain[i][j].type=2;
-				}
-				else if(i==0 && j>0){
-					terrain[i][j].type=4;
-				}
-				else if(i>0 && j==0){
-					terrain[i][j].type=3;
-				}
-        else if((j==N-1 && i!=0 )||( i==M-1 && j!=0)){
-          terrain[i][j].type=1;
-        }
-				else{												//ALEA "INTELLIGENTE"//
-					alea=rand()%(N*M);
-					if((alea<(0.05*N*M) )||( (i-1<N && terrain[i-1][j].type==5 && alea<(0.4*N*M)) || (j-1<N && terrain[i][j-1].type==5 && alea<(0.4*N*M)) || (i+1<N && terrain[i+1][j].type==5 && alea<(0.4*N*M)) || (i<N && terrain[i][j+1].type==5 && alea<(0.4*N*M)) )){
-						terrain[i][j].type=5;
-
+					if(i==0 && j==0){
+						terrain[i][j].type=2;
 					}
-					else if(((alea<(0.15*N*M) && alea>(0.05*N*M) )|| (i-1<N && terrain[i-1][j].type==7 && alea<(0.45*N*M)) || (j-1<N && terrain[i][j-1].type==7 && alea<(0.45*N*M)) || (i+1<N && terrain[i+1][j].type==7 && alea<(0.45*N*M)) || (i<N && terrain[i][j+1].type==7 && alea<(0.45*N*M)) )){
-						terrain[i][j].type=7;
+					else if(i==0 && j>0){
+						terrain[i][j].type=4;
 					}
-					else if(((alea<(0.25*N*M) && alea>(0.15*N*M) )|| (i-1<N && terrain[i-1][j].type==6 && alea<(0.55*N*M)) || (j-1<N && terrain[i][j-1].type==6 && alea<(0.55*N*M)) || (i+1<N && terrain[i+1][j].type==6 && alea<(0.55*N*M)) || (i<N && terrain[i][j+1].type==6 && alea<(0.55*N*M)) )){
-						terrain[i][j].type=6;
+					else if(i>0 && j==0){
+						terrain[i][j].type=3;
 					}
-					else{
-						terrain[i][j].type=1;
+	        else if((j==N-1 && i!=0 )||( i==M-1 && j!=0)){
+	          terrain[i][j].type=1;
+	        }
+					else{												//ALEA "INTELLIGENTE"//
+						alea=rand()%(N*M);
+						if((alea<(0.05*N*M) )||( (i-1<N && terrain[i-1][j].type==5 && alea<(0.4*N*M)) || (j-1<N && terrain[i][j-1].type==5 && alea<(0.4*N*M)) || (i+1<N && terrain[i+1][j].type==5 && alea<(0.4*N*M)) || (i<N && terrain[i][j+1].type==5 && alea<(0.4*N*M)) )){
+							terrain[i][j].type=5;
+
+						}
+						else if(((alea<(0.15*N*M) && alea>(0.05*N*M) )|| (i-1<N && terrain[i-1][j].type==7 && alea<(0.45*N*M)) || (j-1<N && terrain[i][j-1].type==7 && alea<(0.45*N*M)) || (i+1<N && terrain[i+1][j].type==7 && alea<(0.45*N*M)) || (i<N && terrain[i][j+1].type==7 && alea<(0.45*N*M)) )){
+							terrain[i][j].type=7;
+						}
+						else if(((alea<(0.25*N*M) && alea>(0.15*N*M) )|| (i-1<N && terrain[i-1][j].type==6 && alea<(0.55*N*M)) || (j-1<N && terrain[i][j-1].type==6 && alea<(0.55*N*M)) || (i+1<N && terrain[i+1][j].type==6 && alea<(0.55*N*M)) || (i<N && terrain[i][j+1].type==6 && alea<(0.55*N*M)) )){
+							terrain[i][j].type=6;
+						}
+						else{
+							terrain[i][j].type=1;
+						}
 					}
+
+				}else{						//=====preset de carte chargé par fichiers=====//
+
+					fscanf(fp, "%i", &var1);
+	        terrain[i][j].type=var1;
 				}
 
-			}else{						//=====preset de carte chargé par fichiers=====//
-
-				fscanf(fp, "%i", &var1);
-        terrain[i][j].type=var1;
 			}
 
 		}
-
-	}
+	}while(carte_valide(terrain)==0 && PRESET==1);
 	if(PRESET>1){
 		fclose(fp);
 	}
@@ -259,7 +261,7 @@ loadImage(image,renderer);
 				}
 			}
 		}
-	
+
 
 //========================================FENETRE=====================================//
 
@@ -706,7 +708,7 @@ if( pWindow )
 					}
 					nb_tour=0;
 					if(tab[joueur_actu].pts_action_actu<=0){ //direction blockage
-						for (int i=0;i<N;i++){ 
+						for (int i=0;i<N;i++){
 							for (int j=0;j<M;j++){
 								if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu){
 									IA_blockage_direction(terrain,i,j,joueur_actu);//tourne le perso selon la direction la plus intéressante
@@ -717,7 +719,7 @@ if( pWindow )
 
 				}
 
-				
+
 			}
 
 
@@ -944,7 +946,7 @@ if( pWindow )
 
 						break;
 						case 2:
-						
+
 							img_anim=afficher_anim(compteur_anim,terrain[i][j].piece->classe,terrain,i,j,1);
 							afficher_img(20,20,100,100,"images/scout_anim.png",image,renderer,coefZoom,1,img_anim);
 
@@ -1123,7 +1125,7 @@ if( pWindow )
 
 
 		}//fin boucle de jeu
-		} 
+		}
 
 	}
 	else {

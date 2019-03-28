@@ -6,18 +6,18 @@
 #include "interface.h"
 
 //=NB JOUEURS,JOUEUR TOTAUX=====//
-int J= 50 ; //nb de joueur total
-int J_HUMAIN= 0 ;//nb de joueur humain parmis les joueurs totales
+int J= 5 ; //nb de joueur total
+int J_HUMAIN= 1 ;//nb de joueur humain parmis les joueurs totales
 //==============================//
 
 //==UNITEES=====================//
 int NB_CLASSE= 6 ; //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
-int NB_UNITE= 10 ; //nb unité pour chaque joueurs au debut de la partie
+int NB_UNITE= 5 ; //nb unité pour chaque joueurs au debut de la partie
 //==============================//
 
 //===========VITESSE DU JEU=====//
-int PTS_ACTION_MAX= 4 ; //pts d'action max pour chaque tours de chaque joueur
-int VITESSE_JEU_BOT= 1 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
+int PTS_ACTION_MAX= 5 ; //pts d'action max pour chaque tours de chaque joueur
+int VITESSE_JEU_BOT= 25 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
 int VITESSE_ANIM=25;
 //==============================//
 
@@ -25,8 +25,8 @@ int VITESSE_ANIM=25;
 int AFF_DEG= 10 ; //nombre d'affichage max a la fois par boucle d'affichage d'info texte de dégats, morts et soins
 int PRESET= 1 ; //1 pour generation alea, autre pour preset de carte via fichier
 
-int N= 50 ; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
-int M= 50 ;
+int N= 20 ; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
+int M= 20 ;
 //==============================//
 
 
@@ -439,7 +439,7 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
           blockage = calc_block(terrain,x_att,y_att,x_def,y_def);
           armure = terrain[x_def][y_def].piece->armure;
         }
-        
+
         if(blockd>=blockage){
 
           int deg=((terrain[x_att][y_att].piece->puissance)-armure);
@@ -493,7 +493,7 @@ void depla_atk_mov(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu,joue
   if(terrain[x_bot][y_bot].piece && a_portee(terrain,x_bot,y_bot,joueur_actu)==0 ){
     fprintf(stderr,"VERS ennemi\n");
     depla_ennem_plus_proche(terrain,x_bot,y_bot,joueur_actu,tab);
-  }else if(terrain[x_bot][y_bot].piece && reste_allie(terrain,joueur_actu)>1 && (allie_adjacent(terrain,x_bot,y_bot,joueur_actu))==0){ 
+  }else if(terrain[x_bot][y_bot].piece && reste_allie(terrain,joueur_actu)>1 && (allie_adjacent(terrain,x_bot,y_bot,joueur_actu))==0){
     fprintf(stderr,"VERS allie\n");
     depla_allie_plus_proche(terrain,x_bot,y_bot,joueur_actu,tab);
   }else{
@@ -896,7 +896,7 @@ void update_stats(case_t terrain[N][M],int x,int y,int joueur_actu,joueurs_t tab
 
 
         //++++++KNIGHT++++++++//
-  if(terrain[x][y].piece->classe==knight){  
+  if(terrain[x][y].piece->classe==knight){
     //===bonus a chaque kill=====//
     terrain[x][y].piece->puissance+=terrain[x][y].piece->kill;
     terrain[x][y].piece->armure+=1;
@@ -1005,7 +1005,7 @@ void update_stats(case_t terrain[N][M],int x,int y,int joueur_actu,joueurs_t tab
 
       //++++++AUTRE++++++++//
   }else if(terrain[x][y].piece->classe==priest){ //autre unité
-    
+
   }
 
 }
@@ -1188,4 +1188,50 @@ void IA_blockage_direction(case_t terrain[N][M],int x_def,int y_def,int joueur_a
 
 
   return img_anim;
+ }
+
+
+
+ int carte_valide(case_t terrain[N][M]){
+   int cases[N][M];
+   for(int i=0;i<N;i++){
+     for(int j=0;j<M;j++){
+       if(terrain[i][j].type==5){
+         cases[i][j]=-1;
+       }else{
+         cases[i][j]=0;
+       }
+     }
+   }
+   //coin =1
+   cases[0][0]=1;
+   cases[N-1][M-1]=1;
+   cases[0][M-1]=1;
+   cases[N-1][0]=1;
+   int cpt=0;
+   while(cpt<N*M){
+     for(int i=0;i<N;i++){
+       for(int j=0;j<M;j++){
+         if (cases[i][j]==cpt){
+           if(i+1<N && cases[i+1][j]==0)
+               cases[i+1][j]=cpt+1;
+           if(i-1>=0 && cases[i-1][j]==0)
+               cases[i-1][j]=cpt+1;
+           if(j+1<M && cases[i][j+1]==0)
+               cases[i][j+1]=cpt+1;
+           if(j-1>=0 && cases[i][j-1]==0)
+               cases[i][j-1]=cpt+1;
+         }
+       }
+     }
+     cpt++;
+   }
+   for(int i=0;i<N;i++){
+     for(int j=0;j<M;j++){
+       if(cases[i][j]==0){
+         return 0;
+       }
+     }
+   }
+   return 1;
  }
