@@ -12,7 +12,7 @@ int J_HUMAIN= 1 ;//nb de joueur humain parmis les joueurs totales
 
 //==UNITEES=====================//
 int NB_CLASSE= 6 ; //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
-int NB_UNITE= 5 ; //nb unité pour chaque joueurs au debut de la partie
+int NB_UNITE= 7 ; //nb unité pour chaque joueurs au debut de la partie
 //==============================//
 
 //===========VITESSE DU JEU=====//

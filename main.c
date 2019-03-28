@@ -146,24 +146,24 @@ if( pWindow )
 					break;
 					case SDL_MOUSEBUTTONDOWN:
 						if(e.button.button == SDL_BUTTON_LEFT){
-							if((nb_j+nb_o)<5){
+							if((nb_j+nb_o)<50){
 								if(e.button.x>x1&&e.button.x<x1+fontsize){
 									if(e.button.y>y && e.button.y<y+fontsize)nb_j++;
 									if(e.button.y>y*5 && e.button.y<y*5+fontsize)nb_o++;
 								}
 							}
-							if((nb_j+nb_o)>0){
+							if((nb_j+nb_o)>2){
 								if(e.button.x>x2&&e.button.x<x2+fontsize){
 									if(e.button.y>y && e.button.y<y+fontsize&&nb_j>0)nb_j--;
 									if(e.button.y>y*5 && e.button.y<y*5+fontsize&&nb_o>0)nb_o--;
 								}
 							}
-							if(taille>=10&&taille<=25){
-								if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*9&&e.button.y<y*9+fontsize&&taille<25)taille++;
+							if(taille>=10&&taille<=100){
+								if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*9&&e.button.y<y*9+fontsize&&taille<100)taille++;
 								if(e.button.x>x2&&e.button.x<x2+fontsize&&e.button.y>y*9&&e.button.y<y*9+fontsize&&taille>10)taille--;
 							}
-							if(nb_unit>=1&&nb_unit<=5){
-								if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*13&&e.button.y<y*13+fontsize&&nb_unit<5)nb_unit++;
+							if(nb_unit>=1&&nb_unit<=30){
+								if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*13&&e.button.y<y*13+fontsize&&nb_unit<30)nb_unit++;
 								if(e.button.x>x2&&e.button.x<x2+fontsize&&e.button.y>y*13&&e.button.y<y*13+fontsize&&nb_unit>1)nb_unit--;
 							}
 							if(e.button.y > gpScreen->h/5*4 && e.button.y < gpScreen->h){
@@ -931,17 +931,17 @@ if( pWindow )
 
 
 
-									AfficherText("Joueurs Restants :        ","arial.ttf",c,20,renderer,185,25);
+									AfficherText("Joueurs Restants :        ","arial.ttf",c,20,renderer,185,30);
 									sprintf(variable, "%d",  nb_joueur_restant);
-									AfficherText(variable,"arial.ttf",c,30,renderer,350,22);
+									AfficherText(variable,"arial.ttf",c,30,renderer,365,22);
 
-									AfficherText("Allie Restant :        ","arial.ttf",c,20,renderer,185,75);
+									AfficherText("Unit Allies :        ","arial.ttf",c,20,renderer,185,80);
 									sprintf(variable, "%d",  reste_allie(terrain,joueur_actu));
-									AfficherText(variable,"arial.ttf",c,30,renderer,350,72);
+									AfficherText(variable,"arial.ttf",c,30,renderer,365,72);
 
-									AfficherText("Ennemis Restants :        ","arial.ttf",c,20,renderer,185,125);
+									AfficherText("Unit Ennemis:        ","arial.ttf",c,20,renderer,185,130);
 									sprintf(variable, "%d",  reste_ennemi(terrain,joueur_actu));
-									AfficherText(variable,"arial.ttf",c,30,renderer,350,122);
+									AfficherText(variable,"arial.ttf",c,30,renderer,365,122);
 
 
 
