@@ -1104,7 +1104,7 @@ void IA_blockage_direction(case_t terrain[N][M],int x_def,int y_def,int joueur_a
 
 
 
- SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],int compteur,int compteur2,int inter){
+SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],int compteur,int compteur2,int inter){
   SDL_Rect img_anim;
   img_anim.h=100;
   img_anim.w=100;
@@ -1188,11 +1188,10 @@ void IA_blockage_direction(case_t terrain[N][M],int x_def,int y_def,int joueur_a
 
 
   return img_anim;
- }
+}
 
 
-
- int carte_valide(case_t terrain[N][M]){
+int carte_valide(case_t terrain[N][M]){
    int cases[N][M];
    for(int i=0;i<N;i++){
      for(int j=0;j<M;j++){
@@ -1208,7 +1207,7 @@ void IA_blockage_direction(case_t terrain[N][M],int x_def,int y_def,int joueur_a
    cases[N-1][M-1]=1;
    cases[0][M-1]=1;
    cases[N-1][0]=1;
-   int cpt=0;
+   int cpt=1;
    while(cpt<N*M){
      for(int i=0;i<N;i++){
        for(int j=0;j<M;j++){
