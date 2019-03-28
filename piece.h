@@ -20,6 +20,7 @@ extern int VITESSE_JEU_BOT;
 extern int VITESSE_ANIM;
 
 extern int AFF_DEG;
+extern int TAILLE_TAB_BASH;
 
 extern int PRESET;
 extern int NB_CLASSE;
@@ -55,6 +56,14 @@ typedef struct piece_s{
     int frame_interface;
     int start_anim;
 }piece_t;
+
+
+
+typedef struct bash_s{
+  char txt[50];
+  int pos_x;
+  int pos_y;
+}bash_t;
 
 
 

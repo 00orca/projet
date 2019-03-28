@@ -33,8 +33,6 @@ int main(int argc, char** argv)
 	int sel=0;
 	int fin_tour=0;
   int var1;
-	int test_bash=0,varBash;
-	bash_t tab_info_bash[TAILLE_TAB_BASH];
 	int nb_tour=0;
 	int compteur_anim=VITESSE_ANIM;
 	int scroll_speed=20;
@@ -51,7 +49,6 @@ int main(int argc, char** argv)
 	SDL_Color c_verte = {125,255,125,0};
 	SDL_Color c_verte2 = {15,109,15,0};
 	SDL_Color b = {255,255,255,255};
-	SDL_Color c_bash = {0,255,0,0};
 
     /* Initialisation SDL*/
     if (SDL_Init(SDL_INIT_VIDEO) != 0 ) {
@@ -108,11 +105,6 @@ if( pWindow )
 	running = Menu;
 	SDL_Event e;
 	while(running != Quit) {
-		//================================================================================================================================================//
-		//================================================================================================================================================//
-		//=============================================================MENU PRINCIPALE====================================================================//
-		//================================================================================================================================================//
-		//================================================================================================================================================//
 		if(running == Menu){
 			int longeur = draw_menu(renderer,pWindow);
 			while(SDL_PollEvent(&e)) {
@@ -130,12 +122,8 @@ if( pWindow )
 					break;
 				}
 			}
-			//================================================================================================================================================//
-			//================================================================================================================================================//
-			//=============================================================CHOIX DES PROPRIÉTÉ PARTIE=========================================================//
-			//===================================================================ET===========================================================================//
-			//=================================================================DEBUT DE PARTIE================================================================//
 		}else if(running == Menu2){
+			int bordure=43;
 			int nb_j=J,nb_o=0,nb_unit=NB_UNITE,taille=N;
 			int x1 = gpScreen->w - gpScreen->w/5;
 			int x2 = gpScreen->w - gpScreen->w/10;
@@ -149,24 +137,24 @@ if( pWindow )
 					break;
 					case SDL_MOUSEBUTTONDOWN:
 						if(e.button.button == SDL_BUTTON_LEFT){
-							if((nb_j+nb_o)<50){
+							if((nb_j+nb_o)<5){
 								if(e.button.x>x1&&e.button.x<x1+fontsize){
 									if(e.button.y>y && e.button.y<y+fontsize)nb_j++;
 									if(e.button.y>y*5 && e.button.y<y*5+fontsize)nb_o++;
 								}
 							}
-							if((nb_j+nb_o)>2){
+							if((nb_j+nb_o)>0){
 								if(e.button.x>x2&&e.button.x<x2+fontsize){
 									if(e.button.y>y && e.button.y<y+fontsize&&nb_j>0)nb_j--;
 									if(e.button.y>y*5 && e.button.y<y*5+fontsize&&nb_o>0)nb_o--;
 								}
 							}
-							if(taille>=10&&taille<=100){
-								if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*9&&e.button.y<y*9+fontsize&&taille<100)taille++;
+							if(taille>=10&&taille<=25){
+								if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*9&&e.button.y<y*9+fontsize&&taille<25)taille++;
 								if(e.button.x>x2&&e.button.x<x2+fontsize&&e.button.y>y*9&&e.button.y<y*9+fontsize&&taille>10)taille--;
 							}
-							if(nb_unit>=1&&nb_unit<=30){
-								if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*13&&e.button.y<y*13+fontsize&&nb_unit<30)nb_unit++;
+							if(nb_unit>=1&&nb_unit<=5){
+								if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*13&&e.button.y<y*13+fontsize&&nb_unit<5)nb_unit++;
 								if(e.button.x>x2&&e.button.x<x2+fontsize&&e.button.y>y*13&&e.button.y<y*13+fontsize&&nb_unit>1)nb_unit--;
 							}
 							if(e.button.y > gpScreen->h/5*4 && e.button.y < gpScreen->h){
@@ -181,16 +169,9 @@ if( pWindow )
 								N = taille;
 								M = N;
 
-
 								degatx_t aff_deg[N*M];
 								joueurs_t tab[J];
 								case_t terrain[N][M];
-
-								for(int i=0;i<TAILLE_TAB_BASH;i++){ //ini du tab bash
-									tab_info_bash[i].pos_x=0;
-									tab_info_bash[i].pos_y=0;
-									strcpy(tab_info_bash[i].txt,"");
-								}
 
 
 								if(PRESET>1){
@@ -711,14 +692,14 @@ if( pWindow )
 
 									for(int i=0;i<J;i++){
 										if(tab[i].nb_unite<=0){
-											tab[i].id_joueur=-2;
+											tab[i].id_joueur=-1;
 										}
 									}
 
 
 									nb_joueur_restant=0;
 									for(int i=0;i<J;i++){		//fermeture de la fenetre qd il reste un joueur en vie seulement (a modifié pour retourner au menu qd le joueur gagne)
-										if(tab[i].id_joueur!=-1 && tab[i].id_joueur!=-2){
+										if(tab[i].id_joueur!=-1){
 											nb_joueur_restant++;
 										}
 									}
@@ -938,52 +919,21 @@ if( pWindow )
 									//infos générales de la partie
 									afficher_img(150,0,200,300,"images/menu_nord.png",image,renderer,1,0,img_anim);
 
-									AfficherText("Joueurs Restants :        ","arial.ttf",c,20,renderer,185,30);
+
+
+									AfficherText("Joueurs Restants :        ","arial.ttf",c,20,renderer,185,25);
 									sprintf(variable, "%d",  nb_joueur_restant);
-									AfficherText(variable,"arial.ttf",c,30,renderer,365,22);
+									AfficherText(variable,"arial.ttf",c,30,renderer,350,22);
 
-									AfficherText("Unit Allies :        ","arial.ttf",c,20,renderer,185,80);
+									AfficherText("Allie Restant :        ","arial.ttf",c,20,renderer,185,75);
 									sprintf(variable, "%d",  reste_allie(terrain,joueur_actu));
-									AfficherText(variable,"arial.ttf",c,30,renderer,365,72);
+									AfficherText(variable,"arial.ttf",c,30,renderer,350,72);
 
-									AfficherText("Unit Ennemis:        ","arial.ttf",c,20,renderer,185,130);
+									AfficherText("Ennemis Restants :        ","arial.ttf",c,20,renderer,185,125);
 									sprintf(variable, "%d",  reste_ennemi(terrain,joueur_actu));
-									AfficherText(variable,"arial.ttf",c,30,renderer,365,122);
+									AfficherText(variable,"arial.ttf",c,30,renderer,350,122);
 
 
-						//==============BASH=======================//
-									afficher_img(((*largeur)-350),0,300,350,"images/bash.png",image,renderer,1,0,img_anim);
-									test_bash=0;
-									for(int i=0;i<J;i++){
-										if(tab[i].id_joueur==-2){
-											varBash=i;
-											test_bash=1;
-										}
-									}
-									if(test_bash==1){
-										for(int j=0;j<TAILLE_TAB_BASH-1;j++){
-											if((tab_info_bash[j].pos_x==0 && tab_info_bash[j+1].pos_x!=0 )){
-												tab_info_bash[j].pos_x=tab_info_bash[j+1].pos_x;
-												tab_info_bash[j].pos_y=tab_info_bash[j+1].pos_y-25; ///ICI POUR PLACE ENTRE LES LIGNE DE BASH (-TAILLE ENTRE LES LIGNES).
-												strcpy(tab_info_bash[j].txt,tab_info_bash[j+1].txt);
-											}
-										}
-
-
-										tab_info_bash[TAILLE_TAB_BASH-1].pos_x=((*largeur)-350+40);
-										tab_info_bash[TAILLE_TAB_BASH-1].pos_y=265;
-										sprintf(variable, "| Le Joueur %d a ete elimine.",varBash);
-										strcpy(tab_info_bash[TAILLE_TAB_BASH-1].txt,variable);
-									}
-
-									for(int i=0;i<TAILLE_TAB_BASH;i++){
-										if(tab_info_bash[i].pos_x!=0){
-											fprintf(stderr,"test :%s: \n",tab_info_bash[i].txt);
-											AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash,15,renderer,tab_info_bash[i].pos_x,tab_info_bash[i].pos_y);
-										}
-									}
-
-				//==============BASH=======================//
 
 									for(int i=0;i<N;i++){
 										for(int j=0;j<M;j++){
@@ -1134,14 +1084,6 @@ if( pWindow )
 
 
 								//===================================ACTUALISATION DES TOURS==========================================//
-
-								for(int i=0;i<J;i++){
-									if(tab[i].id_joueur==-2){
-										tab[i].id_joueur=-1;
-									}
-								}
-
-
 									if(nb_joueur_restant==1){
 										for(int i=0;i<J;i++){
 											if(tab[i].id_joueur!=-1)
@@ -1162,7 +1104,7 @@ if( pWindow )
 
 									//incrémentation a chaque tours
 									nb_tour=(nb_tour+1)%(VITESSE_JEU_BOT*2);
-									compteur_anim=compteur_anim%(VITESSE_ANIM*4);
+									compteur_anim=compteur_anim%(VITESSE_ANIM*2);
 									compteur_anim++;
 
 								}//fin boucle de jeu
@@ -1171,23 +1113,8 @@ if( pWindow )
 					break;
 				}
 			}
-
-
-			//================================================================================================================================================//
-			//================================================================================================================================================//
-			//=============================================================CHARGEMENT DE PARTIE===============================================================//
-			//================================================================================================================================================//
-			//================================================================================================================================================//
-
 		}else if(running == Load){
-
 			running = Play;
-
-			//================================================================================================================================================//
-			//================================================================================================================================================//
-			//=============================================================HELP===============================================================================//
-			//================================================================================================================================================//
-			//================================================================================================================================================//
 		}else if(running == Help){
 			help(renderer,pWindow);
 			while(SDL_PollEvent(&e)) {
@@ -1204,11 +1131,6 @@ if( pWindow )
 					break;
 				}
 			}
-			//================================================================================================================================================//
-			//================================================================================================================================================//
-			//=============================================================ABOUT==============================================================================//
-			//================================================================================================================================================//
-			//================================================================================================================================================//
 		}else if(running == About){
 			about(renderer,pWindow);
 			while(SDL_PollEvent(&e)) {

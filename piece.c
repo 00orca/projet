@@ -17,12 +17,13 @@ int NB_UNITE= 7 ; //nb unité pour chaque joueurs au debut de la partie
 
 //===========VITESSE DU JEU=====//
 int PTS_ACTION_MAX= 5 ; //pts d'action max pour chaque tours de chaque joueur
-int VITESSE_JEU_BOT= 25 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
+int VITESSE_JEU_BOT= 1 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
 int VITESSE_ANIM=15;
 //==============================//
 
 //========AFFICHAGE/GRILLE======//
 int AFF_DEG= 10 ; //nombre d'affichage max a la fois par boucle d'affichage d'info texte de dégats, morts et soins
+int TAILLE_TAB_BASH=10; //taille du tableau de donné du bash
 int PRESET= 1 ; //1 pour generation alea, autre pour preset de carte via fichier
 
 int N= 10 ; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
@@ -763,11 +764,11 @@ void depla_ennem_plus_proche(case_t terrain[N][M],int x_bot,int y_bot,int joueur
   int distance_allie=-1;
   for(int i=0;i<N;i++){
     for(int j=0;j<M;j++){
-      if(terrain[i][j].piece && terrain[i][j].piece->joueur!=joueur_actu && distance_allie==-1){
+      if(terrain[i][j].piece && terrain[i][j].piece->joueur!=joueur_actu && distance_allie==-1 && (x_bot!=i || y_bot!=j)){
         x_allie=i;
         y_allie=j;
         distance_allie=(abs(x_bot-x_allie)+abs(y_bot-y_allie));
-      }else if(terrain[i][j].piece && terrain[i][j].piece->joueur!=joueur_actu && distance_allie>(abs(x_bot-i)+abs(y_bot-j))){
+      }else if(terrain[i][j].piece && terrain[i][j].piece->joueur!=joueur_actu && distance_allie>(abs(x_bot-i)+abs(y_bot-j))&& (x_bot!=i || y_bot!=j)){
         x_allie=i;
         y_allie=j;
         distance_allie=(abs(x_bot-x_allie)+abs(y_bot-y_allie));
