@@ -6,6 +6,14 @@
 #include <SDL2/SDL_image.h>
 
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include<netdb.h>
+#include <signal.h>
+#include <unistd.h>
+
 //facteurs changeant la méthode que les bots utilise pour jouer
 #define DEFENSIF 3 //nb de piece qui peuvent attaquer le bot a patir duquel il jouera cet piece en mode defensif
 #define AGRESSIF 2 //nb de coup (en comptant l'armure) sans prendre en compte le block qui pouraient tuer un ennemi a porter (en comptant les allié a porte aussi)
@@ -53,7 +61,6 @@ typedef struct piece_s{
     int kill;
     int frame; //pour les images successive utile a l'animation
     int frame_interface;
-    int start_anim;
 }piece_t;
 
 
@@ -70,7 +77,7 @@ typedef struct case_s{
 	int y1;
 	int x2;
 	int y2;
-  int x3;
+    int x3;
 	int y3;
 	int x4;
 	int y4;
@@ -127,3 +134,18 @@ void IA_blockage_direction(case_t terrain[N][M],int x_def,int y_def,int joueur_a
 SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],int compteur,int compteur2,int inter); //return un rectangle pour afficher la bonne frame d'animation
 //void afficher_unitee(int compteur_anim,classe_t classe,case_t terrain[N][M],int compteur,int compteur2,int h,int w,char img[50],image_t image[Z],SDL_Renderer *renderer,float coefZoom,int anim,SDL_Rect imgDestRect); //affichage d'une unité sur la map en x et y de la grille
 void carte_valide(case_t terrain[N][M]); //corrige la map pour qu'elle ne possède pas de zone inaccessible.
+
+//////////////RES//////////////////////
+//#define SERVEURNAME "192.168.1.106" // adresse IP de mon serveur
+#define SERVEURNAME "127.0.0.1" // adresse IP de mon serveur
+
+#define QUITTER "QUITTER"
+
+char buffer[512];
+
+void fin(int sig);
+int hostname_to_ip(char * hostname , char* ip);
+void view_ip();
+void send_game_state(int client_socket,case_t terrain[N][M]);
+int setup_serv ();
+int connection_serv ();

@@ -6,27 +6,27 @@
 #include "interface.h"
 
 //=NB JOUEURS,JOUEUR TOTAUX=====//
-int J= 4 ; //nb de joueur total
+int J= 50 ; //nb de joueur total
 int J_HUMAIN= 1 ;//nb de joueur humain parmis les joueurs totales
 //==============================//
 
 //==UNITEES=====================//
 int NB_CLASSE= 6 ; //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
-int NB_UNITE= 5 ; //nb unité pour chaque joueurs au debut de la partie
+int NB_UNITE= 30 ; //nb unité pour chaque joueurs au debut de la partie
 //==============================//
 
 //===========VITESSE DU JEU=====//
-int PTS_ACTION_MAX= 5 ; //pts d'action max pour chaque tours de chaque joueur
-int VITESSE_JEU_BOT= 25 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
-int VITESSE_ANIM=15;
+int PTS_ACTION_MAX= 20 ; //pts d'action max pour chaque tours de chaque joueur
+int VITESSE_JEU_BOT= 1 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
+int VITESSE_ANIM=25;
 //==============================//
 
 //========AFFICHAGE/GRILLE======//
 int AFF_DEG= 10 ; //nombre d'affichage max a la fois par boucle d'affichage d'info texte de dégats, morts et soins
 int PRESET= 1 ; //1 pour generation alea, autre pour preset de carte via fichier
 
-int N= 10 ; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
-int M= 10 ;
+int N= 100 ; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
+int M= 100 ;
 //==============================//
 
 
@@ -35,7 +35,6 @@ piece_t * init_piece(classe_t classe,int id_joueur){
     piece_t * piece=malloc(sizeof(piece_t));
     int frame=((rand()%2)+1);
     int frame2=((rand()%10)+1);
-    int start_anim=((rand()%VITESSE_ANIM));
     switch (classe){
         case knight:
             piece->classe = knight;
@@ -51,7 +50,6 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame;
             piece->frame_interface=frame;
-            piece->start_anim=start_anim;
         break;
         case scout:
             piece->classe = scout;
@@ -67,7 +65,6 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame;
             piece->frame_interface=frame;
-            piece->start_anim=start_anim;
         break;
         case priest:
             piece->classe = priest;
@@ -83,7 +80,6 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame;
             piece->frame_interface=frame;
-            piece->start_anim=start_anim;
         break;
         case magician:
             piece->classe = magician;
@@ -99,7 +95,6 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame;
             piece->frame_interface=frame;
-            piece->start_anim=start_anim;
         break;
         case faucheuse:
             piece->classe = faucheuse;
@@ -115,7 +110,6 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame;
             piece->frame_interface=frame;
-            piece->start_anim=start_anim;
         break;
         case ange:
             piece->classe = ange;
@@ -131,7 +125,6 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->kill=0;
             piece->frame=frame2;
             piece->frame_interface=frame2;
-            piece->start_anim=start_anim;
         break;
         default: printf("Cette classe n'existe pas.\n");
     }
@@ -241,7 +234,6 @@ void move(case_t terrain[N][M],int x,int y,int joueur,joueurs_t tab[J]){
             terrain[x][y].piece->kill = terrain[compteur][compteur2].piece->kill;
             terrain[x][y].piece->frame = terrain[compteur][compteur2].piece->frame;
             terrain[x][y].piece->frame_interface = terrain[compteur][compteur2].piece->frame_interface;
-            terrain[x][y].piece->start_anim = terrain[compteur][compteur2].piece->start_anim;
 
 
             //destruction_piece(terrain[compteur][compteur2].piece);
@@ -1119,7 +1111,7 @@ SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],in
     //anim a 2 images
   if(inter==0){
     if(classe==knight || classe==scout || classe==magician || classe==priest){
-      if(compteur_anim%VITESSE_ANIM==terrain[compteur][compteur2].piece->start_anim){
+      if(compteur_anim%VITESSE_ANIM==0){
         if(terrain[compteur][compteur2].piece->frame==2){
           terrain[compteur][compteur2].piece->frame=1;
         }else{
@@ -1136,7 +1128,7 @@ SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],in
     }
     //ANIM DE L'ANGE
     else if(classe==ange){
-      if(compteur_anim%VITESSE_ANIM==terrain[compteur][compteur2].piece->start_anim){
+      if(compteur_anim%VITESSE_ANIM==0){
         if(terrain[compteur][compteur2].piece->frame==10){
           terrain[compteur][compteur2].piece->frame=1;
         }else{
@@ -1156,7 +1148,7 @@ SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],in
     }
   }else{ //anim de l'interface en haut a gauche
     if(classe==knight || classe==scout || classe==magician || classe==priest){
-      if(compteur_anim%VITESSE_ANIM==terrain[compteur][compteur2].piece->start_anim){
+      if(compteur_anim%VITESSE_ANIM==0){
         if(terrain[compteur][compteur2].piece->frame_interface==2){
           terrain[compteur][compteur2].piece->frame_interface=1;
         }else{
@@ -1172,7 +1164,7 @@ SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],in
       }
     }
     else if(classe==ange){
-      if(compteur_anim%VITESSE_ANIM==terrain[compteur][compteur2].piece->start_anim){
+      if(compteur_anim%VITESSE_ANIM==0){
         if(terrain[compteur][compteur2].piece->frame_interface==10){
           terrain[compteur][compteur2].piece->frame_interface=1;
         }else{
@@ -1250,3 +1242,211 @@ void carte_valide(case_t terrain[N][M]){
    }
    return;
  }
+
+
+
+/////////////////////////////RESEAU////////////////////////////////////////
+
+
+void fin(int sig){
+	printf("fin du serveur");
+}
+
+int hostname_to_ip(char * hostname , char* ip)
+{
+    struct hostent *he;
+    struct in_addr **addr_list;
+    int i;
+
+    if ( (he = gethostbyname( hostname ) ) == NULL)
+    {
+        // get the host info
+        herror("gethostbyname");
+        return 1;
+    }
+
+    addr_list = (struct in_addr **) he->h_addr_list;
+
+    for(i = 0; addr_list[i] != NULL; i++)
+    {
+        //Return the first one;
+        strcpy(ip , inet_ntoa(*addr_list[i]) );
+        return 0;
+    }
+
+    return 1;
+}
+
+
+void view_ip()
+{
+  char s[256];
+  struct hostent *host;
+  struct in_addr **adr;
+  if (!gethostname(s, 256))
+    if ((host = gethostbyname(s)) != NULL)
+      for (adr = (struct in_addr **)host->h_addr_list; *adr; adr++)
+          printf("IP : %s\n", inet_ntoa(**adr));
+}
+void send_game_state(int client_socket,case_t terrain[N][M]){
+	int i,j;
+	for (i=0;i<N;i++){
+		for(j=0;j<M;j++){
+            /*//case
+			send(client_socket,terrain[i][j].type,sizeof(int),0);
+            send(client_socket,terrain[i][j].climat,sizeof(i),0);
+            send(client_socket,terrain[i][j].xImg,sizeof(int),0);
+            send(client_socket,terrain[i][j].yImg,sizeof(i),0);
+            send(client_socket,terrain[i][j].x1,sizeof(int),0);
+            send(client_socket,terrain[i][j].x2,sizeof(i),0);
+            send(client_socket,terrain[i][j].x3,sizeof(int),0);
+            send(client_socket,terrain[i][j].x4,sizeof(i),0);
+            send(client_socket,terrain[i][j].y1,sizeof(int),0);
+            send(client_socket,terrain[i][j].y2,sizeof(i),0);
+            send(client_socket,terrain[i][j].y3,sizeof(int),0);
+            send(client_socket,terrain[i][j].y4,sizeof(i),0);
+
+            //piece
+            if(piece_existe(terrain[i][j])){
+                send(client_socket,terrain[i][j].piece->classe,sizeof(int),0);
+                send(client_socket,terrain[i][j].piece->pdv,sizeof(int),0);
+                send(client_socket,terrain[i][j].piece->puissance,sizeof(i),0);
+                send(client_socket,terrain[i][j].piece->armure,sizeof(int),0);
+                send(client_socket,terrain[i][j].piece->block,sizeof(int),0);
+                send(client_socket,terrain[i][j].piece->portee,sizeof(int),0);
+                send(client_socket,terrain[i][j].piece->deplacement,sizeof(int),0);
+                send(client_socket,terrain[i][j].piece->select,sizeof(int),0);
+                send(client_socket,terrain[i][j].piece->joueur,sizeof(int),0);
+                send(client_socket,terrain[i][j].piece->direction,sizeof(int),0);
+                send(client_socket,terrain[i][j].piece->kill,sizeof(int),0);*/
+            init_piece(buffer[i][j].piece,terrain[i][j].piece->joueur);
+            buffer[i][j]=terrain[i][j];
+            send(client_socket,buffer[i][j],sizeof(buffer),0);
+            }
+		}
+	}
+	/*printf("quel est votre message : ");
+	scanf(" %[^\n]s", buffer);
+	sprintf(msg, "MSG %s", buffer);
+	send(client_socket, msg, strlen(msg), 0); //on augmente la taille de 4 pour l'entête
+	// lecture de la réponse
+	memset(buffer, 0, sizeof(buffer));*/
+	recv(client_socket,buffer,512,0);
+	printf("[client] reponse du client: '%s'\n", buffer);
+}
+
+int setup_serv (int * client_socket)
+{
+	int ma_socket;
+	struct sockaddr_in mon_address, client_address;
+	unsigned int mon_address_longueur, lg;
+	bzero(&mon_address,sizeof(mon_address));
+	mon_address.sin_port = htons(30000);
+	mon_address.sin_family = AF_INET;
+	mon_address.sin_addr.s_addr = htonl(INADDR_ANY);
+
+	char *hostname = "localhost";
+    char ip[100];
+
+    hostname_to_ip(hostname , ip);
+	fprintf(stderr, "%s resolved to %s" , hostname , ip);
+	view_ip();
+
+	/* creation de socket */
+	if ((ma_socket = socket(AF_INET,SOCK_STREAM,0))== -1) {
+		printf("Impossible de créer la socket\n");
+		exit(0);
+	}
+
+	/* bind serveur - socket */
+	bind(ma_socket,(struct sockaddr *)&mon_address,sizeof(mon_address));
+	/* ecoute sur la socket */
+	listen(ma_socket,5);
+	/* accept la connexion */
+	mon_address_longueur = sizeof(client_address);
+
+    /* on attend que le client se connecte */
+	client_socket = accept(ma_socket,
+                         (struct sockaddr *)&client_address,
+                         &mon_address_longueur);
+
+	int quitter=0;
+    while(!quitter)
+	{
+		memset(buffer, 0, sizeof(buffer));
+		lg = recv(client_socket, buffer, 512,0);
+
+		if(strncmp("MSG", buffer, 3)==0){
+			printf("[serveur] message reçu : '%s'\n",buffer+4);
+			printf("[serveur] envoi de la réponse ");
+			sprintf(buffer,"REPONSE DU SERVEUR");
+			send(client_socket, buffer, 512, 0);
+		} else if(strncmp("QUITTER", buffer, 7) == 0) {
+			printf("[serveur] déconnexion demandée : '%s'\n",buffer);
+			shutdown(client_socket,2);
+			close(client_socket);
+			quitter=1;
+		} else if(strncmp("BONJOUR", buffer, 7) == 0){
+			printf("[serveur] BONJOUR d'un client\n");
+			send(client_socket, "BONJOUR", 7, 0);
+		} else {
+			printf("[serveur] message inconnu : '%s'\n", buffer);
+		}
+	}
+	shutdown(ma_socket,2);
+	close(ma_socket);
+	return 0;
+}
+
+////////////////////CLIENT///////////////////////////////////
+void quitter(int to_server_socket){
+	printf("[client] envoi message QUITTER au serveur\n");
+	send(to_server_socket,QUITTER,7,0);
+}
+
+void receive_game_state(int client_socket,case_t terrain[N][M]){
+
+}
+
+int connection_serv (int * to_server_socket)
+{
+	struct sockaddr_in serveur_addr;
+	struct hostent *serveur_info;
+	long hostAddr;
+	char buffer[512];
+
+	bzero(&serveur_addr,sizeof(serveur_addr));
+	hostAddr = inet_addr(SERVEURNAME);
+	if ( (long)hostAddr != (long)-1 ){
+		bcopy(&hostAddr,&serveur_addr.sin_addr,sizeof(hostAddr));
+	} else {
+		serveur_info = gethostbyname(SERVEURNAME);
+	  	if (serveur_info == NULL) {
+			printf("Impossible de récupérer les infos du serveur\n");
+			exit(0);
+	  	}
+	  	bcopy(serveur_info->h_addr,&serveur_addr.sin_addr,serveur_info->h_length);
+	}
+	serveur_addr.sin_port = htons(30000);
+	serveur_addr.sin_family = AF_INET;
+	/* creation de la socket */
+	if ( (to_server_socket = socket(AF_INET,SOCK_STREAM,0)) < 0) {
+		printf("Impossible de créer la socket client\n");
+	  	exit(0);
+	}
+	/* requete de connexion */
+	if(connect( to_server_socket, (struct sockaddr *)&serveur_addr, sizeof(serveur_addr)) < 0 ) {
+		printf("Impossible de se connecter au serveur\n");
+	  	exit(0);
+	}
+	/* envoie de données et reception */
+	send(to_server_socket,"BONJOUR",7,0);
+	memset(buffer, 0, sizeof(buffer));
+	recv(to_server_socket,buffer,512, 0);
+	printf("[client] %s [du serveur]\n", buffer);
+
+	/* fermeture de la connexion */
+	shutdown(to_server_socket,2);
+	close(to_server_socket);
+	return 0;
+}
