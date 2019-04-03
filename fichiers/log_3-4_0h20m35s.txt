@@ -1,0 +1,4 @@
+MAP : 20 x 20 || Joueurs : 4 || UNITEE : 7 par joueurs
+| Unite de Joueur 0 en 7/17 se deplace vers 6/15
+| Unite de Joueur 0 en 6/15 se deplace vers 9/15
+| Unite de Joueur 0 en 9/15 se deplace vers 8/16

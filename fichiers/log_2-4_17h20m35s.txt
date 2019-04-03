@@ -1,0 +1,7 @@
+MAP : 18 x 18 || Joueurs : 4 || UNITEE : 7 par joueurs
+| Unite de Joueur 0 en 8/6 se deplace vers 8/3
+| Unite de Joueur 0 en 8/3 attaque pour 26 en 10/1
+| Unite de Joueur 2 en 10/1 block Unite de 0 en 8/3 
+| Unite de Joueur 2 en 10/1 block Unite de 0 en 8/3 
+| Unite de Joueur 0 en 8/3 attaque pour 26 en 10/1
+| Unite de Joueur 0 en 8/3 tue Unite de 2 en 10/1

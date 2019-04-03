@@ -1,0 +1,3 @@
+MAP : 100 x 100 || Joueurs : 50 || UNITEE : 30 par joueurs
+| Unite de Joueur 0 en 6/3 soigne de 14 en 6/4
+| Unite de Joueur 0 en 10/7 se deplace vers 13/7

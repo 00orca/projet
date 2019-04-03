@@ -1,0 +1,6 @@
+MAP : 30 x 30 || Joueurs : 9 || UNITEE : 7 par joueurs
+| Unite de Joueur 0 en 19/7 se deplace vers 22/7
+| Unite de Joueur 0 en 17/7 se deplace vers 17/3
+| Unite de Joueur 0 en 17/9 se deplace vers 17/11
+| Unite de Joueur 0 en 18/9 se deplace vers 19/10
+| Unite de Joueur 0 en 17/8 se deplace vers 15/8

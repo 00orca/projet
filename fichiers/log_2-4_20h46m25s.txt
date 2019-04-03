@@ -1,0 +1,5 @@
+MAP : 30 x 30 || Joueurs : 10 || UNITEE : 7 par joueurs
+| Unite de Joueur 0 en 3/26 se deplace vers 5/26
+| Unite de Joueur 0 en 5/26 se deplace vers 6/26
+| Unite de Joueur 0 en 6/26 se deplace vers 5/26
+| Unite de Joueur 0 en 2/28 se deplace vers 3/29

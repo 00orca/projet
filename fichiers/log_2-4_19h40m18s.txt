@@ -1,0 +1,26 @@
+MAP : 30 x 30 || Joueurs : 9 || UNITEE : 7 par joueurs
+| Unite de Joueur 4 en 25/17 se deplace vers 24/17
+| Unite de Joueur 4 en 27/16 se deplace vers 27/19
+| Unite de Joueur 4 en 25/15 se deplace vers 23/16
+| Unite de Joueur 4 en 26/15 se deplace vers 25/13
+| Unite de Joueur 4 en 24/17 se deplace vers 23/17
+| Unite de Joueur 5 en 18/25 se deplace vers 18/28
+| Unite de Joueur 5 en 18/26 se deplace vers 20/26
+| Unite de Joueur 5 en 16/26 se deplace vers 15/23
+| Unite de Joueur 5 en 18/28 se deplace vers 15/27
+| Unite de Joueur 5 en 20/26 se deplace vers 22/26
+| Unite de Joueur 6 en 3/23 se deplace vers 4/20
+| Unite de Joueur 6 en 5/23 se deplace vers 6/19
+| Unite de Joueur 6 en 4/23 se deplace vers 5/20
+| Unite de Joueur 6 en 4/20 se deplace vers 6/20
+| Unite de Joueur 6 en 6/19 se deplace vers 8/18
+| Unite de Joueur 7 en 20/4 se deplace vers 20/7
+| Unite de Joueur 7 en 20/2 se deplace vers 18/1
+| Unite de Joueur 7 en 18/1 se deplace vers 15/2
+| Unite de Joueur 7 en 21/2 se deplace vers 23/4
+| Unite de Joueur 7 en 19/4 se deplace vers 19/6
+| Unite de Joueur 8 en 28/7 se deplace vers 28/10
+| Unite de Joueur 8 en 27/7 se deplace vers 26/7
+| Unite de Joueur 8 en 28/5 soigne de 14 en 27/6
+| Unite de Joueur 8 en 27/6 se deplace vers 24/4
+| Unite de Joueur 8 en 26/7 se deplace vers 25/8

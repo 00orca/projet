@@ -1,25 +1,42 @@
+#ifndef PIECE_H
+#define PIECE_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_image.h>
-#define N 15
-#define M 15
-#define J 3
+#include <time.h>
 
-/**
-* \file piece.c
-* \brief Structure pieces.
-*\author Willhem Liban
-*\version 0.5
-*\date 01 mars 2019
-*/
+
+extern int J_HUMAIN;
+extern int NB_UNITE;
+extern int ESPACE_GEN;
+extern int PTS_ACTION_MAX;
+
+extern int VITESSE_JEU_BOT;
+extern int VITESSE_ANIM;
+
+extern int AFF_DEG;
+extern int TAILLE_TAB_BASH;
+
+extern int PRESET;
+extern int PRESET_U;
+extern int NB_CLASSE;
+extern int N;
+extern int M;
+extern int J;
+extern int BASH_SCROLL_SPEED;
+extern int DURE_JOUR_NUIT;
+extern int NB_MAX_PRIEST;
+extern int ISO;
+
+
 
 typedef enum {
-    knight=1,scout,priest,magician
+    knight=1,scout,priest,magician,faucheuse,ange
 }classe_t;
 
+typedef enum{
+    haut=1,bas,gauche,droite
+}dir_t;
 
 typedef struct piece_s{
     classe_t classe;
@@ -31,38 +48,13 @@ typedef struct piece_s{
     int deplacement; //nombre de case de mouvement
     int select;
     int joueur;
+    dir_t direction;
+    int kill;
+    int frame; //pour les images successive utile a l'animation
+    int frame_interface;
+    int start_anim;
 }piece_t;
 
-
-
-
-typedef struct case_s{
-	int type;				//type d'une case
-	SDL_Texture *type_case;	//texture de cette case
-	int climat;
-	piece_t *piece;		//piece sur cette case
-	int deplacement;  // 1 -> droit de se deplacer , 0pas le droit de se deplacer
-	int attaque;    // 1 -> droit d'attaquer , 0 -> pas le droit d'attaquer
-	int xImg; // ccordonné reel de l'image
-	int yImg;
-	int x1; // coordonné du losange représentant une case(pour gerer les coordonnées du clic souris)
-	int y1;
-	int x2;
-	int y2;
-  int x3;
-	int y3;
-	int x4;
-	int y4;
-}case_t;
-
-
-typedef struct joueurs_s{
-  int pts_action_max;
-  int pts_action_actu;
-  int nb_unite;
-  int id_joueur;
-
-}joueurs_t;
 
 /*Fonction pour creer les pieces*/
 piece_t * init_piece(classe_t classe,int id_joueur);
@@ -70,10 +62,8 @@ piece_t * init_piece(classe_t classe,int id_joueur);
 int piece_existe(piece_t * piece);
 /*Detruit une piece*/
 int destruction_piece(piece_t * piece);
-/*Affiche les chemins possible pour la piece selectionnée dont les coordonnées sont passée en param*/
-void pathfinding(case_t terrain[N][M], int x, int y);
-int pathfinding_combat(case_t terrain[N][M], int x, int y);
-/*effectue le calcul des dommages*/
-void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def);
-void soin(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def);
-void move(case_t terrain[N][M],int x,int y, int joueur,joueurs_t tab[J]);
+
+
+
+
+#endif

@@ -1,0 +1,19 @@
+MAP : 23 x 23 || Joueurs : 6 || UNITEE : 7 par joueurs
+| Unite de Joueur 0 en 12/5 se deplace vers 13/5
+| Unite de Joueur 0 en 10/6 attaque pour 21 en 8/2
+| Unite de Joueur 0 en 11/7 se deplace vers 10/8
+| Unite de Joueur 0 en 10/7 attaque pour 20 en 5/7
+| Unite de Joueur 0 en 13/5 se deplace vers 14/5
+| Unite de Joueur 0 en 14/5 se deplace vers 15/5
+| Unite de Joueur 0 en 10/8 se deplace vers 9/7
+| Unite de Joueur 0 en 11/6 se deplace vers 11/10
+| Unite de Joueur 1 en 5/6 attaque pour 20 en 2/8
+| Unite de Joueur 1 en 5/6 attaque pour 20 en 2/8
+| Unite de Joueur 1 en 5/6 tue Unite de 3 en 2/8
+| Unite de Joueur 1 en 5/7 attaque pour 20 en 10/6
+| Unite de Joueur 1 en 6/7 soigne de 18 en 5/7
+| Unite de Joueur 1 en 7/5 soigne de 18 en 7/5
+| Unite de Joueur 1 en 5/5 se deplace vers 6/2
+| Unite de Joueur 1 en 7/6 se deplace vers 8/7
+| Unite de Joueur 1 en 6/6 se deplace vers 9/6
+| Unite de Joueur 2 en 9/0 se deplace vers 11/0

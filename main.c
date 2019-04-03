@@ -6,39 +6,92 @@
 #include <SDL2/SDL_image.h>
 
 
+
+#include "grille.h"
 #include "piece.h"
 #include "interface.h"
+#include "logs.h"
+#include "bot.h"
+#include "camera.h"
+#include "deplacement.h"
+#include "combat.h"
 
 
-//=======STRUCT========//
+//=NB JOUEURS,JOUEUR TOTAUX=====//
+int J= 2 ; //nb de joueur total
+int J_HUMAIN= 1 ;//nb de joueur humain parmis les joueurs totales
+int J_BOT= 1 ;//nb de joueur humain parmis les joueurs totales
+//==============================//
 
+//==UNITEES=====================//
+int NB_CLASSE= 6 ; //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
+int NB_UNITE= 7 ; //nb unité pour chaque joueurs au debut de la partie
+int ESPACE_GEN= 2; //espace (nb de case de chaque coté au minimum) entre deux équipes d'unitée
+int NB_MAX_PRIEST=2;
+//==============================//
 
+//===========VITESSE DU JEU=====//
+int PTS_ACTION_MAX= 8 ; //pts d'action max pour chaque tours de chaque joueur
+int VITESSE_JEU_BOT= 1 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
+int VITESSE_ANIM=15;
+//==============================//
 
+//========AFFICHAGE/GRILLE======//
+int AFF_DEG= 10 ; //nombre d'affichage max a la fois par boucle d'affichage d'info texte de dégats, morts et soins
+int TAILLE_TAB_BASH=1000; //taille max de ligne de bash sauvegardé
+int BASH_SCROLL_SPEED=2;
+int DURE_JOUR_NUIT=4000;
+int PRESET=1 ; //1 pour generation alea, autre pour preset de carte via fichier
+int PRESET_U=1; //1 pour gene aleatoire et autre pour preset d'unité
+
+int N= 20 ; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
+int M= 20 ;
+//==============================//
+int ISO=1;
+int VITESSE_INCREMENTATION=10;
 
 //=====================================MAIN=============================//
 
-int main(int argc, char** argv)
+int WinMain(int argc, char** argv)
 {
+
+
 	SDL_Window* pWindow = NULL;
 	SDL_Renderer *renderer=NULL;
-  SDL_Rect imgDestRect;
-	char variable[50];
 
-	int preset=1;
-  int alea;
-  int var1;
+	int *largeur=0,*hauteur=0;
+	largeur=malloc(sizeof(*largeur));
+	hauteur=malloc(sizeof(*hauteur));
+
+	int bordure=43;
+
+	int sel=0;
+	int fin_tour=0;
+
+
+	bash_t tab_info_bash[TAILLE_TAB_BASH];
+	int nb_tour=0;
+	int compteur_anim=VITESSE_ANIM;
 	int scroll_speed=20;
-	case_t terrain[N][M];
+	int x_bot,y_bot;
 	srand(time(NULL));
-	FILE * fp;
-	joueurs_t tab[J];
+	int souris=0;
 	int nb_joueur_restant;
 	int joueur_actu=0;
+	int frame_anim_montre=0;
+	int compteur_tour=1;
+	int clicout;//sert a ne pas deselectionner la piece actuel dans la gestion des clics
+	long int jour_nuit;
+	image_t image[Z];
+	char variable[80];
+	char variable2[80];
+	int compteur_bouton_cam=0;
+	int wait=0;
 
 
-	SDL_Color c = {0,0,0,0};
-	SDL_Texture *texte1;//*texte2,*texte3,*texte4,*texte5,*texte6,*texte7,*texte8,*texte9,*texte10,*texte11;
-	SDL_Rect txtDestRect;
+
+
+
 
 
     /* Initialisation SDL*/
@@ -46,6 +99,11 @@ int main(int argc, char** argv)
         fprintf(stdout,"Échec de l'initialisation de la SDL (%s)\n",SDL_GetError());
         return -1;
     }
+		SDL_DisplayMode dm;
+		SDL_GetCurrentDisplayMode(0,&dm);
+
+		int SCREEN_HEIGHT = dm.h;
+		int SCREEN_WIDTH = dm.w;
 	/* Initialisation TTF */
 	if(TTF_Init() == -1) {
 		fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
@@ -54,11 +112,13 @@ int main(int argc, char** argv)
 	/* Création de la fenêtre */
 	pWindow = SDL_CreateWindow("Tactic Arena Upgraded V1.0",SDL_WINDOWPOS_UNDEFINED,
 												  SDL_WINDOWPOS_UNDEFINED,
-												  1200,
-												  900,
+												  SCREEN_WIDTH,
+												  SCREEN_HEIGHT,
 												  SDL_WINDOW_SHOWN|SDL_WINDOW_RESIZABLE);
 
 
+
+	SDL_GetWindowSize(pWindow,largeur,hauteur); //initialisation des pointeur largeur et hauteur sur la taille de la fenetre
 
 	if(!pWindow){
 		fprintf(stderr, "Erreur à la création de la fenetre : %s\n", SDL_GetError());
@@ -71,655 +131,766 @@ int main(int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 
-
-
+/* a tester, ne fonctionne pas sur windows (l'icone reste le meme)
+	SDL_Surface* iconSurface;
+	iconSurface = SDL_LoadBMP("images/icon.bmp");
+	SDL_SetWindowIcon(pWindow, iconSurface);
+*/
 
 //===================================TEXTURES==========================================//
 
-	// CREATION TEXTURE CASE DE BASE  TYPE=1
-	SDL_Texture* image_case_normale = load_image("images/case_normalv2.png",renderer);
-	// CREATION TEXTURE CASE D'eau  TYPE=5
-	SDL_Texture* image_case_eau = load_image("images/case_eauv2.png",renderer);
-	// CREATION TEXTURE CASE DE foret TYPE=6
-	SDL_Texture* image_case_foret = load_image("images/case_foretv2.png",renderer);
-	// CREATION TEXTURE CASE DE montagne  TYPE=7
-	SDL_Texture* image_case_montagne = load_image("images/case_montagnev2.png",renderer);
-	// CREATION TEXTURE CASE DE BASE COIN  TYPE=2
-	SDL_Texture* image_case_coin = load_image("images/case_normal_coinv2.png",renderer);
-	// CREATION TEXTURE de bordure gauche  TYPE=3
-	SDL_Texture* image_case_normal_bordure_gauche = load_image("images/case_normal_bordure_gauchev2.png",renderer);
-	// CREATION TEXTURE de bordure droite  TYPE=4
-	SDL_Texture* image_case_normal_bordure_droite = load_image("images/case_normal_bordure_droitev2.png",renderer);
-
-//===IMAGES POUR EVENEMENTS==//
-	SDL_Texture* image_deplacement = load_image("images/deplacement.png",renderer);
-
-	SDL_Texture* image_attaque = load_image("images/attaque.png",renderer);
-
-	SDL_Texture* image_inter = load_image("images/inter.png",renderer);
-
-	SDL_Texture* image_knight = load_image("images/image_knight.png",renderer);
-
-	SDL_Texture* image_scout = load_image("images/image_scout.png",renderer);
-
-	SDL_Texture* image_priest = load_image("images/image_priest.png",renderer);
-
-	SDL_Texture* image_magician = load_image("images/image_magician.png",renderer);
-
-
-//==================================INITIALISATION GRILLE============================//
-    //choix du mode de génération
-//	printf("1 POUR CARTE ALEATOIRE, AUTRE CHIFFRE POUR UNE DES CARTES PRESET : ");
-//	scanf("%d",&preset);
-
-
-  if(preset>1){
-    fp = fopen ("fichiers/preset1.txt", "r"); //preset en 7x7
-  }
-	for(int i=0;i<N;i++){
-		for(int j=0;j<M;j++){
-
-			if(preset==1){			//======aleatoire=======//
-
-				if(i==0 && j==0){
-					terrain[i][j].type=2;
-				}
-				else if(i==0 && j>0){
-					terrain[i][j].type=4;
-				}
-				else if(i>0 && j==0){
-					terrain[i][j].type=3;
-				}
-        else if((j==N-1 && i!=0 )||( i==M-1 && j!=0)){
-          terrain[i][j].type=1;
-        }
-				else{
-					alea=rand()%6;
-					if(alea==0){
-						terrain[i][j].type=5;
-					}
-					else if(alea==1){
-						terrain[i][j].type=7;
-					}
-					else if(alea==2){
-						terrain[i][j].type=6;
-					}
-					else if(alea>=3){
-						terrain[i][j].type=1;
-					}
-				}
-
-			}else{						//=====preset de carte chargé par fichiers=====//
-
-				fscanf(fp, "%i", &var1);
-        terrain[i][j].type=var1;
-			}
-
-		}
-
-	}
-	if(preset>1){
-		fclose(fp);
-	}
-
-
-
-	for(int i=0;i<N;i++){
-		for(int j=0;j<M;j++){
-			if(terrain[i][j].type==1){
-				terrain[i][j].type_case=(image_case_normale);
-			}
-			else if(terrain[i][j].type==2){
-				terrain[i][j].type_case=(image_case_coin);
-			}
-			else if(terrain[i][j].type==3){
-				terrain[i][j].type_case=(image_case_normal_bordure_gauche);
-			}
-			else if(terrain[i][j].type==4){
-				terrain[i][j].type_case=(image_case_normal_bordure_droite);
-			}
-			else if(terrain[i][j].type==5){
-				terrain[i][j].type_case=(image_case_eau);
-			}
-			else if(terrain[i][j].type==6){
-				terrain[i][j].type_case=(image_case_foret);
-			}
-			else if(terrain[i][j].type==7){
-				terrain[i][j].type_case=(image_case_montagne);
-			}
-			terrain[i][j].climat=0;
-			terrain[i][j].xImg=0;
-			terrain[i][j].yImg=0;
-			terrain[i][j].x1=0;
-			terrain[i][j].y1=0;
-			terrain[i][j].x2=0;
-			terrain[i][j].y2=0;
-			terrain[i][j].x3=0;
-			terrain[i][j].y3=0;
-			terrain[i][j].x4=0;
-			terrain[i][j].y4=0;
-			terrain[i][j].piece=NULL;
-			terrain[i][j].deplacement=0;
-			terrain[i][j].attaque=0;
-
-		}
-	}
-
-	//initialisation de la grille//
-
-	(imgDestRect.w)=100;
-	(imgDestRect.h)=100;
-	int bordure=50;                                                                                                                    //les coef ci dessous permettent d'aligner les images car elle ne sont pas totalement droite dans le sprite
-	for(int compteur=0, indice = bordure + (imgDestRect.h) *N + N, indice2=bordure + (imgDestRect.w) *N/1.5; compteur<N; compteur++,indice-=(bordure+(imgDestRect.h)/2)/2.1,indice2-=(bordure+(imgDestRect.w)/2)/1.5){
-		for(int compteur2=0, indice3= indice , indice4 = indice2; compteur2<M; compteur2++,indice3-=(bordure+(imgDestRect.h)/2)/1.5,indice4+=(bordure+(imgDestRect.w)/2)/1.98){
-
-				imgDestRect.x = indice4;
-				imgDestRect.y = indice3;
-				imgDestRect.w=100;
-				imgDestRect.h=100;
-
-				if(!terrain[compteur][compteur2].x1 || !terrain[compteur][compteur2].x2 || !terrain[compteur][compteur2].y1 || !terrain[compteur][compteur2].y2){
-
-					terrain[compteur][compteur2].xImg=indice4;
-					terrain[compteur][compteur2].yImg=indice3;
-					 //point en haut du losange puis les trois points suivant sont les sommet dans le sens des aiguille d'une montre.
-
-
-
-					terrain[compteur][compteur2].x1=imgDestRect.x+imgDestRect.w/2;
-					terrain[compteur][compteur2].y1=imgDestRect.y;
-
-					terrain[compteur][compteur2].x2=imgDestRect.x+imgDestRect.w;
-					terrain[compteur][compteur2].y2=imgDestRect.y+imgDestRect.h/2;
-
-					terrain[compteur][compteur2].x3=imgDestRect.x+imgDestRect.w/2;
-					terrain[compteur][compteur2].y3=imgDestRect.y+imgDestRect.h;
-
-					terrain[compteur][compteur2].x4=imgDestRect.x;
-					terrain[compteur][compteur2].y4=imgDestRect.y+imgDestRect.h/2;
-
-				}
-			}
-		}
-
-
-//=========================================================INITIALISATION DES JOUEURS=============================================//
-
-		for(int i=0;i<J;i++){
-			tab[i].id_joueur=i;
-			tab[i].pts_action_max=4;
-			tab[i].pts_action_actu=tab[i].pts_action_max;
-			tab[i].nb_unite=3;
-		}
-
-
-//=========================================================INITIALISATION DES UNITEES===========================================//
-		int unit_gen;
-		for(int i=0;i<J;i++){
-			unit_gen=0;
-			while(unit_gen<tab[i].nb_unite){
-				for(int compteur=0;compteur<N; compteur++){
-					for(int compteur2=0;compteur2<M; compteur2++){
-						if(terrain[compteur][compteur2].piece==NULL && terrain[compteur][compteur2].type != 5){
-							if(rand()%100 ==1 && unit_gen<tab[i].nb_unite){
-								terrain[compteur][compteur2].piece=init_piece(((rand()%4)+1),i); //
-								unit_gen++;
-							}
-						}
-					}
-				}
-			}
-		}
+loadImage(image,renderer);
 
 
 //========================================FENETRE=====================================//
 
-	if( pWindow )
-	{
-		int running = 1;
-		while(running) {
-			SDL_Event e;
-
+if( pWindow )
+{
+	running = Menu;
+	SDL_Event e;
+	while(running != Quit) {
+		//================================================================================================================================================//
+		//================================================================================================================================================//
+		//=============================================================MENU PRINCIPALE====================================================================//
+		//================================================================================================================================================//
+		//================================================================================================================================================//
+		if(running == Menu){
+			int longeur = draw_menu(renderer,pWindow);
 			while(SDL_PollEvent(&e)) {
 				switch(e.type) {
 					case SDL_QUIT:	//cas ou l'on souhaite quitter
-						running = 0;
+						running = Quit;
 					break;
-
-					case SDL_KEYDOWN: //cas ou une touche est pressé
-						switch (e.key.keysym.sym)  //switch qui gere les touches
-						{
-							case SDLK_LEFT:
-								for (int compteur=0;compteur<N;compteur++){
-									for (int compteur2=0;compteur2<M;compteur2++){
-										terrain[compteur][compteur2].xImg+=scroll_speed;
-										terrain[compteur][compteur2].x1+=scroll_speed;
-										terrain[compteur][compteur2].x2+=scroll_speed;
-										terrain[compteur][compteur2].x3+=scroll_speed;
-										terrain[compteur][compteur2].x4+=scroll_speed;
-									}
-								}
-								break;
-							case SDLK_RIGHT:
-								for (int compteur=0;compteur<N;compteur++){
-									for (int compteur2=0;compteur2<M;compteur2++){
-										terrain[compteur][compteur2].xImg-=scroll_speed;
-										terrain[compteur][compteur2].x1-=scroll_speed;
-										terrain[compteur][compteur2].x2-=scroll_speed;
-										terrain[compteur][compteur2].x3-=scroll_speed;
-										terrain[compteur][compteur2].x4-=scroll_speed;
-									}
-								}
-								break;
-							case SDLK_UP:
-								for (int compteur=0;compteur<N;compteur++){
-									for (int compteur2=0;compteur2<M;compteur2++){
-										terrain[compteur][compteur2].yImg+=scroll_speed;
-										terrain[compteur][compteur2].y1+=scroll_speed;
-										terrain[compteur][compteur2].y2+=scroll_speed;
-										terrain[compteur][compteur2].y3+=scroll_speed;
-										terrain[compteur][compteur2].y4+=scroll_speed;
-									}
-								}
-								break;
-							case SDLK_DOWN:
-								for (int compteur=0;compteur<N;compteur++){
-									for (int compteur2=0;compteur2<M;compteur2++){
-										terrain[compteur][compteur2].yImg-=scroll_speed;
-										terrain[compteur][compteur2].y1-=scroll_speed;
-										terrain[compteur][compteur2].y2-=scroll_speed;
-										terrain[compteur][compteur2].y3-=scroll_speed;
-										terrain[compteur][compteur2].y4-=scroll_speed;
-									}
-								}
-								break;
+					case SDL_MOUSEBUTTONDOWN:
+						if(e.button.button == SDL_BUTTON_LEFT){
+							if (e.button.y > longeur && e.button.y < longeur*2)running = Menu2;
+							if (e.button.y > longeur*2 && e.button.y < longeur*3)running = Load;
+							if (e.button.y > longeur*3 && e.button.y < longeur*4)running = About;
+							if (e.button.y > longeur*4 && e.button.y < longeur*5)running = Quit;
 						}
-						break;
+					break;
+				}
+			}
+		}else if(running==option){
+			int delay_clic=0;
+			while(SDL_PollEvent(&e) || running == option){
+				mod_option(renderer,pWindow,image);
+				switch(e.type) {
+					case SDL_QUIT:	//cas ou l'on souhaite quitter
+						running = Quit;
+					break;
+					case SDL_MOUSEBUTTONDOWN:
+						if(e.button.button == SDL_BUTTON_LEFT){
+							gpScreen = SDL_GetWindowSurface(pWindow);
+							if(delay_clic>=VITESSE_INCREMENTATION){
+								delay_clic=0;
+								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && ESPACE_GEN<N/(2*J) && ESPACE_GEN<M/(2*J)){
+									ESPACE_GEN++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && ESPACE_GEN>0){
+									ESPACE_GEN--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && TAILLE_TAB_BASH<10000){
+									TAILLE_TAB_BASH+=10;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && TAILLE_TAB_BASH>30){
+									TAILLE_TAB_BASH-=10;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60)){
+									ISO=0;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60)){
+									ISO=1;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && VITESSE_JEU_BOT<100 ){
+									VITESSE_JEU_BOT++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && VITESSE_JEU_BOT>1 ){
+									VITESSE_JEU_BOT--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && BASH_SCROLL_SPEED<15 ){
+									BASH_SCROLL_SPEED++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && BASH_SCROLL_SPEED>0 ){
+									BASH_SCROLL_SPEED--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && VITESSE_INCREMENTATION<20 ){
+									VITESSE_INCREMENTATION++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && VITESSE_INCREMENTATION>2 ){
+									VITESSE_INCREMENTATION--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 64)) && e.motion.x<((gpScreen->w/100 * 64)+320) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+100)){
+									running=Menu2;
+									wait=20;
+								}
 
-						case SDL_MOUSEBUTTONDOWN:
-					  	switch (e.button.button)
-					    {
-					    	case SDL_BUTTON_LEFT:
+							}
+							delay_clic=(delay_clic+1)%51;
+
+						}
+				}
+			}
+			//================================================================================================================================================//
+			//================================================================================================================================================//
+			//=============================================================CHOIX DES PROPRIÉTÉ PARTIE=========================================================//
+			//===================================================================ET===========================================================================//
+			//=================================================================DEBUT DE PARTIE================================================================//
+		}else if(running == Menu2 || running==Play_load){
+			int delay_clic=0;
+			while(SDL_PollEvent(&e)||running == Menu2 || running==Play_load) {
+				mod_menu(renderer,pWindow,image);
+				switch(e.type) {
+					case SDL_QUIT:	//cas ou l'on souhaite quitter
+						running = Quit;
+					break;
+					case SDL_MOUSEBUTTONDOWN:
+						if(e.button.button == SDL_BUTTON_LEFT){
+							gpScreen = SDL_GetWindowSurface(pWindow);
+							if(delay_clic>=VITESSE_INCREMENTATION){
+								delay_clic=0;
+								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && J<50 && J_HUMAIN<50){
+									J_HUMAIN++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && J>2 && J_HUMAIN>0){
+									J_HUMAIN--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && J<50 && J_BOT<50){
+									J_BOT++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && J>2 && J_BOT>0){
+									J_BOT--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && NB_UNITE<30 ){
+									NB_UNITE++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && NB_UNITE>1 ){
+									NB_UNITE--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60) && M<100 ){
+									M++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60) && M>10 ){
+									M--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60) && N<100 ){
+									N++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60) && N>10 ){
+									N--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && PTS_ACTION_MAX<100 ){
+									PTS_ACTION_MAX++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && PTS_ACTION_MAX>1 ){
+									PTS_ACTION_MAX--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && NB_MAX_PRIEST<30 ){
+									NB_MAX_PRIEST++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && NB_MAX_PRIEST>0 ){
+									NB_MAX_PRIEST--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && DURE_JOUR_NUIT<30000 ){
+									DURE_JOUR_NUIT+=100;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && DURE_JOUR_NUIT>1000 ){
+									DURE_JOUR_NUIT-=100;
+								}
+
+
+								if(e.motion.x>((gpScreen->w/100 * 50)) && e.motion.x<((gpScreen->w/100 * 50)+150) && e.motion.y>(gpScreen->h/100 * 71) && e.motion.y<((gpScreen->h/100 * 71)+150)){
+									running=option;
+								}
 
 
 
-									//int a,b,a2,b2,a3,b3,a4,b4,res1,res2,res3,res4;
-									for(int compteur=0;compteur<N;compteur++){
-										for(int compteur2=0;compteur2<M; compteur2++){
-											/* VERSION AVANCER NE FONCTIONNANT PAS ENCORE
-											fprintf(stderr,"POUR  %d | %d : \n",compteur,compteur2);
-											//Y
-											a=((terrain[compteur][compteur2].y1-terrain[compteur][compteur2].y4)/(terrain[compteur][compteur2].x1-terrain[compteur][compteur2].x4));
-											b= (terrain[compteur][compteur2].y4-a*terrain[compteur][compteur2].x4);
-											res1=a*e.motion.x+b;
-											fprintf(stderr,"a = %d et b = %d pour x= %d et y = %d , doit dépasser %d en y \n",a,b,e.motion.x,e.motion.y,res1);
-											//X
-											a2=((terrain[compteur][compteur2].y2-terrain[compteur][compteur2].y1)/(terrain[compteur][compteur2].x2-terrain[compteur][compteur2].x1));
-											b2= (terrain[compteur][compteur2].y1-a*terrain[compteur][compteur2].x1);
-											res2=-1*(e.motion.y-b2)/a2;
-											fprintf(stderr,"a2 = %d et b2= %d pour x= %d et y = %d ,doit dépasser %d en x \n",a2,b2,e.motion.x,e.motion.y,res2);
-											//Y
-											a3=((terrain[compteur][compteur2].y2-terrain[compteur][compteur2].y3)/(terrain[compteur][compteur2].x2-terrain[compteur][compteur2].x3));
-											b3= (terrain[compteur][compteur2].y3-a*terrain[compteur][compteur2].x3);
-											res3 = a3*e.motion.x+b3;
-											fprintf(stderr,"a3 = %d et b3= %d pour x= %d et y = %d , ne doit pas dépasser %d en y \n",a3,b3,e.motion.x,e.motion.y,res3);
-											//X
-											a4=((terrain[compteur][compteur2].y3-terrain[compteur][compteur2].y4)/(terrain[compteur][compteur2].x3-terrain[compteur][compteur2].x4));
-											b4= (terrain[compteur][compteur2].y4-a*terrain[compteur][compteur2].x4);
-											res4 = -1*(e.motion.y-b4)/a4;
-											fprintf(stderr,"a4 = %d et b4= %d pour x= %d et y = %d , ne doit pas dépasser %d en x \n",a4,b4,e.motion.x,e.motion.y,res4);
 
-											if(e.motion.y >  res1 && e.motion.x > res2  && e.motion.y <  res3 && e.motion.x <  res4 ){
-												fprintf(stderr,"la case %d | %d a été selectionné. \n",compteur,compteur2);
-											}
-											*/
 
-											//VERSION BASIQUE QUI FONCTIONNE MAL
-											if(e.motion.y > terrain[compteur][compteur2].y1+10 && e.motion.y < terrain[compteur][compteur2].y3-10 && e.motion.x > terrain[compteur][compteur2].x4+10 && e.motion.x < terrain[compteur][compteur2].x2-10){
-												fprintf(stderr,"la case %d | %d a été selectionné. \n",compteur,compteur2);
 
-												//=================SELECTION D'UNE PIECE====================//
-												if(terrain[compteur][compteur2].piece){
-													for(int indice=0;indice<N;indice++){
-														for(int indice2=0;indice2<M; indice2++){
-															if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
-																terrain[indice][indice2].piece->select=0;
+							}
+							delay_clic=(delay_clic+1)%(VITESSE_INCREMENTATION*5);
+							J=J_HUMAIN+J_BOT;
+							wait=(wait-1)%(-200);
+
+							if(e.motion.x>((gpScreen->w/100 * 64)) && e.motion.x<((gpScreen->w/100 * 64)+320) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+100) && wait<=0){
+								running=Menu;
+							}
+
+							if(e.motion.x>((gpScreen->w/100 * 66)) && e.motion.x<((gpScreen->w/100 * 66)+300) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+100)){
+							
+								//==================================INITIALISATION GRILLE============================//
+								    //choix du mode de génération
+								//	printf("1 POUR CARTE ALEATOIRE, AUTRE CHIFFRE POUR UNE DES CARTES PRESET : ");
+								//	scanf("%d",&preset);
+
+
+								degatx_t aff_deg[AFF_DEG];
+								joueurs_t tab[J];
+								case_t terrain[N][M];
+
+								frame_anim_montre=4;
+								jour_nuit=((DURE_JOUR_NUIT/24)*7);
+								joueur_actu=0;
+								compteur_tour=1;
+
+
+								if(ISO==1){
+									initialisation_principale_iso(bordure,pWindow,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,variable2);
+								}else{
+									initialisation_principale(bordure,pWindow,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,variable2);
+								}
+
+								running = Play;
+								while(running == Play){ //boucle de jeu
+									while(SDL_PollEvent(&e)) {
+										switch(e.type) {
+											case SDL_QUIT:	//cas ou l'on souhaite quitter
+												running = Quit;
+											break;
+
+											case SDL_KEYDOWN: //cas ou une touche est pressé
+												switch (e.key.keysym.sym)  //switch qui gere les touches
+												{
+													case SDLK_LEFT:
+														for (int compteur=0;compteur<N;compteur++){
+															for (int compteur2=0;compteur2<M;compteur2++){
+																terrain[compteur][compteur2].xImg+=scroll_speed;
+																terrain[compteur][compteur2].x1+=scroll_speed;
+																terrain[compteur][compteur2].x2+=scroll_speed;
+																terrain[compteur][compteur2].x3+=scroll_speed;
+																terrain[compteur][compteur2].x4+=scroll_speed;
 															}
 														}
-													}
-													terrain[compteur][compteur2].piece->select=1;
-													//+AFFICHAGE DE LA PIECE DANS L'INTERFACE
+														break;
+													case SDLK_RIGHT:
+														for (int compteur=0;compteur<N;compteur++){
+															for (int compteur2=0;compteur2<M;compteur2++){
+																terrain[compteur][compteur2].xImg-=scroll_speed;
+																terrain[compteur][compteur2].x1-=scroll_speed;
+																terrain[compteur][compteur2].x2-=scroll_speed;
+																terrain[compteur][compteur2].x3-=scroll_speed;
+																terrain[compteur][compteur2].x4-=scroll_speed;
+															}
+														}
+														break;
+													case SDLK_UP:
+														for (int compteur=0;compteur<N;compteur++){
+															for (int compteur2=0;compteur2<M;compteur2++){
+																terrain[compteur][compteur2].yImg+=scroll_speed;
+																terrain[compteur][compteur2].y1+=scroll_speed;
+																terrain[compteur][compteur2].y2+=scroll_speed;
+																terrain[compteur][compteur2].y3+=scroll_speed;
+																terrain[compteur][compteur2].y4+=scroll_speed;
+															}
+														}
+														break;
+													case SDLK_DOWN:
+														for (int compteur=0;compteur<N;compteur++){
+															for (int compteur2=0;compteur2<M;compteur2++){
+																terrain[compteur][compteur2].yImg-=scroll_speed;
+																terrain[compteur][compteur2].y1-=scroll_speed;
+																terrain[compteur][compteur2].y2-=scroll_speed;
+																terrain[compteur][compteur2].y3-=scroll_speed;
+																terrain[compteur][compteur2].y4-=scroll_speed;
+															}
+														}
+														break;
+													case SDLK_y:
+															camera_sur_allie(terrain,joueur_actu,tab,largeur,hauteur);
+															compteur_bouton_cam=VITESSE_ANIM;
+														break;
+													case SDLK_SPACE:
+														ingame_menu(renderer,pWindow);
+														running = In_menu;
+														while(running == In_menu){
+															while(SDL_PollEvent(&e)){
+																	switch(e.type) {
+																	case SDL_QUIT:	//cas ou l'on souhaite quitter
+																		running = Quit;
+																	break;
+																	case SDL_MOUSEBUTTONDOWN:
+																		if(e.button.button == SDL_BUTTON_LEFT){
+																			if(e.button.x > gpScreen->w - 260 && e.button.x < gpScreen->w - 60){
+																				if(e.button.y>gpScreen->h - 330 && e.button.y<gpScreen->h - 330+75)running = Play;
+																				if(e.button.y>gpScreen->h - 330+75 && e.button.y<gpScreen->h - 330+75*2){
+																					//==========================//sauvegarder//=============================================//
+																					save(terrain,compteur_tour,joueur_actu,tab);
+																					running = Menu;
+																				}
+																				if(e.button.y>gpScreen->h - 330+75*2 && e.button.y<gpScreen->h - 330+75*3)running = Help;
+																				if(e.button.y>gpScreen->h - 330+75*3 && e.button.y<gpScreen->h - 330+75*4)running = Menu;
+																			}else{
+																				running = Play;
+																			}
+																		}
+																	break;
+																	case SDL_KEYDOWN:
+																		if(e.key.keysym.sym == SDLK_SPACE){
+																			running = Play;
+																		}
+																	break;
+																}
+															}
+														}
+														break;
 												}
-												//=================DEPLACEMENT D'UNE PIECE====================//
-												move(terrain,compteur,compteur2,joueur_actu,tab);
-												//combat
+												break;
+
+												case SDL_MOUSEBUTTONDOWN:
+													switch (e.button.button)
+													{
+														case SDL_BUTTON_LEFT:
+															if(e.button.x > gpScreen->w - 60 && e.button.y >  gpScreen->h - 30){
+																ingame_menu(renderer,pWindow);
+																running = In_menu;
+																while(running == In_menu){
+																	while(SDL_PollEvent(&e)){
+																			switch(e.type) {
+																			case SDL_QUIT:	//cas ou l'on souhaite quitter
+																				running = Quit;
+																			break;
+																			case SDL_MOUSEBUTTONDOWN:
+																				if(e.button.button == SDL_BUTTON_LEFT ){
+																					if(e.button.x > gpScreen->w - 260 && e.button.x < gpScreen->w - 60){
+																						if(e.button.y>gpScreen->h - 330 && e.button.y<gpScreen->h - 330+75)running = Play;
+																						if(e.button.y>gpScreen->h - 330+75 && e.button.y<gpScreen->h - 330+75*2)running = Play;
+																						if(e.button.y>gpScreen->h - 330+75*2 && e.button.y<gpScreen->h - 330+75*3)running = Help;
+																						if(e.button.y>gpScreen->h - 330+75*3 && e.button.y<gpScreen->h - 330+75*4)running = Menu;
+																					}else
+																						running = Play;
+																				}
+																			break;
+																		}
+																	}
+																}
+															}
+															if(tab[joueur_actu].humain==1){
+
+															clicout=0;
+															//int a,b,a2,b2,a3,b3,a4,b4,res1,res2,res3,res4;
+															for(int compteur=0;compteur<N;compteur++){
+																for(int compteur2=0;compteur2<M; compteur2++){
+																		/* VERSION AVANCER NE FONCTIONNANT PAS ENCORE
+																		fprintf(stderr,"POUR  %d | %d : \n",compteur,compteur2);
+																		//Y
+																		a=((terrain[compteur][compteur2].y1-terrain[compteur][compteur2].y4)/(terrain[compteur][compteur2].x1-terrain[compteur][compteur2].x4));
+																		b= (terrain[compteur][compteur2].y4-a*terrain[compteur][compteur2].x4);
+																		res1=a*e.motion.x+b;j
+																		fprintf(stderr,"a = %d et b = %d pour x= %d et y = %d , doit dépasser %d en y \n",a,b,e.motion.x,e.motion.y,res1);
+																		//X
+																		a2=((terrain[compteur][compteur2].y2-terrain[compteur][compteur2].y1)/(terrain[compteur][compteur2].x2-terrain[compteur][compteur2].x1));
+																		b2= (terrain[compteur][compteur2].y1-a*terrain[compteur][compteur2].x1);
+																		res2=-1*(e.motion.y-b2)/a2;
+																		fprintf(stderr,"a2 = %d et b2= %d pour x= %d et y = %d ,doit dépasser %d en x \n",a2,b2,e.motion.x,e.motion.y,res2);
+																		//Y
+																		a3=((terrain[compteur][compteur2].y2-terrain[compteur][compteur2].y3)/(terrain[compteur][compteur2].x2-terrain[compteur][compteur2].x3));
+																		b3= (terrain[compteur][compteur2].y3-a*terrain[compteur][compteur2].x3);
+																		res3 = a3*e.motion.x+b3;
+																		fprintf(stderr,"a3 = %d et b3= %d pour x= %d et y = %d , ne doit pas dépasser %d en y \n",a3,b3,e.motion.x,e.motion.y,res3);
+																		//X
+																		a4=((terrain[compteur][compteur2].y3-terrain[compteur][compteur2].y4)/(terrain[compteur][compteur2].x3-terrain[compteur][compteur2].x4));
+																		b4= (terrain[compteur][compteur2].y4-a*terrain[compteur][compteur2].x4);
+																		res4 = -1*(e.motion.y-b4)/a4;
+																		fprintf(stderr,"a4 = %d et b4= %d pour x= %d et y = %d , ne doit pas dépasser %d en x \n",a4,b4,e.motion.x,e.motion.y,res4);
+
+																		if(e.motion.y >  res1 && e.motion.x > res2  && e.motion.y <  res3 && e.motion.x <  res4 ){
+																			fprintf(stderr,"la case %d | %d a été selectionné. \n",compteur,compteur2);
+																		}
+																		*/
+
+																		//VERSION BASIQUE QUI FONCTIONNE MAL
+																		if(e.motion.y > terrain[compteur][compteur2].y1+10 && e.motion.y < terrain[compteur][compteur2].y3-10 && e.motion.x > terrain[compteur][compteur2].x4+10 && e.motion.x < terrain[compteur][compteur2].x2-10 &&!(e.motion.x>(*largeur)/2+175 && e.motion.x<(*largeur)/2+175+150 && e.motion.y>15 && e.motion.y<15+50)&&!(e.motion.x>10 && e.motion.x<240 && e.motion.y>300 && e.motion.y<500)){
+																			//=================SELECTION D'UNE PIECE====================//
+																			if(terrain[compteur][compteur2].piece){
+																				clicout=1;
+
+																				for(int x=0;x<N;x++){
+																					for(int y=0;y<M;y++){
+																						if(terrain[x][y].piece && terrain[x][y].piece->joueur==joueur_actu && terrain[x][y].piece->select==1){
+																							combat(terrain,x,y,compteur,compteur2,joueur_actu,tab,aff_deg,tab_info_bash,variable2);
+																						}
+																					}
+																				}
+																				for(int indice=0;indice<N;indice++){
+																					for(int indice2=0;indice2<M; indice2++){
+																						if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
+																							terrain[indice][indice2].piece->select=0;
+																						}
+																					}
+																				}
+
+																				if(terrain[compteur][compteur2].piece)
+																					terrain[compteur][compteur2].piece->select=1;
+
+
+																			}else{
+																			//=================DEPLACEMENT et ATTAQUE D'UNE PIECE====================//
+
+																			move(terrain,compteur,compteur2,joueur_actu,tab,tab_info_bash,variable2);
+																			}
+
+																		}
+																		else if(e.motion.x>(*largeur)/3+420 && e.motion.x<(*largeur)/2+175+150 && e.motion.y>15 && e.motion.y<15+50){
+																			fin_tour=1;
+																		}
+																	}
+																}
+																if(e.motion.x>10 && e.motion.x<240 && e.motion.y>300 && e.motion.y<500){
+																	clicout=1;
+																	for(int indice=0;indice<N;indice++){
+																		for(int indice2=0;indice2<M; indice2++){
+																			if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1 && terrain[indice][indice2].piece->joueur==joueur_actu){
+																				if(terrain[indice][indice2].piece->direction==1)
+																					terrain[indice][indice2].piece->direction=4;
+																				else if(terrain[indice][indice2].piece->direction==4)
+																					terrain[indice][indice2].piece->direction=2;
+																				else if(terrain[indice][indice2].piece->direction==2)
+																					terrain[indice][indice2].piece->direction=3;
+																				else if(terrain[indice][indice2].piece->direction==3)
+																					terrain[indice][indice2].piece->direction=1;
+																			}
+																		}
+																	}
+																}
+																if(e.motion.x>22 && e.motion.x<122 && e.motion.y>420 && e.motion.y<520){
+																	camera_sur_allie(terrain,joueur_actu,tab,largeur,hauteur);
+																	compteur_bouton_cam=VITESSE_ANIM;
+																}
+																if(clicout==0){
+																	for(int indice=0;indice<N;indice++){
+																		for(int indice2=0;indice2<M; indice2++){
+																			terrain[indice][indice2].deplacement=0;
+																			terrain[indice][indice2].attaque=0;
+																			if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1)
+																				terrain[indice][indice2].piece->select=0;
+																		}
+
+																}
+															}
+															}
+														break;
+													}
+										break;
+										case SDL_MOUSEWHEEL:  //SCROLLING BASH
+											if(e.wheel.y==1){
+												souris=BASH_SCROLL_SPEED;
+											}else if (e.wheel.y==-1){
+												souris=-BASH_SCROLL_SPEED;
+											}
+										break;
+
+
 											}
 										}
-									}
-					      break;
-					   	}
-					 break;
-
-				}
-			}
-
-			gpScreen = SDL_GetWindowSurface(pWindow);
-			if( e.motion.x >0 && e.motion.x <30){
-				for (int compteur=0;compteur<N;compteur++){
-					for (int compteur2=0;compteur2<M;compteur2++){
-						terrain[compteur][compteur2].xImg+=scroll_speed;
-						terrain[compteur][compteur2].x1+=scroll_speed;
-						terrain[compteur][compteur2].x2+=scroll_speed;
-						terrain[compteur][compteur2].x3+=scroll_speed;
-						terrain[compteur][compteur2].x4+=scroll_speed;
-					}
-				}
-			}
-			if(e.motion.x > gpScreen->w - 30 && e.motion.x < gpScreen->w){
-				for (int compteur=0;compteur<N;compteur++){
-					for (int compteur2=0;compteur2<M;compteur2++){
-						terrain[compteur][compteur2].xImg-=scroll_speed;
-						terrain[compteur][compteur2].x1-=scroll_speed;
-						terrain[compteur][compteur2].x2-=scroll_speed;
-						terrain[compteur][compteur2].x3-=scroll_speed;
-						terrain[compteur][compteur2].x4-=scroll_speed;
-					}
-				}
-			}
-			if( e.motion.y >0 && e.motion.y <30){
-				for (int compteur=0;compteur<N;compteur++){
-					for (int compteur2=0;compteur2<M;compteur2++){
-						terrain[compteur][compteur2].yImg+=scroll_speed;
-						terrain[compteur][compteur2].y1+=scroll_speed;
-						terrain[compteur][compteur2].y2+=scroll_speed;
-						terrain[compteur][compteur2].y3+=scroll_speed;
-						terrain[compteur][compteur2].y4+=scroll_speed;
-					}
-				}
-			}
-			if(e.motion.y > gpScreen->h - 30 && e.motion.y < gpScreen->h){
-				for (int compteur=0;compteur<N;compteur++){
-					for (int compteur2=0;compteur2<M;compteur2++){
-						terrain[compteur][compteur2].yImg-=scroll_speed;
-						terrain[compteur][compteur2].y1-=scroll_speed;
-						terrain[compteur][compteur2].y2-=scroll_speed;
-						terrain[compteur][compteur2].y3-=scroll_speed;
-						terrain[compteur][compteur2].y4-=scroll_speed;
-					}
-				}
-			}
+										if(tab[joueur_actu].humain==1){
+									//if(e.motion.x>((*largeur)-450+25) && e.motion.x<(*largeur) && e.motion.y>0 && e.motion.y<300){
+										if(souris>0 && tab_info_bash[TAILLE_TAB_BASH-1].pos_y<=0){
+											for(int a=0;a<TAILLE_TAB_BASH;a++){
+												//VERS LE HAUT
+												tab_info_bash[a].pos_y+=25;
+											}
+											souris-=1;
+										}
+										else if (souris<0 && tab_info_bash[0].pos_y>265){
+											for(int a=0;a<TAILLE_TAB_BASH;a++){
+												//VERS LE BAS
+												tab_info_bash[a].pos_y-=25;
+											}
+											souris+=1;
+										}
+									//	}
 
 
+										gpScreen = SDL_GetWindowSurface(pWindow);
+										if( e.motion.x >=0 && e.motion.x <=30 && e.type==SDL_MOUSEMOTION){
+											for (int compteur=0;compteur<N;compteur++){
+												for (int compteur2=0;compteur2<M;compteur2++){
+													terrain[compteur][compteur2].xImg+=scroll_speed;
+													terrain[compteur][compteur2].x1+=scroll_speed;
+													terrain[compteur][compteur2].x2+=scroll_speed;
+													terrain[compteur][compteur2].x3+=scroll_speed;
+													terrain[compteur][compteur2].x4+=scroll_speed;
+												}
+											}
+										}
+										if(e.motion.x >= gpScreen->w - 30 && e.motion.x <= gpScreen->w && e.type==SDL_MOUSEMOTION){
+											for (int compteur=0;compteur<N;compteur++){
+												for (int compteur2=0;compteur2<M;compteur2++){
+													terrain[compteur][compteur2].xImg-=scroll_speed;
+													terrain[compteur][compteur2].x1-=scroll_speed;
+													terrain[compteur][compteur2].x2-=scroll_speed;
+													terrain[compteur][compteur2].x3-=scroll_speed;
+													terrain[compteur][compteur2].x4-=scroll_speed;
+												}
+											}
+										}
+										if( e.motion.y >=0 && e.motion.y <=30 && e.type==SDL_MOUSEMOTION){
+											for (int compteur=0;compteur<N;compteur++){
+												for (int compteur2=0;compteur2<M;compteur2++){
+													terrain[compteur][compteur2].yImg+=scroll_speed;
+													terrain[compteur][compteur2].y1+=scroll_speed;
+													terrain[compteur][compteur2].y2+=scroll_speed;
+													terrain[compteur][compteur2].y3+=scroll_speed;
+													terrain[compteur][compteur2].y4+=scroll_speed;
+												}
+											}
+										}
+										if(e.motion.y >= gpScreen->h - 30 && e.motion.y <= gpScreen->h && e.type==SDL_MOUSEMOTION){
+											for (int compteur=0;compteur<N;compteur++){
+												for (int compteur2=0;compteur2<M;compteur2++){
+													terrain[compteur][compteur2].yImg-=scroll_speed;
+													terrain[compteur][compteur2].y1-=scroll_speed;
+													terrain[compteur][compteur2].y2-=scroll_speed;
+													terrain[compteur][compteur2].y3-=scroll_speed;
+													terrain[compteur][compteur2].y4-=scroll_speed;
+												}
+											}
+										}
+										}
 
-							//======================================AFFICHAGE=========================================//
+									//fin action du joueur
+
+									if(tab[joueur_actu].humain==0){ 	//===================================================TOUR DU BOT===================================================//
+										if(nb_tour>=VITESSE_JEU_BOT){
+											if(sel==0){ //SELECTION
+												fprintf(stderr,"TOUR DU BOT %d : PTS D'ACTION = %d\n",joueur_actu,tab[joueur_actu].pts_action_actu);
+												for (int i=0;i<N;i++){ //deselectionne toutes les pieces
+													for (int j=0;j<M;j++){
+														if(terrain[i][j].piece && terrain[i][j].piece->select==1){
+																terrain[i][j].piece->select=0;
+														}
+													}
+												}
+												int var5=0;
+												int var6=(rand()%tab[joueur_actu].nb_unite);
+												for (int i=0;i<N;i++){ //selection d'une piece
+													for (int j=0;j<M;j++){
+														if(terrain[i][j].piece && terrain[i][j].piece->select==0 && terrain[i][j].piece->joueur==joueur_actu && var5==var6){
+															terrain[i][j].piece->select=1;
+															x_bot=i;
+															y_bot=j;
+														}
+														if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu)
+															var5++;
+													}
+												}
+
+												centrer_camera(terrain,terrain[x_bot][y_bot].xImg,terrain[x_bot][y_bot].yImg,*largeur,*hauteur);
+												sel=1;
+											}else{ //ACTION
+												int nb_ennemies_portee=a_portee(terrain,x_bot,y_bot,joueur_actu);
+												if((nb_ennemies_portee>=1 && terrain[x_bot][y_bot].piece->classe!=priest)|| (nb_ennemies_portee>=2 && terrain[x_bot][y_bot].piece->classe==priest) || (reste_allie(terrain,joueur_actu)==1 && terrain[x_bot][y_bot].piece->classe==priest)){
+													fprintf(stderr,"ATTAQUE\n");
+													attaquer_meilleur_cible(terrain,x_bot,y_bot,nb_ennemies_portee,joueur_actu,tab,aff_deg,tab_info_bash,variable2);
+												}else{
+													fprintf(stderr,"DEPLACEMENT\n");
+													depla_atk_mov(terrain,x_bot,y_bot,joueur_actu,tab,tab_info_bash,variable2);
+												}
 
 
-			SDL_SetRenderDrawColor(renderer,50, 50, 50, 0);
-			SDL_RenderClear(renderer);
-
-			for (int compteur=0;compteur<N;compteur++){
-				for (int compteur2=0;compteur2<M;compteur2++){
-					imgDestRect.x = terrain[compteur][compteur2].xImg;
-					imgDestRect.y = terrain[compteur][compteur2].yImg;
-					imgDestRect.w=100;
-					imgDestRect.h=100;
-					SDL_QueryTexture(terrain[compteur][compteur2].type_case, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-					SDL_RenderCopy(renderer, terrain[compteur][compteur2].type_case, NULL, &imgDestRect);
-
-					if(terrain[compteur][compteur2].piece){ 		//AFFICHAGE DES UNITEES
-
-						switch (terrain[compteur][compteur2].piece->classe){
-							case 1:
-								SDL_QueryTexture(image_knight, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-								SDL_RenderCopy(renderer, image_knight, NULL, &imgDestRect);
-							break;
-							case 2:
-								SDL_QueryTexture(image_scout, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-								SDL_RenderCopy(renderer, image_scout, NULL, &imgDestRect);
-							break;
-							case 3:
-								SDL_QueryTexture(image_priest, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-								SDL_RenderCopy(renderer, image_priest, NULL, &imgDestRect);
-							break;
-							case 4:
-								SDL_QueryTexture(image_magician, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-								SDL_RenderCopy(renderer, image_magician, NULL, &imgDestRect);
-							break;
-							}
-					}
-
-
-					if(terrain[compteur][compteur2].climat != 0){
-						//afficher l'effet climatique sur la case
-
-					}
-				}
-			}
-
-
-
-
-
-			for (int compteur=0;compteur<N;compteur++){
-				for (int compteur2=0;compteur2<M;compteur2++){
-					if(terrain[compteur][compteur2].piece){
-						if(terrain[compteur][compteur2].piece->select){		//affichage case possible déplacement ou attaque si allié, sinon affiche le stats de la cible et sa direction d'arret;
-							if(terrain[compteur][compteur2].piece->joueur==joueur_actu){
-													//deplacement
-								pathfinding(terrain,compteur,compteur2);
-
-								for (int ind=0;ind<N;ind++){
-									for (int ind2=0;ind2<M;ind2++){
-										if(terrain[ind][ind2].deplacement==1){
-											imgDestRect.x = terrain[ind][ind2].xImg-bordure/6;
-											imgDestRect.y = terrain[ind][ind2].yImg-bordure/6;
-											SDL_QueryTexture(image_deplacement, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-											SDL_RenderCopy(renderer, image_deplacement, NULL, &imgDestRect);
+												sel=0;
+											}
+											nb_tour=0;
+											if(tab[joueur_actu].pts_action_actu<=0){ //direction blockage
+												for (int i=0;i<N;i++){
+													for (int j=0;j<M;j++){
+														if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu){
+															IA_blockage_direction(terrain,i,j,joueur_actu);//tourne le perso selon la direction la plus intéressante
+														}
+													}
+												}
+											}
 
 										}
-									}
-								}
-									//attaque
-								pathfinding_combat(terrain,compteur,compteur2);
 
-								for (int ind=0;ind<N;ind++){
-									for (int ind2=0;ind2<M;ind2++){
-										if(terrain[ind][ind2].attaque==1){
-											imgDestRect.x = terrain[ind][ind2].xImg-bordure;
-											imgDestRect.y = terrain[ind][ind2].yImg-bordure;
-											SDL_QueryTexture(image_attaque, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-											SDL_RenderCopy(renderer, image_attaque, NULL, &imgDestRect);
+
+									}
+
+
+									for(int i=0;i<J;i++){
+										if(tab[i].nb_unite<=0 && tab[i].id_joueur!=-1){
+											tab[i].id_joueur=-2;
 										}
 									}
-								}
+
+
+									nb_joueur_restant=0;
+									for(int i=0;i<J;i++){		//fermeture de la fenetre qd il reste un joueur en vie seulement (a modifié pour retourner au menu qd le joueur gagne)
+										if(tab[i].id_joueur!=-1 && tab[i].id_joueur!=-2){
+											nb_joueur_restant++;
+										}
+									}
+
+									if((jour_nuit%((DURE_JOUR_NUIT/24)*3))>=-20 && (jour_nuit%((DURE_JOUR_NUIT/24)*3))<=20){
+										jour_nuit+=40;
+										frame_anim_montre++;
+									}
+									if(frame_anim_montre>=8 && (jour_nuit%((DURE_JOUR_NUIT/24)*3))>=20 && (jour_nuit%((DURE_JOUR_NUIT/24)*3))<=60){
+										frame_anim_montre=0;
+									}
+
+
+
+
+
+
+									if(nb_joueur_restant==1){
+										for(int i=0;i<J;i++){
+											if(tab[i].id_joueur!=-1 && tab[i].id_joueur!=-2){
+													sprintf(variable,"LE JOUEUR %d GAGNE EN %d TOURS !\n",i,compteur_tour);
+				    							ajouter_ligne_bash(variable,tab_info_bash,info,variable2);
+											}
+										}
+										//ecran de victoire/defaite
+
+										running=Menu;
+									}
+
+									if(ISO==1){
+										affichage_principale_iso(renderer,pWindow,bordure,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,joueur_actu,image,compteur_anim,nb_joueur_restant,compteur_tour,frame_anim_montre,jour_nuit,variable2,compteur_bouton_cam);
+									}else{
+										affichage_principale(renderer,pWindow,bordure,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,joueur_actu,image,compteur_anim,nb_joueur_restant,compteur_tour,frame_anim_montre,jour_nuit,variable2,compteur_bouton_cam);
+
+									}
+
+									for(int i=0;i<J;i++){
+										if(tab[i].id_joueur==-2){
+											tab[i].id_joueur=-1;
+										}
+									}
+
+									if((tab[joueur_actu].pts_action_actu<=0 && tab[joueur_actu].humain==0 )|| (tab[joueur_actu].pts_action_actu<=0 && fin_tour==1) || (fin_tour==1)){				//gestion des tours de jeu
+										tab[joueur_actu].pts_action_actu=tab[joueur_actu].pts_action_max;
+										do{
+											joueur_actu=(joueur_actu+1)%J;
+											if(joueur_actu==0){
+												compteur_tour++;
+											}
+										}while(tab[joueur_actu].id_joueur==-1);
+										fin_tour=0;
+									}
+
+									//incrémentation a chaque tours
+									nb_tour=(nb_tour+1)%(VITESSE_JEU_BOT*2);
+									compteur_anim=compteur_anim%(VITESSE_ANIM*4);
+									compteur_anim++;
+									jour_nuit=(jour_nuit+1)%DURE_JOUR_NUIT;
+									compteur_bouton_cam=(compteur_bouton_cam-1)%(-200);
+
+
+
+								//===================================ACTUALISATION DES TOURS==========================================//
+
+								}//fin boucle de jeu
 							}
 						}
-					}
+					break;
 				}
 			}
-			imgDestRect.w=150;			//affichage de l'interface et des stats + image de l'unité selectionné
-			imgDestRect.h=200;
-			imgDestRect.x = 0;
-			imgDestRect.y = 0;
-			SDL_QueryTexture(image_inter, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-			SDL_RenderCopy(renderer,image_inter , NULL, &imgDestRect);
 
 
-			texte1=RenderText("PDV        :","arial.ttf",c,12,renderer);
-			txtDestRect.x = 30;
-			txtDestRect.y = 155;
-			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+			//================================================================================================================================================//
+			//================================================================================================================================================//
+			//=============================================================CHARGEMENT DE PARTIE===============================================================//
+			//================================================================================================================================================//
+			//================================================================================================================================================//
 
-			texte1=RenderText("ATK        :","arial.ttf",c,12,renderer);
-			txtDestRect.x = 30;
-			txtDestRect.y = 175;
-			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+		}else if(running == Load){
 
-			texte1=RenderText("DEF        :","arial.ttf",c,12,renderer);
-			txtDestRect.x = 30;
-			txtDestRect.y = 195;
-			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
+			/*frame_anim_montre=4;
+			jour_nuit=((DURE_JOUR_NUIT/24)*7);
 
-			texte1=RenderText("BLOCK  :","arial.ttf",c,12,renderer);
-			txtDestRect.x = 30;
-			txtDestRect.y = 215;
-			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
-
-			texte1=RenderText("RANGE  :","arial.ttf",c,12,renderer);
-			txtDestRect.x = 30;
-			txtDestRect.y = 235;
-			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
-
-			texte1=RenderText("MS          :","arial.ttf",c,12,renderer);
-			txtDestRect.x = 30;
-			txtDestRect.y = 255;
-			SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-			SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
-
-
-
-
+		  FILE * fp;
+		  fp=fopen("fichiers/saves/save_2201_1628", "r");
+		  //on commence par save les variable principales de la partie et les types de cases
+		  fscanf(fp,"N=%d M=%d J=%d J_HUMAIN=%d VITESSE_JEU_BOT=%d VITESSE_ANIM=%d DURE_JOUR_NUIT=%d compteur_tour=%d joueur_actu=%d\n",&N,&M,&J,&J_HUMAIN,&VITESSE_JEU_BOT,&VITESSE_ANIM,&DURE_JOUR_NUIT,&compteur_tour,&joueur_actu);
+			fprintf(stderr,"ok\n");
+			for(int i=0;i<N;i++){
+		    for(int j=0;j<M;j++){
+		      fscanf(fp,"{%d %d} type=%d xImg=%d yImg=%d x1=%d x2=%d x3=%d x4=%d y1=%d y2=%d y3=%d y4=%d\n",&i,&j,&terrain[i][j].type,&terrain[i][j].xImg,&terrain[i][j].yImg,&terrain[i][j].x1,&terrain[i][j].x2,&terrain[i][j].x3,&terrain[i][j].x4,&terrain[i][j].y1,&terrain[i][j].y2,&terrain[i][j].y3,&terrain[i][j].y4);
+					//terrain[i][j].deplacement=0;
+					//terrain[i][j].attaque=0;
+				}
+		  }
+		  //on sauvegarde le tableau de joueurs
+		  for(int i=0;i<J;i++){
+		    fscanf(fp,"id_joueur=%d nb_unite=%d humain=%d pts_action_max=%d pts_action_actu=%d\n",&tab[i].id_joueur,&tab[i].nb_unite,&tab[i].humain,&tab[i].pts_action_max,&tab[i].pts_action_actu);
+		  }
+		  //on sauvegarde chaque piece
+			int test=-1;
+		  for(int i=0;i<N;i++){
+		    for(int j=0;j<M;j++){
+					fscanf(fp,"{%d %d} classe=%d",&i,&j,&test);
+					fprintf(stderr,"%d\n",test);
+					if(test!=-1){
+						terrain[i][j].piece=malloc(sizeof(piece_t));
+						terrain[i][j].piece->classe=test;
+						fscanf(fp,"pdv=%d puissance=%d armure=%d block=%d portee=%d deplacement=%d joueur=%d direction=%d kill=%d frame=%d frame_interface=%d start_anim=%d \n",&terrain[i][j].piece->pdv,&terrain[i][j].piece->puissance,&terrain[i][j].piece->armure,&terrain[i][j].piece->block,&terrain[i][j].piece->portee,&terrain[i][j].piece->deplacement,&terrain[i][j].piece->joueur,&terrain[i][j].piece->direction,&terrain[i][j].piece->kill,&terrain[i][j].piece->frame,&terrain[i][j].piece->frame_interface,&terrain[i][j].piece->start_anim);
+						terrain[i][j].piece->select=0;
+					}else{
+						terrain[i][j].piece=NULL;
+					}
+		    }
+		  }
 
 			for(int i=0;i<N;i++){
 				for(int j=0;j<M;j++){
-					if(terrain[i][j].piece && terrain[i][j].piece->select==1){
-						//affichage des infos de l'unité en haut a gauche.
-						imgDestRect.w=100;//image
-						imgDestRect.h=100;
-						imgDestRect.x = 20;
-						imgDestRect.y = 20;
-						switch (terrain[i][j].piece->classe){
-							case 1:
-								SDL_QueryTexture(image_knight, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-								SDL_RenderCopy(renderer, image_knight, NULL, &imgDestRect);
-							break;
-							case 2:
-								SDL_QueryTexture(image_scout, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-								SDL_RenderCopy(renderer, image_scout, NULL, &imgDestRect);
-							break;
-							case 3:
-								SDL_QueryTexture(image_priest, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-								SDL_RenderCopy(renderer, image_priest, NULL, &imgDestRect);
-							break;
-							case 4:
-								SDL_QueryTexture(image_magician, NULL, NULL, &(imgDestRect.w), &(imgDestRect.h));
-								SDL_RenderCopy(renderer, image_magician, NULL, &imgDestRect);
-							break;
+					if(terrain[i][j].piece)
+						fprintf(stderr,"%d %d : pdv piece %d portee piece : %d\n",i,j,terrain[i][j].piece->pdv,terrain[i][j].piece->portee);
+				}
+			}
+			exit(1);
+		  fclose(fp);
+			fprintf(stderr,"ok\n");
+			running = Play_load;*/
+			running = Menu2;
+
+			//================================================================================================================================================//
+			//================================================================================================================================================//
+			//=============================================================HELP===============================================================================//
+			//================================================================================================================================================//
+			//================================================================================================================================================//
+		}else if(running == Help){
+			help(renderer,pWindow);
+			while(SDL_PollEvent(&e)) {
+				switch(e.type) {
+					case SDL_QUIT:	//cas ou l'on souhaite quitter
+						running = Quit;
+					break;
+					case SDL_MOUSEBUTTONDOWN:
+						if(e.button.button == SDL_BUTTON_LEFT){
+							if(e.button.x > gpScreen->w - 60 && e.button.y >  gpScreen->h - 30){
+								running = Play;
+							}
 						}
-						//text
-						sprintf(variable, "%d",  terrain[i][j].piece->joueur);
-						texte1=RenderText(variable,"arial.ttf",c,25,renderer);
-						txtDestRect.x = 65;
-						txtDestRect.y = 110;
-						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
-
-						sprintf(variable, "%d", terrain[i][j].piece->pdv);
-						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
-						txtDestRect.x = 90;
-						txtDestRect.y = 155;
-						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
-
-						sprintf(variable, "%d", terrain[i][j].piece->puissance);
-						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
-						txtDestRect.x = 90;
-						txtDestRect.y = 175;
-						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
-
-						sprintf(variable, "%d", terrain[i][j].piece->armure);
-						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
-						txtDestRect.x = 90;
-						txtDestRect.y = 195;
-						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
-
-						sprintf(variable, "%d", terrain[i][j].piece->block);
-						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
-						txtDestRect.x = 90;
-						txtDestRect.y = 215;
-						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
-
-						sprintf(variable, "%d", terrain[i][j].piece->portee);
-						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
-						txtDestRect.x = 90;
-						txtDestRect.y = 235;
-						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
-
-						sprintf(variable, "%d", terrain[i][j].piece->deplacement);
-						texte1=RenderText(variable,"arial.ttf",c,12,renderer);
-						txtDestRect.x = 90;
-						txtDestRect.y = 255;
-						SDL_QueryTexture(texte1, NULL, NULL, &(txtDestRect.w), &(txtDestRect.h));
-						SDL_RenderCopy(renderer, texte1, NULL, &txtDestRect);
-
-
-					}
+					break;
 				}
 			}
-
-
-
-
-
-
-			SDL_RenderPresent(renderer);
-			SDL_Delay(16);
-							//===================================DEROULEMENT DU JEU==========================================//
-							/*
-
-							0) choix mode de jeu,premiere affichage au début du match juste avant avec carte de base et l'interface puis selection des unitées et mise a jours de la matrice
-							puis affichage de nouveau avec les pieces affichées
-
-							1)apparition de potentiel élements climatiques et changement des valeur dans la matrice pour les afficher dans la boucle d'affichage
-
-							2)choix d'un perso ennemi a examiner ou d'un de ses perso pour déplacement ou attaque ennemi a porté + mise a jour des stats en fonction du terrain actuel
-							 (mise a 1 d'une variable pour afficher dans la boucle d'affichage les cases de potentiel deplacement et attaques)
-
-							 3)deplacement / combat (changement de place d'un personnage, calcule des dégats etc puis boucle d'affichage pour deplacer le perso, suprimmer les morts etc)
-							 et verification de vitoire ou non pour afficher une message de victoire et retourner au menu
-
-							 4)repetition des etapes 2 et 3 selon les points d'actions restants
-
-							 5)changement d'une variable pour changement de joueur puis étapes de 1 a 5 de nouveau
-
-
-							*/
-
-							//3
-							//move()
-
-
-
-
-			nb_joueur_restant=0;
-			for(int i=0;i<J;i++){		//fermeture de la fenetre qd il reste un joueur en vie seulement (a modifié pour retourner au menu qd le joueur gagne)
-				if(tab[i].nb_unite>0){
-					nb_joueur_restant++;
+			//================================================================================================================================================//
+			//================================================================================================================================================//
+			//=============================================================ABOUT==============================================================================//
+			//================================================================================================================================================//
+			//================================================================================================================================================//
+		}else if(running == About){
+			about(renderer,pWindow);
+			while(SDL_PollEvent(&e)) {
+				switch(e.type) {
+					case SDL_QUIT:	//cas ou l'on souhaite quitter
+						running = Quit;
+					break;
+					case SDL_MOUSEBUTTONDOWN:
+						if(e.button.button == SDL_BUTTON_LEFT){
+							if(e.button.x > gpScreen->w - 60 && e.button.y >  gpScreen->h - 30){
+								running = Menu;
+							}
+						}
+					break;
 				}
 			}
-			if(nb_joueur_restant==1){
-				running=0;
-			}
-
-			if(tab[joueur_actu].pts_action_actu==0){				//gestion des tours de jeu
-				tab[joueur_actu].pts_action_actu=tab[joueur_actu].pts_action_max;
-				joueur_actu=(joueur_actu+1)%J;
-			}
-
-
 		}
-
-	}
-	else {
+		}
+	}else {
 		fprintf(stderr,"Erreur de création de la fenêtre: %s\n",SDL_GetError());
 	}
 

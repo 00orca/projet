@@ -1,0 +1,10 @@
+MAP : 22 x 22 || Joueurs : 4 || UNITEE : 7 par joueurs
+| Unite de Joueur 0 en 11/14 se deplace vers 11/12
+| Unite de Joueur 0 en 11/12 se deplace vers 10/10
+| Unite de Joueur 0 en 10/10 attaque pour 25 en 9/7
+| Unite de Joueur 0 en 10/10 se deplace vers 10/11
+| Unite de Joueur 0 en 10/11 se deplace vers 10/10
+| Unite de Joueur 0 en 10/10 se deplace vers 10/9
+| Unite de Joueur 0 en 10/9 attaque pour 25 en 9/7
+| Unite de Joueur 0 en 10/9 tue Unite de 1 en 9/7
+| Unite de Joueur 0 en 10/9 attaque pour 24 en 8/7
