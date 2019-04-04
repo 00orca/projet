@@ -17,11 +17,14 @@ void pathfinding(case_t terrain[N][M], int x, int y){
         terrain[i][j].deplacement=0;
       }
     }
+    if(terrain[x][y].piece==NULL){
+      return;
+    }
 
 
     for (i=0;i<N;i++){//parcours du terrain
         for(j=0;j<M;j++){
-            if (terrain[i][j].type==5 || terrain[i][j].piece!=NULL){
+            if (terrain[i][j].type==5 || terrain[i][j].piece!=NULL || (terrain[i][j].est_block==1 && terrain[x][y].piece->joueur!=terrain[i][j].block_allie)){
                 deplacement[i][j]=-1;
             }//case d'eau deplacement impossible
             else{

@@ -14,11 +14,15 @@ void pathfinding_combat(case_t terrain[N][M], int x, int y,int joueur_actu){
   int attaque[N][M];
   int i,j;
   int cpt;
+
   //initialisation des attaques possibles
   for (i=0;i<N;i++){//parcours du terrain
       for(j=0;j<M;j++){
         terrain[i][j].attaque=0;
       }
+  }
+  if(terrain[x][y].piece==NULL){
+    return;
   }
 
   for (i=0;i<N;i++){//parcours du terrain
@@ -44,7 +48,7 @@ void pathfinding_combat(case_t terrain[N][M], int x, int y,int joueur_actu){
                     attaque[i+1][j]=cpt+1;//ICI
                   if(i-1>=0 && attaque[i-1][j]==0)
                     attaque[i-1][j]=cpt+1;
-                  if(j+1<N && attaque[i][j+1]==0)
+                  if(j+1<M && attaque[i][j+1]==0)
                     attaque[i][j+1]=cpt+1;
                   if(j-1>=0 && attaque[i][j-1]==0)
                     attaque[i][j-1]=cpt+1;
@@ -66,8 +70,12 @@ void pathfinding_combat(case_t terrain[N][M], int x, int y,int joueur_actu){
               terrain[i][j].attaque=1;
             if(attaque[i][j]==-2 && terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu && terrain[x][y].piece->classe==priest)
               terrain[i][j].attaque=1;
+            if(attaque[i][j]>1 && terrain[i][j].est_block==1 && terrain[x][y].piece->joueur!=terrain[i][j].block_allie && terrain[x][y].piece->classe!=priest)
+              terrain[i][j].attaque=1;
         }
     }
+
+
 }
 
 int calc_block(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def){
@@ -183,7 +191,7 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
           soin(terrain,x_att,y_att,x_def,y_def,joueur,tab,aff_deg,tab_info_bash,variable2);
           return;
       }
-      if(terrain[x_def][y_def].attaque==1){//si la piece attaquée est sur une case a portée
+      if(terrain[x_def][y_def].attaque==1 && terrain[x_def][y_def].piece!=NULL){//si la piece attaquée est sur une case a portée
         int blockd=((rand()%(100)) + 1);//att bloquée ou non
         int blockage;
         char variable[80];
@@ -191,7 +199,7 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
         //avantages du terrain de foret
         if(terrain[x_def][y_def].type==6){
           blockage = calc_block(terrain,x_att,y_att,x_def,y_def) + 10;
-          armure = terrain[x_def][y_def].piece->armure + 3;
+          armure = terrain[x_def][y_def].piece->armure + 9;
         }else{
           blockage = calc_block(terrain,x_att,y_att,x_def,y_def);
           armure = terrain[x_def][y_def].piece->armure;
@@ -236,6 +244,33 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
 
           ajouter_degat_txt("BLOCK",aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),0);
         }
+        tab[joueur].pts_action_actu--;
+
+      }else if(terrain[x_def][y_def].attaque==1 && terrain[x_def][y_def].piece==NULL){ // cas ou c'est un block
+        char variable[80];
+        int armure = 50;
+        int deg=((terrain[x_att][y_att].piece->puissance)*(100-armure)/100);
+        
+        terrain[x_def][y_def].pdv_block-=deg;
+
+        sprintf(variable, "| Unite de Joueur %d en %d/%d attaque pour %d en %d/%d",joueur,x_att,y_att,deg,x_def,y_def);
+			  ajouter_ligne_bash(variable,tab_info_bash,degat,variable2);
+
+        sprintf(variable, "%d", deg);//sauvegarde des dégat pour affichage
+        ajouter_degat_txt(variable,aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),1);
+        if(terrain[x_def][y_def].pdv_block<=0){   //destruction du bloc
+
+            sprintf(variable, "| Unite de Joueur %d en %d/%d detruit bloc de %d en %d/%d",joueur,x_att,y_att,terrain[x_def][y_def].block_allie,x_def,y_def);
+			    	ajouter_ligne_bash(variable,tab_info_bash,kill,variable2);
+
+            terrain[x_def][y_def].est_block=0;
+            terrain[x_def][y_def].pdv_block=0;
+            terrain[x_def][y_def].block_allie=-1;
+
+            ajouter_degat_txt("DETRUIT",aff_deg,(terrain[x_def][y_def].xImg),(terrain[x_def][y_def].yImg+20),3);
+
+        }
+
         tab[joueur].pts_action_actu--;
       }
     }

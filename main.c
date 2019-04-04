@@ -28,6 +28,8 @@ int NB_CLASSE= 6 ; //nb de classe actuelement dans le jeu !!!!!A ne pas modifier
 int NB_UNITE= 7 ; //nb unité pour chaque joueurs au debut de la partie
 int ESPACE_GEN= 2; //espace (nb de case de chaque coté au minimum) entre deux équipes d'unitée
 int NB_MAX_PRIEST=2;
+int NB_BLOCK=5;
+int PDV_BLOCK=150;
 //==============================//
 
 //===========VITESSE DU JEU=====//
@@ -197,10 +199,10 @@ if( pWindow )
 									TAILLE_TAB_BASH-=10;
 								}
 								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60)){
-									ISO=0;
+									ISO=1;
 								}
 								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60)){
-									ISO=1;
+									ISO=0;
 								}
 								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && VITESSE_JEU_BOT<100 ){
 									VITESSE_JEU_BOT++;
@@ -471,39 +473,54 @@ if( pWindow )
 															//int a,b,a2,b2,a3,b3,a4,b4,res1,res2,res3,res4;
 															for(int compteur=0;compteur<N;compteur++){
 																for(int compteur2=0;compteur2<M; compteur2++){
-																		/* VERSION AVANCER NE FONCTIONNANT PAS ENCORE
-																		fprintf(stderr,"POUR  %d | %d : \n",compteur,compteur2);
-																		//Y
-																		a=((terrain[compteur][compteur2].y1-terrain[compteur][compteur2].y4)/(terrain[compteur][compteur2].x1-terrain[compteur][compteur2].x4));
-																		b= (terrain[compteur][compteur2].y4-a*terrain[compteur][compteur2].x4);
-																		res1=a*e.motion.x+b;j
-																		fprintf(stderr,"a = %d et b = %d pour x= %d et y = %d , doit dépasser %d en y \n",a,b,e.motion.x,e.motion.y,res1);
-																		//X
-																		a2=((terrain[compteur][compteur2].y2-terrain[compteur][compteur2].y1)/(terrain[compteur][compteur2].x2-terrain[compteur][compteur2].x1));
-																		b2= (terrain[compteur][compteur2].y1-a*terrain[compteur][compteur2].x1);
-																		res2=-1*(e.motion.y-b2)/a2;
-																		fprintf(stderr,"a2 = %d et b2= %d pour x= %d et y = %d ,doit dépasser %d en x \n",a2,b2,e.motion.x,e.motion.y,res2);
-																		//Y
-																		a3=((terrain[compteur][compteur2].y2-terrain[compteur][compteur2].y3)/(terrain[compteur][compteur2].x2-terrain[compteur][compteur2].x3));
-																		b3= (terrain[compteur][compteur2].y3-a*terrain[compteur][compteur2].x3);
-																		res3 = a3*e.motion.x+b3;
-																		fprintf(stderr,"a3 = %d et b3= %d pour x= %d et y = %d , ne doit pas dépasser %d en y \n",a3,b3,e.motion.x,e.motion.y,res3);
-																		//X
-																		a4=((terrain[compteur][compteur2].y3-terrain[compteur][compteur2].y4)/(terrain[compteur][compteur2].x3-terrain[compteur][compteur2].x4));
-																		b4= (terrain[compteur][compteur2].y4-a*terrain[compteur][compteur2].x4);
-																		res4 = -1*(e.motion.y-b4)/a4;
-																		fprintf(stderr,"a4 = %d et b4= %d pour x= %d et y = %d , ne doit pas dépasser %d en x \n",a4,b4,e.motion.x,e.motion.y,res4);
+																		/* VERSION AVANCER NE FONCTIONNANT PAS ENCORE*/
+																		/*float vert=abs((terrain[compteur][compteur2].y1 - terrain[compteur][compteur2].y3))/2-15;
+																		float hori=abs((terrain[compteur][compteur2].x4 - terrain[compteur][compteur2].x2))/2-15;
+																		float y_mid=terrain[compteur][compteur2].y1;
+																		float x_mid=terrain[compteur][compteur2].x1;
 
-																		if(e.motion.y >  res1 && e.motion.x > res2  && e.motion.y <  res3 && e.motion.x <  res4 ){
-																			fprintf(stderr,"la case %d | %d a été selectionné. \n",compteur,compteur2);
-																		}
-																		*/
+																		int calc_vert1=(((y_mid-e.motion.y)/vert)*100);
+																		int calc_hori1=(((e.motion.x-x_mid)/hori)*100);
+
+																		int calc_vert2=(((e.motion.y-y_mid)/vert)*100);
+																		int calc_hori2=(((e.motion.x-x_mid)/hori)*100);
+
+																		int calc_vert3=(((e.motion.y-y_mid)/vert)*100);
+																		int calc_hori3=(((x_mid-e.motion.x)/hori)*100);
+
+																		int calc_vert4=(((y_mid-e.motion.y)/vert)*100);
+																		int calc_hori4=(((x_mid-e.motion.x)/hori)*100);*/
+
+
+
+
 
 																		//VERSION BASIQUE QUI FONCTIONNE MAL
 																		if(e.motion.y > terrain[compteur][compteur2].y1+10 && e.motion.y < terrain[compteur][compteur2].y3-10 && e.motion.x > terrain[compteur][compteur2].x4+10 && e.motion.x < terrain[compteur][compteur2].x2-10 &&!(e.motion.x>(*largeur)/2+175 && e.motion.x<(*largeur)/2+175+150 && e.motion.y>15 && e.motion.y<15+50)&&!(e.motion.x>10 && e.motion.x<240 && e.motion.y>300 && e.motion.y<500)){
+																		//if( (calc_vert1 + calc_hori1 )<=100 && (calc_vert2 + calc_hori2 )<=100 && (calc_vert3 + calc_hori3 )<=100 && (calc_vert4 + calc_hori4 )<=100 ){
+
+																		/*fprintf(stderr,"\n=========TEST============\n");
+																		fprintf(stderr,"y1 = %d\n",terrain[compteur][compteur2].y1);
+																		fprintf(stderr,"y3 = %d\n",terrain[compteur][compteur2].y3);
+																		fprintf(stderr,"x4 = %d\n",terrain[compteur][compteur2].x4);
+																		fprintf(stderr,"x2 = %d\n",terrain[compteur][compteur2].x2);
+
+
+
+																		fprintf(stderr,"\ncalc_vert1 = %d\n",calc_vert1);
+																		fprintf(stderr,"calc_hori1 = %d\n",calc_hori1);
+
+																		fprintf(stderr,"\nmotion x = %d\n",e.motion.x);
+																		fprintf(stderr,"motion y = %d\n",e.motion.y);*/
+																			
 																			//=================SELECTION D'UNE PIECE====================//
-																			if(terrain[compteur][compteur2].piece){
+																			if(terrain[compteur][compteur2].piece || (terrain[compteur][compteur2].est_block==1 && terrain[compteur][compteur2].block_allie!=joueur_actu && terrain[compteur][compteur2].attaque==1)){
 																				clicout=1;
+																				for(int indice=0;indice<N;indice++){
+																					for(int indice2=0;indice2<M; indice2++){
+																						terrain[indice][indice2].block_sel=0;
+																					}
+																				}
 
 																				for(int x=0;x<N;x++){
 																					for(int y=0;y<M;y++){
@@ -520,14 +537,27 @@ if( pWindow )
 																					}
 																				}
 
-																				if(terrain[compteur][compteur2].piece)
+																				if(terrain[compteur][compteur2].piece){
 																					terrain[compteur][compteur2].piece->select=1;
+																				}
 
 
-																			}else{
+																			}else if(terrain[compteur][compteur2].piece==NULL && (terrain[compteur][compteur2].est_block!=1 || (terrain[compteur][compteur2].est_block==1 && terrain[compteur][compteur2].block_allie==joueur_actu && terrain[compteur][compteur2].deplacement==1))){
 																			//=================DEPLACEMENT et ATTAQUE D'UNE PIECE====================//
 
 																			move(terrain,compteur,compteur2,joueur_actu,tab,tab_info_bash,variable2);
+																			poser_block(terrain,compteur,compteur2,joueur_actu,tab,tab_info_bash,variable2);
+
+																			}else if(terrain[compteur][compteur2].piece==NULL && terrain[compteur][compteur2].est_block==1){
+																				clicout=1;
+																				for(int indice=0;indice<N;indice++){
+																					for(int indice2=0;indice2<M; indice2++){
+																						terrain[indice][indice2].block_sel=0;
+																						if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1)
+																							terrain[indice][indice2].piece->select=0;
+																					}
+																				}
+																				terrain[compteur][compteur2].block_sel=1;
 																			}
 
 																		}
@@ -557,11 +587,18 @@ if( pWindow )
 																	camera_sur_allie(terrain,joueur_actu,tab,largeur,hauteur);
 																	compteur_bouton_cam=VITESSE_ANIM;
 																}
+																if(e.motion.x>40 && e.motion.x<75 && e.motion.y>670 && e.motion.y<720 && tab[joueur_actu].nb_block>0){
+																	//fonction qui met certaine cases du terrain a block=1;(les 4 cases adjacente a chaque unité si le case est une case normal et que aucune unité n'est dessus)
+																	clicout=1;
+																	pathfinding_block(terrain,joueur_actu);
+																}
 																if(clicout==0){
 																	for(int indice=0;indice<N;indice++){
 																		for(int indice2=0;indice2<M; indice2++){
 																			terrain[indice][indice2].deplacement=0;
 																			terrain[indice][indice2].attaque=0;
+																			terrain[indice][indice2].block=0;
+																			terrain[indice][indice2].block_sel=0;
 																			if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1)
 																				terrain[indice][indice2].piece->select=0;
 																		}
@@ -768,6 +805,9 @@ if( pWindow )
 												compteur_tour++;
 											}
 										}while(tab[joueur_actu].id_joueur==-1);
+										if(tab[joueur_actu].humain==1){
+											camera_sur_allie(terrain,joueur_actu,tab,largeur,hauteur);
+										}
 										fin_tour=0;
 									}
 

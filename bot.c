@@ -132,11 +132,19 @@ void attaquer_meilleur_cible(case_t terrain[N][M],int x_bot,int y_bot,int nb_enn
         if(terrain[i][j].attaque==1 && pv_low==-1){
           x_low=i;
           y_low=j;
-          pv_low=terrain[i][j].piece->pdv;
-        }else if(terrain[i][j].attaque==1 && pv_low>terrain[i][j].piece->pdv){
+          if(terrain[i][j].piece){
+            pv_low=terrain[i][j].piece->pdv;
+          }else{
+            pv_low=terrain[i][j].pdv_block;
+          }
+        }else if(terrain[i][j].attaque==1 && ((terrain[i][j].piece && pv_low>terrain[i][j].piece->pdv) || (terrain[i][j].piece==NULL && pv_low>terrain[i][j].pdv_block) )){
           x_low=i;
           y_low=j;
-          pv_low=terrain[i][j].piece->pdv;
+          if(terrain[i][j].piece){
+            pv_low=terrain[i][j].piece->pdv;
+          }else{
+            pv_low=terrain[i][j].pdv_block;
+          }
         }
       }
     }
@@ -180,11 +188,11 @@ void depla_ennem_plus_proche(case_t terrain[N][M],int x_bot,int y_bot,int joueur
   int distance_allie=-1;
   for(int i=0;i<N;i++){
     for(int j=0;j<M;j++){
-      if(terrain[i][j].piece && terrain[i][j].piece->joueur!=joueur_actu && distance_allie==-1 && (x_bot!=i || y_bot!=j)){
+      if((terrain[i][j].piece && terrain[i][j].piece->joueur!=joueur_actu && distance_allie==-1 && (x_bot!=i || y_bot!=j)) || (terrain[i][j].est_block==1 && terrain[i][j].block_allie!=joueur_actu)){
         x_allie=i;
         y_allie=j;
         distance_allie=(abs(x_bot-x_allie)+abs(y_bot-y_allie));
-      }else if(terrain[i][j].piece && terrain[i][j].piece->joueur!=joueur_actu && distance_allie>(abs(x_bot-i)+abs(y_bot-j))&& (x_bot!=i || y_bot!=j)){
+      }else if((terrain[i][j].piece && terrain[i][j].piece->joueur!=joueur_actu && distance_allie>(abs(x_bot-i)+abs(y_bot-j))&& (x_bot!=i || y_bot!=j)) || (terrain[i][j].est_block==1 && terrain[i][j].block_allie!=joueur_actu)){
         x_allie=i;
         y_allie=j;
         distance_allie=(abs(x_bot-x_allie)+abs(y_bot-y_allie));
@@ -208,7 +216,7 @@ void move_longue_range(case_t terrain[N][M], int x, int y,int x_dest,int y_dest,
 
   for (i=0;i<N;i++){//parcours du terrain
       for(j=0;j<M;j++){
-          if ((terrain[i][j].type==5) || terrain[i][j].piece!=NULL){
+          if ((terrain[i][j].type==5) || terrain[i][j].piece!=NULL || (terrain[i][j].est_block==1 && terrain[x][y].piece->joueur!=terrain[i][j].block_allie)){
               deplacement[i][j]=-1;
           }//case d'eau deplacement impossible
           else{
@@ -219,7 +227,7 @@ void move_longue_range(case_t terrain[N][M], int x, int y,int x_dest,int y_dest,
 
   }
   deplacement[x][y]=1;//case ou se trouve la piece
-  deplacement[x_dest][y_dest]=0;//case ou se trouve la piece a rejoindre
+  deplacement[x_dest][y_dest]=0;//case ou se trouve la piece ou le bloc a rejoindre
 
   int possible=1;
   for(cpt=1;deplacement[x_dest][y_dest]==0 && possible!=0;cpt++){

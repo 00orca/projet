@@ -29,6 +29,7 @@ extern int DURE_JOUR_NUIT;
 extern int NB_MAX_PRIEST;
 extern int ISO;
 extern int VITESSE_INCREMENTATION;
+extern int NB_BLOCK;
 
 
 

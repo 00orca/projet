@@ -31,28 +31,33 @@ extern int BASH_SCROLL_SPEED;
 extern int DURE_JOUR_NUIT;
 extern int NB_MAX_PRIEST;
 extern int ISO;
+extern int NB_BLOCK;
+extern int PDV_BLOCK;
 
 
 
 typedef struct case_s{
 	int type;				//type d'une case
 	int climat;
+	int est_block;
+	int pdv_block;
+	int block_allie;
+	int block_sel;
 	piece_t *piece;		//piece sur cette case
 	int deplacement;  // 1 -> droit de se deplacer , 0pas le droit de se deplacer
 	int attaque;    // 1 -> droit d'attaquer , 0 -> pas le droit d'attaquer
+	int block;
 	int xImg; // ccordonné reel de l'image
 	int yImg;
 	int x1; // coordonné du losange représentant une case(pour gerer les coordonnées du clic souris)
 	int y1;
 	int x2;
 	int y2;
-    int x3;
+  int x3;
 	int y3;
 	int x4;
 	int y4;
 }case_t;
-
-
 
 
 typedef struct joueurs_s{
@@ -61,6 +66,7 @@ typedef struct joueurs_s{
   int nb_unite;
   int id_joueur;
   int humain;
+	int nb_block;
 }joueurs_t;
 
 
@@ -90,5 +96,10 @@ void rem_piece_joueur(case_t terrain[N][M],int joueur_actu);
 
 void save(case_t terrain[N][M],int compteur_tour,int joueur_actu,joueurs_t tab[J]);
 SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],int compteur,int compteur2,int inter); //return un rectangle pour afficher la bonne frame d'animation
+
+void pathfinding_block(case_t terrain[N][M],int joueur_actu);
+void reset_block(case_t terrain[N][M]);
+void poser_block(case_t terrain[N][M],int compteur,int compteur2,int joueur_actu,joueurs_t tab[J],bash_t tab_info_bash[TAILLE_TAB_BASH],char variable2[80]);
+
 
 #endif
