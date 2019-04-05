@@ -34,6 +34,8 @@ extern int ISO;
 extern int NB_BLOCK;
 extern int PDV_BLOCK;
 extern float COEF_AFFICHAGE;
+extern int TOUR_EVOL_FORET;
+extern int CHANCE_EVOL;
 
 
 
@@ -101,6 +103,6 @@ SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],in
 void pathfinding_block(case_t terrain[N][M],int joueur_actu);
 void reset_block(case_t terrain[N][M]);
 void poser_block(case_t terrain[N][M],int compteur,int compteur2,int joueur_actu,joueurs_t tab[J],bash_t tab_info_bash[TAILLE_TAB_BASH],char variable2[80]);
-
+void update_grille(case_t terrain[N][M],int compteur_tour,bash_t tab_info_bash[TAILLE_TAB_BASH],char variable2[80]);
 
 #endif

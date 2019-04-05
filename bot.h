@@ -31,6 +31,8 @@ extern int DURE_JOUR_NUIT;
 extern int NB_MAX_PRIEST;
 extern int ISO;
 extern float COEF_AFFICHAGE;
+extern int TOUR_EVOL_FORET;
+extern int CHANCE_EVOL;
 
 
 

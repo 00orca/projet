@@ -7,6 +7,8 @@
 #include "grille.h"
 
 extern float COEF_AFFICHAGE;
+extern int TOUR_EVOL_FORET;
+extern int CHANCE_EVOL;
 
 
 

@@ -31,6 +31,8 @@ extern int ISO;
 extern int VITESSE_INCREMENTATION;
 extern int NB_BLOCK;
 extern float COEF_AFFICHAGE;
+extern int TOUR_EVOL_FORET;
+extern int CHANCE_EVOL;
 
 
 

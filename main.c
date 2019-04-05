@@ -52,6 +52,8 @@ int M= 20 ;
 int ISO=1;
 int VITESSE_INCREMENTATION=10;
 float COEF_AFFICHAGE=0;
+int TOUR_EVOL_FORET=1;
+int CHANCE_EVOL=100;
 
 //=====================================MAIN=============================//
 
@@ -75,7 +77,7 @@ int main(int argc, char** argv)
 	bash_t tab_info_bash[TAILLE_TAB_BASH];
 	int nb_tour=0;
 	int compteur_anim=VITESSE_ANIM;
-	int scroll_speed=20;
+	int scroll_speed=30;
 	int x_bot,y_bot;
 	srand(time(NULL));
 	int souris=0;
@@ -808,6 +810,7 @@ if( pWindow )
 											joueur_actu=(joueur_actu+1)%J;
 											if(joueur_actu==0){
 												compteur_tour++;
+												update_grille(terrain,compteur_tour,tab_info_bash,variable2);
 											}
 										}while(tab[joueur_actu].id_joueur==-1);
 										if(tab[joueur_actu].humain==1){

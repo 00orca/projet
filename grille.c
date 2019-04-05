@@ -236,6 +236,43 @@ void poser_block(case_t terrain[N][M],int compteur,int compteur2,int joueur_actu
 }
 
 
+/*
+int muraille(case_t terrain[N][M],int joueur_actu){
+  int nb=0;
+  for(int i=0;i<N;i++){
+    for(int j=0;j<M;j++){
+      if(){
+        nb++;
+      }else{
+        return 0;
+      }
+    }
+  }
+  return nb;
+}*/
+
+
+
+void update_grille(case_t terrain[N][M],int compteur_tour,bash_t tab_info_bash[TAILLE_TAB_BASH],char variable2[80]){
+  char variable[80];
+  if(compteur_tour%TOUR_EVOL_FORET==0){
+    for(int i=0;i<N;i++){
+      for(int j=0;j<M;j++){
+
+        if(terrain[i][j].type==6 && rand()%CHANCE_EVOL==0){
+          terrain[i][j].type=1;
+          sprintf(variable, "| Foret en %d/%d  meurt",i,j);
+          ajouter_ligne_bash(variable,tab_info_bash,info,variable2);
+        }
+        if(terrain[i][j].type==1 && rand()%CHANCE_EVOL==1 && terrain[i][j].est_block==0){
+          terrain[i][j].type=6;
+          sprintf(variable, "| Foret en %d/%d  nait",i,j);
+          ajouter_ligne_bash(variable,tab_info_bash,info,variable2);
+        }
+      }
+    }
+  }
+}
 
 
 

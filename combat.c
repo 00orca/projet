@@ -230,6 +230,7 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
 			    	ajouter_ligne_bash(variable,tab_info_bash,kill,variable2);
 
             tab[terrain[x_def][y_def].piece->joueur].nb_unite--;
+            terrain[x_def][y_def].attaque=0;
             terrain[x_att][y_att].piece->kill+=1;
             ajouter_degat_txt("KILL",aff_deg,(terrain[x_def][y_def].xImg),(terrain[x_def][y_def].yImg+20),3);
             free(terrain[x_def][y_def].piece);
@@ -250,7 +251,7 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
         char variable[80];
         int armure = 50;
         int deg=((terrain[x_att][y_att].piece->puissance)*(100-armure)/100);
-        
+
         terrain[x_def][y_def].pdv_block-=deg;
 
         sprintf(variable, "| Unite de Joueur %d en %d/%d attaque pour %d en %d/%d",joueur,x_att,y_att,deg,x_def,y_def);
@@ -266,6 +267,7 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
             terrain[x_def][y_def].est_block=0;
             terrain[x_def][y_def].pdv_block=0;
             terrain[x_def][y_def].block_allie=-1;
+            terrain[x_def][y_def].attaque=0;
 
             ajouter_degat_txt("DETRUIT",aff_deg,(terrain[x_def][y_def].xImg),(terrain[x_def][y_def].yImg+20),3);
 
