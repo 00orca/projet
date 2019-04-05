@@ -30,6 +30,7 @@ extern int NB_MAX_PRIEST;
 extern int ISO;
 extern int VITESSE_INCREMENTATION;
 extern int NB_BLOCK;
+extern float COEF_AFFICHAGE;
 
 
 

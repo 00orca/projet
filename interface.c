@@ -143,6 +143,7 @@ void help(SDL_Renderer *renderer,SDL_Window* pWindow){
 
 void mod_menu(SDL_Renderer *renderer,SDL_Window* pWindow,image_t *image){
 	char variable[80];
+
 	SDL_Rect useless;
 	gpScreen = SDL_GetWindowSurface(pWindow);
 	int largeur=gpScreen->w/100;
@@ -150,85 +151,85 @@ void mod_menu(SDL_Renderer *renderer,SDL_Window* pWindow,image_t *image){
   SDL_RenderClear(renderer);
 	afficher_img(0,0,gpScreen->h,gpScreen->w,"images/menu.png",image,renderer,1,0,useless);
 
-	largeur=gpScreen->w/100 * 14;
+	largeur=gpScreen->w/100 * 14 ;
 	hauteur=gpScreen->h/100 * 18;
-	AfficherText("Humains: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("Humains: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img((largeur+400*COEF_AFFICHAGE),hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img((largeur+470*COEF_AFFICHAGE),hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  J_HUMAIN);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,(largeur+300*COEF_AFFICHAGE),hauteur);
 
 	largeur=gpScreen->w/100 * 58;
 	hauteur=gpScreen->h/100 * 18;
-	AfficherText("points actions: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("points actions: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img((largeur+400*COEF_AFFICHAGE),hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img((largeur+470*COEF_AFFICHAGE),hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  PTS_ACTION_MAX);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,(largeur+300*COEF_AFFICHAGE),hauteur);
 
 	largeur=gpScreen->w/100 * 14;
 	hauteur=gpScreen->h/100 * 34;
-	AfficherText("ordis: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("ordis: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  J_BOT);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 	largeur=gpScreen->w/100 * 58;
 	hauteur=gpScreen->h/100 * 34;
-	AfficherText("Max pretre: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("Max pretre: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  NB_MAX_PRIEST);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 
 	largeur=gpScreen->w/100 * 14;
 	hauteur=gpScreen->h/100 * 50;
-	AfficherText("Unites: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("Unites: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  NB_UNITE);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 		largeur=gpScreen->w/100 * 58;
 	hauteur=gpScreen->h/100 * 50;
-	AfficherText("duree jour/nuit: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("duree jour/nuit: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  DURE_JOUR_NUIT);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 
 	largeur=gpScreen->w/100 * 14;
 	hauteur=gpScreen->h/100 * 66;
-	AfficherText("hauteur grille:", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("hauteur grille:", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  M);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 	largeur=gpScreen->w/100 * 14;
 	hauteur=gpScreen->h/100 * 79;
-	AfficherText("largeur grille: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("largeur grille: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  N);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 
 	largeur=gpScreen->w/100 * 50;
 	hauteur=gpScreen->h/100 * 71;
-	afficher_img(largeur,hauteur,150,150,"images/option.png",image,renderer,1,0,useless);
+	afficher_img(largeur,hauteur,150*COEF_AFFICHAGE,150*COEF_AFFICHAGE,"images/option.png",image,renderer,1,0,useless);
 
 
 	largeur=gpScreen->w/100 * 66;
 	hauteur=gpScreen->h/100 * 79;
-	AfficherText("Suivant", "arial.ttf",r,70,renderer,largeur,hauteur);
+	AfficherText("Suivant", "arial.ttf",r,70*COEF_AFFICHAGE,renderer,largeur,hauteur);
 
 	largeur=gpScreen->w/100 * 64;
 	hauteur=gpScreen->h/100 * 66;
-	AfficherText("Precedent", "arial.ttf",r,70,renderer,largeur,hauteur);
+	AfficherText("Precedent", "arial.ttf",r,70*COEF_AFFICHAGE,renderer,largeur,hauteur);
 
   SDL_RenderPresent(renderer);
 }
@@ -247,57 +248,56 @@ void mod_option(SDL_Renderer *renderer,SDL_Window* pWindow,image_t *image){
 
 	largeur=gpScreen->w/100 * 14;
 	hauteur=gpScreen->h/100 * 18;
-	AfficherText("espace gen: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("espace gen: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  ESPACE_GEN);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 	largeur=gpScreen->w/100 * 58;
 	hauteur=gpScreen->h/100 * 18;
-	AfficherText("vitesse bots: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("vitesse bots: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  VITESSE_JEU_BOT);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 	largeur=gpScreen->w/100 * 14;
 	hauteur=gpScreen->h/100 * 34;
-	AfficherText("lignes bash: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("lignes bash: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  TAILLE_TAB_BASH);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 	largeur=gpScreen->w/100 * 58;
 	hauteur=gpScreen->h/100 * 34;
-	AfficherText("scroll bash: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("scroll bash: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  BASH_SCROLL_SPEED);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 
 	largeur=gpScreen->w/100 * 14;
 	hauteur=gpScreen->h/100 * 50;
-	AfficherText("isometrique: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("isometrique: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  ISO);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 	largeur=gpScreen->w/100 * 58;
 	hauteur=gpScreen->h/100 * 50;
-	AfficherText("vitesse menu: ", "arial.ttf",o,40,renderer,largeur,hauteur);
-	afficher_img(largeur+400,hauteur,60,60,"images/bouton_plus.png",image,renderer,1,0,useless);
-	afficher_img(largeur+470,hauteur,60,60,"images/bouton_moins.png",image,renderer,1,0,useless);
+	AfficherText("vitesse menu: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
+	afficher_img(largeur+400*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
+	afficher_img(largeur+470*COEF_AFFICHAGE,hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
 	sprintf(variable, "%d",  VITESSE_INCREMENTATION);
-	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300,hauteur);
+	AfficherText(variable, "arial.ttf",o,40,renderer,largeur+300*COEF_AFFICHAGE,hauteur);
 
 	largeur=gpScreen->w/100 * 64;
 	hauteur=gpScreen->h/100 * 66;
-	AfficherText("Precedent", "arial.ttf",r,70,renderer,largeur,hauteur);
+	AfficherText("Precedent", "arial.ttf",r,70*COEF_AFFICHAGE,renderer,largeur,hauteur);
 
   SDL_RenderPresent(renderer);
 }
-

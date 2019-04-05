@@ -51,10 +51,11 @@ int M= 20 ;
 //==============================//
 int ISO=1;
 int VITESSE_INCREMENTATION=10;
+float COEF_AFFICHAGE=0;
 
 //=====================================MAIN=============================//
 
-int WinMain(int argc, char** argv)
+int main(int argc, char** argv)
 {
 
 
@@ -120,7 +121,11 @@ int WinMain(int argc, char** argv)
 
 
 
+
 	SDL_GetWindowSize(pWindow,largeur,hauteur); //initialisation des pointeur largeur et hauteur sur la taille de la fenetre
+	float test=(*largeur);
+	COEF_AFFICHAGE=test / 1920.00;
+
 
 	if(!pWindow){
 		fprintf(stderr, "Erreur à la création de la fenetre : %s\n", SDL_GetError());
@@ -186,43 +191,43 @@ if( pWindow )
 							gpScreen = SDL_GetWindowSurface(pWindow);
 							if(delay_clic>=VITESSE_INCREMENTATION){
 								delay_clic=0;
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && ESPACE_GEN<N/(2*J) && ESPACE_GEN<M/(2*J)){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && ESPACE_GEN<N/(2*J) && ESPACE_GEN<M/(2*J)){
 									ESPACE_GEN++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && ESPACE_GEN>0){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && ESPACE_GEN>0){
 									ESPACE_GEN--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && TAILLE_TAB_BASH<10000){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && TAILLE_TAB_BASH<10000){
 									TAILLE_TAB_BASH+=10;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && TAILLE_TAB_BASH>30){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && TAILLE_TAB_BASH>30){
 									TAILLE_TAB_BASH-=10;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60)){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE)){
 									ISO=1;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60)){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE)){
 									ISO=0;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && VITESSE_JEU_BOT<100 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && VITESSE_JEU_BOT<100 ){
 									VITESSE_JEU_BOT++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && VITESSE_JEU_BOT>1 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && VITESSE_JEU_BOT>1 ){
 									VITESSE_JEU_BOT--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && BASH_SCROLL_SPEED<15 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && BASH_SCROLL_SPEED<15 ){
 									BASH_SCROLL_SPEED++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && BASH_SCROLL_SPEED>0 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && BASH_SCROLL_SPEED>0 ){
 									BASH_SCROLL_SPEED--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && VITESSE_INCREMENTATION<20 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && VITESSE_INCREMENTATION<20 ){
 									VITESSE_INCREMENTATION++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && VITESSE_INCREMENTATION>2 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && VITESSE_INCREMENTATION>2 ){
 									VITESSE_INCREMENTATION--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 64)) && e.motion.x<((gpScreen->w/100 * 64)+320) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+100)){
+								if(e.motion.x>((gpScreen->w/100 * 64)) && e.motion.x<((gpScreen->w/100 * 64)+320*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+100*COEF_AFFICHAGE)){
 									running=Menu2;
 									wait=20;
 								}
@@ -251,57 +256,57 @@ if( pWindow )
 							gpScreen = SDL_GetWindowSurface(pWindow);
 							if(delay_clic>=VITESSE_INCREMENTATION){
 								delay_clic=0;
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && J<50 && J_HUMAIN<50){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && J<50 && J_HUMAIN<50){
 									J_HUMAIN++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && J>2 && J_HUMAIN>0){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && J>2 && J_HUMAIN>0){
 									J_HUMAIN--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && J<50 && J_BOT<50){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && J<50 && J_BOT<50){
 									J_BOT++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && J>2 && J_BOT>0){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && J>2 && J_BOT>0){
 									J_BOT--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && NB_UNITE<30 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && NB_UNITE<30 ){
 									NB_UNITE++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && NB_UNITE>1 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && NB_UNITE>1 ){
 									NB_UNITE--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60) && M<100 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60*COEF_AFFICHAGE) && M<100 ){
 									M++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60) && M>10 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60*COEF_AFFICHAGE) && M>10 ){
 									M--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60) && N<100 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60*COEF_AFFICHAGE) && N<100 ){
 									N++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60) && N>10 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60*COEF_AFFICHAGE) && N>10 ){
 									N--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && PTS_ACTION_MAX<100 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && PTS_ACTION_MAX<100 ){
 									PTS_ACTION_MAX++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && PTS_ACTION_MAX>1 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE)&& e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && PTS_ACTION_MAX>1 ){
 									PTS_ACTION_MAX--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && NB_MAX_PRIEST<30 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && NB_MAX_PRIEST<30 ){
 									NB_MAX_PRIEST++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && NB_MAX_PRIEST>0 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && NB_MAX_PRIEST>0 ){
 									NB_MAX_PRIEST--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && DURE_JOUR_NUIT<30000 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && DURE_JOUR_NUIT<30000 ){
 									DURE_JOUR_NUIT+=100;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && DURE_JOUR_NUIT>1000 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && DURE_JOUR_NUIT>1000 ){
 									DURE_JOUR_NUIT-=100;
 								}
 
 
-								if(e.motion.x>((gpScreen->w/100 * 50)) && e.motion.x<((gpScreen->w/100 * 50)+150) && e.motion.y>(gpScreen->h/100 * 71) && e.motion.y<((gpScreen->h/100 * 71)+150)){
+								if(e.motion.x>((gpScreen->w/100 * 50)) && e.motion.x<((gpScreen->w/100 * 50)+150*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 71) && e.motion.y<((gpScreen->h/100 * 71)+150*COEF_AFFICHAGE)){
 									running=option;
 								}
 
@@ -319,8 +324,8 @@ if( pWindow )
 								running=Menu;
 							}
 
-							if(e.motion.x>((gpScreen->w/100 * 66)) && e.motion.x<((gpScreen->w/100 * 66)+300) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+100)){
-							
+							if(e.motion.x>((gpScreen->w/100 * 66))&& e.motion.x<((gpScreen->w/100 * 66)+300) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+100)){
+
 								//==================================INITIALISATION GRILLE============================//
 								    //choix du mode de génération
 								//	printf("1 POUR CARTE ALEATOIRE, AUTRE CHIFFRE POUR UNE DES CARTES PRESET : ");
@@ -512,7 +517,7 @@ if( pWindow )
 
 																		fprintf(stderr,"\nmotion x = %d\n",e.motion.x);
 																		fprintf(stderr,"motion y = %d\n",e.motion.y);*/
-																			
+
 																			//=================SELECTION D'UNE PIECE====================//
 																			if(terrain[compteur][compteur2].piece || (terrain[compteur][compteur2].est_block==1 && terrain[compteur][compteur2].block_allie!=joueur_actu && terrain[compteur][compteur2].attaque==1)){
 																				clicout=1;
@@ -583,7 +588,7 @@ if( pWindow )
 																		}
 																	}
 																}
-																if(e.motion.x>22 && e.motion.x<122 && e.motion.y>420 && e.motion.y<520){
+																if(e.motion.x>10 && e.motion.x<110 && e.motion.y>420 && e.motion.y<520){
 																	camera_sur_allie(terrain,joueur_actu,tab,largeur,hauteur);
 																	compteur_bouton_cam=VITESSE_ANIM;
 																}
@@ -817,6 +822,10 @@ if( pWindow )
 									compteur_anim++;
 									jour_nuit=(jour_nuit+1)%DURE_JOUR_NUIT;
 									compteur_bouton_cam=(compteur_bouton_cam-1)%(-200);
+
+									SDL_GetWindowSize(pWindow,largeur,hauteur); //initialisation des pointeur largeur et hauteur sur la taille de la fenetre
+									test=(*largeur);
+									COEF_AFFICHAGE=test / 1920.00;
 
 
 

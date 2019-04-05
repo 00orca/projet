@@ -26,6 +26,7 @@ extern int BASH_SCROLL_SPEED;
 extern int DURE_JOUR_NUIT;
 extern int NB_MAX_PRIEST;
 extern int ISO;
+extern float COEF_AFFICHAGE;
 
 
 typedef struct degatx_s{

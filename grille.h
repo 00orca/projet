@@ -33,6 +33,7 @@ extern int NB_MAX_PRIEST;
 extern int ISO;
 extern int NB_BLOCK;
 extern int PDV_BLOCK;
+extern float COEF_AFFICHAGE;
 
 
 

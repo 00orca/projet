@@ -619,11 +619,11 @@ void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bor
 
 									for (int compteur=N-1;compteur>=0;compteur--){
 										for (int compteur2=M-1;compteur2>=0;compteur2--){
-                      if(terrain[compteur][compteur2].type==6 && (terrain[compteur][compteur2].deplacement==1 || terrain[compteur][compteur2].attaque==1 || (compteur2+1<M && terrain[compteur][compteur2+1].piece) || (compteur+1<N && terrain[compteur+1][compteur2].piece) || (compteur2+1<M && compteur+1<N && terrain[compteur+1][compteur2+1].piece) || (compteur2+2<M && compteur+1<N && terrain[compteur+1][compteur2+2].piece) || (terrain[compteur][compteur2].piece && (terrain[compteur][compteur2].piece->select==1)))){
+                      if(terrain[compteur][compteur2].type==6 && (terrain[compteur][compteur2].deplacement==1 || terrain[compteur][compteur2].attaque==1 || (compteur2+1<M && (terrain[compteur][compteur2+1].piece || terrain[compteur][compteur2+1].deplacement || terrain[compteur][compteur2+1].attaque)) || (compteur+1<N && (terrain[compteur+1][compteur2].piece || terrain[compteur+1][compteur2].deplacement || terrain[compteur+1][compteur2].attaque)) || (compteur2+1<M && compteur+1<N && (terrain[compteur+1][compteur2+1].piece || terrain[compteur+1][compteur2+1].deplacement || terrain[compteur+1][compteur2+1].attaque)) || (compteur2+2<M && compteur+1<N && (terrain[compteur+1][compteur2+2].piece || terrain[compteur+1][compteur2+2].deplacement || terrain[compteur+1][compteur2+2].attaque)) || (terrain[compteur][compteur2].piece && (terrain[compteur][compteur2].piece->select==1)))){
                         afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-175,250,150,"images/arbreISO_trans.png",image,renderer,coefZoom,0,img_anim);
                       }else if(terrain[compteur][compteur2].type==6){
 												afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-175,250,150,"images/arbreISO.png",image,renderer,coefZoom,0,img_anim);
-                      }if(terrain[compteur][compteur2].type==7 && (terrain[compteur][compteur2].deplacement==1 || terrain[compteur][compteur2].attaque==1 || (compteur2+1<M && terrain[compteur][compteur2+1].piece) || (compteur+1<N && terrain[compteur+1][compteur2].piece) || (compteur2+1<M && compteur+1<N && terrain[compteur+1][compteur2+1].piece) || (compteur2+2<M && compteur+1<N && terrain[compteur+1][compteur2+2].piece) || (terrain[compteur][compteur2].piece && (terrain[compteur][compteur2].piece->select==1)))){
+                      }if(terrain[compteur][compteur2].type==7 && (terrain[compteur][compteur2].deplacement==1 || terrain[compteur][compteur2].attaque==1 || (compteur2+1<M && (terrain[compteur][compteur2+1].piece || terrain[compteur][compteur2+1].deplacement || terrain[compteur][compteur2+1].attaque)) || (compteur+1<N && (terrain[compteur+1][compteur2].piece || terrain[compteur+1][compteur2].deplacement || terrain[compteur+1][compteur2].attaque)) || (compteur2+1<M && compteur+1<N && (terrain[compteur+1][compteur2+1].piece || terrain[compteur+1][compteur2+1].deplacement || terrain[compteur+1][compteur2+1].attaque)) || (compteur2+2<M && compteur+1<N && (terrain[compteur+1][compteur2+2].piece || terrain[compteur+1][compteur2+2].deplacement || terrain[compteur+1][compteur2+2].attaque)) || (terrain[compteur][compteur2].piece && (terrain[compteur][compteur2].piece->select==1)))){
                         afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-175,250,150,"images/montagneISO_trans.png",image,renderer,coefZoom,0,img_anim);
                       }else if(terrain[compteur][compteur2].type==7){
 												afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-175,250,150,"images/montagneISO.png",image,renderer,coefZoom,0,img_anim);
@@ -677,7 +677,7 @@ void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bor
                       else if(terrain[compteur][compteur2].type==7){
 												afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-175,250,150,"images/rocherISO.png",image,renderer,coefZoom,0,img_anim);
                       }
-                      if(terrain[compteur][compteur2].est_block==1 && (terrain[compteur][compteur2].deplacement==1 || terrain[compteur][compteur2].attaque==1 || (compteur2+1<M && terrain[compteur][compteur2+1].piece) || (compteur+1<N && terrain[compteur+1][compteur2].piece) || (compteur2+1<M && compteur+1<N && terrain[compteur+1][compteur2+1].piece) || terrain[compteur][compteur2].piece)){
+                      if(terrain[compteur][compteur2].est_block==1 && (terrain[compteur][compteur2].deplacement==1 || terrain[compteur][compteur2].attaque==1 || (compteur2+1<M && (terrain[compteur][compteur2+1].piece || terrain[compteur][compteur2+1].deplacement || terrain[compteur][compteur2+1].attaque)) || (compteur+1<N && (terrain[compteur+1][compteur2].piece || terrain[compteur+1][compteur2].deplacement || terrain[compteur+1][compteur2].attaque)) || (compteur2+1<M && compteur+1<N && (terrain[compteur+1][compteur2+1].piece || terrain[compteur+1][compteur2+1].deplacement || terrain[compteur+1][compteur2+1].attaque)) || terrain[compteur][compteur2].piece)){
                         afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-175,250,150,"images/blockISO_trans.png",image,renderer,coefZoom,0,img_anim);
                       }else if(terrain[compteur][compteur2].est_block==1){
                         afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-175,250,150,"images/blockISO.png",image,renderer,1,0,img_anim);
@@ -787,7 +787,7 @@ void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bor
 
 						//==============BASH=======================//
 
-									afficher_img(((*largeur)-450),0,300,450,"images/bash.png",image,renderer,1,0,img_anim);
+									afficher_img(((*largeur)-450*COEF_AFFICHAGE),0,300,450*COEF_AFFICHAGE,"images/bash.png",image,renderer,1,0,img_anim);
 									test_bash=0;
 									for(int i=0;i<J;i++){
 										if(tab[i].id_joueur==-2){
@@ -803,12 +803,12 @@ void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bor
 									for(int i=0;i<TAILLE_TAB_BASH;i++){   //AFFICHAGE DU BASH
 										if(tab_info_bash[i].pos_y<=265 && tab_info_bash[i].pos_y>=5){
 											switch(tab_info_bash[i].couleur){
-												case 1: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash,15,renderer,((*largeur)-450+25),tab_info_bash[i].pos_y);break;
-												case 2: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash_degat,15,renderer,((*largeur)-450+25),tab_info_bash[i].pos_y);break;
-												case 3: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash_soin,15,renderer,((*largeur)-450+25),tab_info_bash[i].pos_y);break;
-												case 4: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash_ineficace,15,renderer,((*largeur)-450+25),tab_info_bash[i].pos_y);break;
-												case 5: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash_deplacement,15,renderer,((*largeur)-450+25),tab_info_bash[i].pos_y);break;
-												case 6: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash_kill,15,renderer,((*largeur)-450+25),tab_info_bash[i].pos_y);break;
+												case 1: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash,15*COEF_AFFICHAGE,renderer,((*largeur)-450*COEF_AFFICHAGE+25),tab_info_bash[i].pos_y);break;
+												case 2: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash_degat,15*COEF_AFFICHAGE,renderer,((*largeur)-450*COEF_AFFICHAGE+25),tab_info_bash[i].pos_y);break;
+												case 3: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash_soin,15*COEF_AFFICHAGE,renderer,((*largeur)-450*COEF_AFFICHAGE+25),tab_info_bash[i].pos_y);break;
+												case 4: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash_ineficace,15*COEF_AFFICHAGE,renderer,((*largeur)-450*COEF_AFFICHAGE+25),tab_info_bash[i].pos_y);break;
+												case 5: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash_deplacement,15*COEF_AFFICHAGE,renderer,((*largeur)-450*COEF_AFFICHAGE+25),tab_info_bash[i].pos_y);break;
+												case 6: AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash_kill,15*COEF_AFFICHAGE,renderer,((*largeur)-450*COEF_AFFICHAGE+25),tab_info_bash[i].pos_y);break;
 											}
 										}
 									}
@@ -834,9 +834,9 @@ void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bor
 				//============================//
 
                   if(compteur_bouton_cam<=0){
-                    afficher_img(22,420,100,100,"images/bouton_cam.png",image,renderer,1,0,img_anim);
+                    afficher_img(10,420,100,100,"images/bouton_cam.png",image,renderer,1,0,img_anim);
                   }else{
-                    afficher_img(22,420,100,100,"images/bouton_cam2.png",image,renderer,1,0,img_anim);
+                    afficher_img(10,420,100,100,"images/bouton_cam2.png",image,renderer,1,0,img_anim);
                   }
 
 
@@ -962,7 +962,7 @@ void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bor
 
 
 											}else if(terrain[i][j].block_sel==1){
-                        afficher_img(20,20,100,100,"images/blockISO.png",image,renderer,1,0,img_anim);
+                        afficher_img(30,-20,125,75,"images/blockISO.png",image,renderer,1,0,img_anim);
 
                         sprintf(variable, "%d",  terrain[i][j].block_allie);
 												AfficherText(variable,"arial.ttf",c,25,renderer,65,110);
@@ -1573,7 +1573,7 @@ void affichage_principale(SDL_Renderer *renderer,SDL_Window* pWindow,int bordure
 									AfficherText(variable,"arial.ttf",c,30,renderer,((*largeur)-102),490);
 
 
-                  
+
 
 
          //========================//

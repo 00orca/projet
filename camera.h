@@ -6,6 +6,8 @@
 #include <time.h>
 #include "grille.h"
 
+extern float COEF_AFFICHAGE;
+
 
 
 
