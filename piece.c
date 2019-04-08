@@ -24,7 +24,7 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->armure=40;
             piece->block=80;
             piece->portee=1;
-            piece->deplacement=2;
+            piece->deplacement=3;
             piece->select=0;
             piece->joueur=id_joueur;
             piece->direction=pos;
@@ -69,7 +69,7 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->classe = magician;
             piece->pdv=30;
             piece->puissance = 28;
-            piece->armure=10;
+            piece->armure=8;
             piece->block=40;
             piece->portee=4;
             piece->deplacement=3;
@@ -84,11 +84,11 @@ piece_t * init_piece(classe_t classe,int id_joueur){
         case faucheuse:
             piece->classe = faucheuse;
             piece->pdv=25;
-            piece->puissance = 35;
+            piece->puissance = 32;
             piece->armure=10;
             piece->block=30;
             piece->portee=2;
-            piece->deplacement=5;
+            piece->deplacement=4;
             piece->select=0;
             piece->joueur=id_joueur;
             piece->direction=pos;

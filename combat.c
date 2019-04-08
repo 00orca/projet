@@ -70,7 +70,7 @@ void pathfinding_combat(case_t terrain[N][M], int x, int y,int joueur_actu){
               terrain[i][j].attaque=1;
             if(attaque[i][j]==-2 && terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu && terrain[x][y].piece->classe==priest)
               terrain[i][j].attaque=1;
-            if(attaque[i][j]>1 && terrain[i][j].est_block==1 && terrain[x][y].piece->joueur!=terrain[i][j].block_allie && terrain[x][y].piece->classe!=priest)
+            if(attaque[i][j]>1 && terrain[i][j].bloc!=NULL && terrain[x][y].piece->joueur!=terrain[i][j].bloc->block_allie && terrain[x][y].piece->classe!=priest)
               terrain[i][j].attaque=1;
         }
     }
@@ -191,7 +191,7 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
           soin(terrain,x_att,y_att,x_def,y_def,joueur,tab,aff_deg,tab_info_bash,variable2);
           return;
       }
-      if(terrain[x_def][y_def].attaque==1 && terrain[x_def][y_def].piece!=NULL){//si la piece attaquée est sur une case a portée
+      if(terrain[x_def][y_def].attaque==1 && terrain[x_def][y_def].piece!=NULL && terrain[x_def][y_def].bloc==NULL){//si la piece attaquée est sur une case a portée
         int blockd=((rand()%(100)) + 1);//att bloquée ou non
         int blockage;
         char variable[80];
@@ -247,29 +247,47 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
         }
         tab[joueur].pts_action_actu--;
 
-      }else if(terrain[x_def][y_def].attaque==1 && terrain[x_def][y_def].piece==NULL){ // cas ou c'est un block
+      }else if(terrain[x_def][y_def].attaque==1 && terrain[x_def][y_def].bloc!=NULL){ // cas ou c'est un block
         char variable[80];
         int armure = 50;
         int deg=((terrain[x_att][y_att].piece->puissance)*(100-armure)/100);
 
-        terrain[x_def][y_def].pdv_block-=deg;
+        terrain[x_def][y_def].bloc->pdv_block-=deg;
 
-        sprintf(variable, "| Unite de Joueur %d en %d/%d attaque pour %d en %d/%d",joueur,x_att,y_att,deg,x_def,y_def);
+        sprintf(variable, "| Unite de Joueur %d en %d/%d attaque tour pour %d en %d/%d",joueur,x_att,y_att,deg,x_def,y_def);
 			  ajouter_ligne_bash(variable,tab_info_bash,degat,variable2);
 
         sprintf(variable, "%d", deg);//sauvegarde des dégat pour affichage
         ajouter_degat_txt(variable,aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),1);
-        if(terrain[x_def][y_def].pdv_block<=0){   //destruction du bloc
+        if(terrain[x_def][y_def].bloc->pdv_block<=0){   //destruction du bloc
 
-            sprintf(variable, "| Unite de Joueur %d en %d/%d detruit bloc de %d en %d/%d",joueur,x_att,y_att,terrain[x_def][y_def].block_allie,x_def,y_def);
+            sprintf(variable, "| Unite de Joueur %d en %d/%d detruit tour de %d en %d/%d",joueur,x_att,y_att,terrain[x_def][y_def].bloc->block_allie,x_def,y_def);
 			    	ajouter_ligne_bash(variable,tab_info_bash,kill,variable2);
 
-            terrain[x_def][y_def].est_block=0;
-            terrain[x_def][y_def].pdv_block=0;
-            terrain[x_def][y_def].block_allie=-1;
-            terrain[x_def][y_def].attaque=0;
+            free(terrain[x_def][y_def].bloc);
+            terrain[x_def][y_def].bloc=NULL;
 
             ajouter_degat_txt("DETRUIT",aff_deg,(terrain[x_def][y_def].xImg),(terrain[x_def][y_def].yImg+20),3);
+
+            if(terrain[x_def][y_def].piece){ //dégat d'éboulement sur la piece lors de la destruction de la tour
+              sprintf(variable, "| Unite de Joueur %d en %d/%d prend %d degat d'eboulement",terrain[x_def][y_def].piece->joueur,x_def,y_def,DEGAT_EBOULEMENT);
+			    	  ajouter_ligne_bash(variable,tab_info_bash,degat,variable2);
+              sprintf(variable, "%d", DEGAT_EBOULEMENT);
+              ajouter_degat_txt(variable,aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),1);
+              terrain[x_def][y_def].piece->pdv-=DEGAT_EBOULEMENT;
+              if(terrain[x_def][y_def].piece->pdv<=0){
+                sprintf(variable, "| Unite de Joueur %d en %d/%d meurt de l'eboulement",joueur,x_def,y_def);
+                ajouter_ligne_bash(variable,tab_info_bash,kill,variable2);
+
+                tab[terrain[x_def][y_def].piece->joueur].nb_unite--;
+                terrain[x_def][y_def].attaque=0;
+                ajouter_degat_txt("MORT",aff_deg,(terrain[x_def][y_def].xImg),(terrain[x_def][y_def].yImg+20),3);
+                free(terrain[x_def][y_def].piece);
+                terrain[x_def][y_def].piece=NULL;
+
+              }
+
+            }
 
         }
 

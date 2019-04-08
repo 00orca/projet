@@ -51,10 +51,15 @@ int M= 20 ;
 //==============================//
 int ISO=1;
 int VITESSE_INCREMENTATION=10;
+float COEF_AFFICHAGE=0;
+int TOUR_EVOL_FORET=1;
+int CHANCE_EVOL=100;
+
+int DEGAT_EBOULEMENT=30;
 
 //=====================================MAIN=============================//
 
-int main(int argc, char** argv)
+int WinMain(int argc, char** argv)
 {
 
 
@@ -74,7 +79,7 @@ int main(int argc, char** argv)
 	bash_t tab_info_bash[TAILLE_TAB_BASH];
 	int nb_tour=0;
 	int compteur_anim=VITESSE_ANIM;
-	int scroll_speed=20;
+	int scroll_speed=30;
 	int x_bot,y_bot;
 	srand(time(NULL));
 	int souris=0;
@@ -120,7 +125,11 @@ int main(int argc, char** argv)
 
 
 
+
 	SDL_GetWindowSize(pWindow,largeur,hauteur); //initialisation des pointeur largeur et hauteur sur la taille de la fenetre
+	float test=(*largeur);
+	COEF_AFFICHAGE=test / 1920.00;
+
 
 	if(!pWindow){
 		fprintf(stderr, "Erreur à la création de la fenetre : %s\n", SDL_GetError());
@@ -186,43 +195,43 @@ if( pWindow )
 							gpScreen = SDL_GetWindowSurface(pWindow);
 							if(delay_clic>=VITESSE_INCREMENTATION){
 								delay_clic=0;
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && ESPACE_GEN<N/(2*J) && ESPACE_GEN<M/(2*J)){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && ESPACE_GEN<N/(2*J) && ESPACE_GEN<M/(2*J)){
 									ESPACE_GEN++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && ESPACE_GEN>0){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && ESPACE_GEN>0){
 									ESPACE_GEN--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && TAILLE_TAB_BASH<10000){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && TAILLE_TAB_BASH<10000){
 									TAILLE_TAB_BASH+=10;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && TAILLE_TAB_BASH>30){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && TAILLE_TAB_BASH>30){
 									TAILLE_TAB_BASH-=10;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60)){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE)){
 									ISO=1;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60)){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE)){
 									ISO=0;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && VITESSE_JEU_BOT<100 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && VITESSE_JEU_BOT<100 ){
 									VITESSE_JEU_BOT++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && VITESSE_JEU_BOT>1 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && VITESSE_JEU_BOT>1 ){
 									VITESSE_JEU_BOT--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && BASH_SCROLL_SPEED<15 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && BASH_SCROLL_SPEED<15 ){
 									BASH_SCROLL_SPEED++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && BASH_SCROLL_SPEED>0 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && BASH_SCROLL_SPEED>0 ){
 									BASH_SCROLL_SPEED--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && VITESSE_INCREMENTATION<20 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && VITESSE_INCREMENTATION<20 ){
 									VITESSE_INCREMENTATION++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && VITESSE_INCREMENTATION>2 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && VITESSE_INCREMENTATION>2 ){
 									VITESSE_INCREMENTATION--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 64)) && e.motion.x<((gpScreen->w/100 * 64)+320) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+100)){
+								if(e.motion.x>((gpScreen->w/100 * 64)) && e.motion.x<((gpScreen->w/100 * 64)+320*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+100*COEF_AFFICHAGE)){
 									running=Menu2;
 									wait=20;
 								}
@@ -251,59 +260,65 @@ if( pWindow )
 							gpScreen = SDL_GetWindowSurface(pWindow);
 							if(delay_clic>=VITESSE_INCREMENTATION){
 								delay_clic=0;
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && J<50 && J_HUMAIN<50){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && J<50 && J_HUMAIN<50){
 									J_HUMAIN++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && J>2 && J_HUMAIN>0){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && J>2 && J_HUMAIN>0){
 									J_HUMAIN--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && J<50 && J_BOT<50){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && J<50 && J_BOT<50){
 									J_BOT++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && J>2 && J_BOT>0){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && J>2 && J_BOT>0){
 									J_BOT--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && NB_UNITE<30 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && NB_UNITE<30 ){
 									NB_UNITE++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && NB_UNITE>1 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && NB_UNITE>1 ){
 									NB_UNITE--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60) && M<100 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60*COEF_AFFICHAGE) && M<100 ){
 									M++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60) && M>10 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60*COEF_AFFICHAGE) && M>10 ){
 									M--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+400) && e.motion.x<((gpScreen->w/100 * 14)+460) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60) && N<100 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60*COEF_AFFICHAGE) && N<100 ){
 									N++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 14)+470) && e.motion.x<((gpScreen->w/100 * 14)+520) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60) && N>10 ){
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60*COEF_AFFICHAGE) && N>10 ){
 									N--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && PTS_ACTION_MAX<100 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && PTS_ACTION_MAX<100 ){
 									PTS_ACTION_MAX++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60) && PTS_ACTION_MAX>1 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE)&& e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && PTS_ACTION_MAX>1 ){
 									PTS_ACTION_MAX--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && NB_MAX_PRIEST<30 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && NB_MAX_PRIEST<30 ){
 									NB_MAX_PRIEST++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60) && NB_MAX_PRIEST>0 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && NB_MAX_PRIEST>0 ){
 									NB_MAX_PRIEST--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400) && e.motion.x<((gpScreen->w/100 * 58)+460) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && DURE_JOUR_NUIT<30000 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && DURE_JOUR_NUIT<30000 ){
 									DURE_JOUR_NUIT+=100;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470) && e.motion.x<((gpScreen->w/100 * 58)+520) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60) && DURE_JOUR_NUIT>1000 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && DURE_JOUR_NUIT>1000 ){
 									DURE_JOUR_NUIT-=100;
 								}
 
 
-								if(e.motion.x>((gpScreen->w/100 * 50)) && e.motion.x<((gpScreen->w/100 * 50)+150) && e.motion.y>(gpScreen->h/100 * 71) && e.motion.y<((gpScreen->h/100 * 71)+150)){
+								if(e.motion.x>((gpScreen->w/100 * 50)) && e.motion.x<((gpScreen->w/100 * 50)+150*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 71) && e.motion.y<((gpScreen->h/100 * 71)+150*COEF_AFFICHAGE)){
 									running=option;
 								}
+
+
+
+
+
+
 							}
 							delay_clic=(delay_clic+1)%(VITESSE_INCREMENTATION*5);
 							J=J_HUMAIN+J_BOT;
@@ -313,34 +328,96 @@ if( pWindow )
 								running=Menu;
 							}
 
-							if(e.motion.x>((gpScreen->w/100 * 66)) && e.motion.x<((gpScreen->w/100 * 66)+300) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+100)){
+							if(e.motion.x>((gpScreen->w/100 * 66))&& e.motion.x<((gpScreen->w/100 * 66)+300) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+100)){
+								running=Menu3;
+							}
 
-								//================================Vérifier l'erreur==========================================================//
-								check_erreur err =verif_erreur(J,NB_UNITE,M,N);
-								if(err != none){
-									running=erreur;
-									if(err == erreur1)erreur_window("trop de joueurs",renderer,pWindow);
-									if(err == erreur2)erreur_window("trop de Unites",renderer,pWindow);
-									if(err == erreur3)erreur_window("Grille trop petit",renderer,pWindow);
-									while(running == erreur){
-										while(SDL_PollEvent(&e)){
-											switch(e.type) {
-												case SDL_QUIT:	//cas ou l'on souhaite quitter
-													running = Quit;
-												break;
-												case SDL_MOUSEBUTTONDOWN:
-													if(e.button.button == SDL_BUTTON_LEFT)
-													{
-														if(e.motion.x > gpScreen ->w / 2 + 120 && e.motion.x < gpScreen ->w / 2 + 150 && e.motion.y>gpScreen->h / 2 - 125 && e.motion.y<gpScreen->h / 2 - 95){
-															running = Menu2;
-														}
-													}
-												break;
-											}
-										}
+					}
+					break;
+				}
+			}
+		}else if(running == Menu3){
+			joueur_unite_t joueur_unite[J];
+			init_joueur_unit(joueur_unite,J,NB_UNITE);
+			fprintf(stderr, "%d %d\n", J,NB_UNITE);
+			int id = 0;
+			int delay_clic=0;
+			while(SDL_PollEvent(&e)||running == Menu3) {
+				gpScreen = SDL_GetWindowSurface(pWindow);
+				int longeur = gpScreen->h/5;
+				int fonsize = longeur/3.5;
+				int y3 = fonsize/2;
+				int x3 = gpScreen->w/10;
+				if(running == Menu3)unit_menu(renderer,pWindow,joueur_unite[id]);
+				switch(e.type) {
+					case SDL_QUIT:	//cas ou l'on souhaite quitter
+						running = Quit;
+					break;
+					case SDL_MOUSEBUTTONDOWN:
+							if(e.button.button == SDL_BUTTON_LEFT){
+								if(delay_clic%10==0){
+								if(e.button.y>y3&&e.button.y<y3+fonsize){
+									if(e.button.x>x3*3&&e.button.x<x3*3+fonsize&&id>0)id--;
+									if(e.button.x>x3*6&&e.button.x<x3*6+fonsize&&id<J-1)id++;
+								}
+								if(e.button.y>y3*14&&e.button.y<y3*14+fonsize){
+									if(e.button.x>x3&&e.button.x<x3+fonsize&&joueur_unite[id].unit[0]>0){
+										joueur_unite[id].unit[0]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3+fonsize*3&&e.button.x<x3+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[0]++;
+										joueur_unite[id].restant_unite--;
+									}
+									if(e.button.x>x3*4&&e.button.x<x3*4+fonsize&&joueur_unite[id].unit[1]>0){
+										joueur_unite[id].unit[1]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3*4+fonsize*3&&e.button.x<x3*4+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[1]++;
+										joueur_unite[id].restant_unite--;
+									}
+									if(e.button.x>x3*7&&e.button.x<x3*7+fonsize&&joueur_unite[id].unit[2]>0){
+										joueur_unite[id].unit[2]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3*7+fonsize*3&&e.button.x<x3*7+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[2]++;
+										joueur_unite[id].restant_unite--;
 									}
 								}
-								else{
+								if(e.button.y>y3*25&&e.button.y<y3*25+fonsize){
+									if(e.button.x>x3&&e.button.x<x3+fonsize&&joueur_unite[id].unit[3]>0){
+										joueur_unite[id].unit[3]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3+fonsize*3&&e.button.x<x3+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[3]++;
+										joueur_unite[id].restant_unite--;
+									}
+									if(e.button.x>x3*4&&e.button.x<x3*4+fonsize&&joueur_unite[id].unit[4]>0){
+										joueur_unite[id].unit[4]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3*4+fonsize*3&&e.button.x<x3*4+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[4]++;
+										joueur_unite[id].restant_unite--;
+									}
+									if(e.button.x>x3*7&&e.button.x<x3*7+fonsize&&joueur_unite[id].unit[5]>0){
+										joueur_unite[id].unit[5]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3*7+fonsize*3&&e.button.x<x3*7+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[5]++;
+										joueur_unite[id].restant_unite--;
+									}
+								}
+								delay_clic=0;
+							}
+						delay_clic=(delay_clic+1)%51;
+						if(e.button.y>y3*30&&e.button.x < x3*4)running = Menu2;
+						if(e.button.y>y3*30&&e.button.x > x3*7){
+
 								//==================================INITIALISATION GRILLE============================//
 								    //choix du mode de génération
 								//	printf("1 POUR CARTE ALEATOIRE, AUTRE CHIFFRE POUR UNE DES CARTES PRESET : ");
@@ -356,12 +433,9 @@ if( pWindow )
 								joueur_actu=0;
 								compteur_tour=1;
 
-								fprintf(stderr, "M*N/J*NB_UNITE:%d\n",M*N/(J*NB_UNITE) );
-								fprintf(stderr, "M*N/NB_UNITE:%d\n",M*N/NB_UNITE );
-								fprintf(stderr, "(M*N)/(2*NB_UNITE):%d\n", (M*N)/(2*NB_UNITE*9));
 
 								if(ISO==1){
-									initialisation_principale_iso(bordure,pWindow,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,variable2);
+									initialisation_principale_iso(bordure,pWindow,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,variable2,joueur_unite);
 								}else{
 									initialisation_principale(bordure,pWindow,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,variable2);
 								}
@@ -497,9 +571,9 @@ if( pWindow )
 															for(int compteur=0;compteur<N;compteur++){
 																for(int compteur2=0;compteur2<M; compteur2++){
 																		/* VERSION AVANCER NE FONCTIONNANT PAS ENCORE*/
-																		/*float vert=abs((terrain[compteur][compteur2].y1 - terrain[compteur][compteur2].y3))/2-15;
-																		float hori=abs((terrain[compteur][compteur2].x4 - terrain[compteur][compteur2].x2))/2-15;
-																		float y_mid=terrain[compteur][compteur2].y1;
+																		float vert=abs((terrain[compteur][compteur2].y3 - terrain[compteur][compteur2].y1))/2;
+																		float hori=abs((terrain[compteur][compteur2].x4 - terrain[compteur][compteur2].x2))/2;
+																		float y_mid=terrain[compteur][compteur2].y2;
 																		float x_mid=terrain[compteur][compteur2].x1;
 
 																		int calc_vert1=(((y_mid-e.motion.y)/vert)*100);
@@ -512,15 +586,15 @@ if( pWindow )
 																		int calc_hori3=(((x_mid-e.motion.x)/hori)*100);
 
 																		int calc_vert4=(((y_mid-e.motion.y)/vert)*100);
-																		int calc_hori4=(((x_mid-e.motion.x)/hori)*100);*/
+																		int calc_hori4=(((x_mid-e.motion.x)/hori)*100);
 
 
 
 
 
 																		//VERSION BASIQUE QUI FONCTIONNE MAL
-																		if(e.motion.y > terrain[compteur][compteur2].y1+10 && e.motion.y < terrain[compteur][compteur2].y3-10 && e.motion.x > terrain[compteur][compteur2].x4+10 && e.motion.x < terrain[compteur][compteur2].x2-10 &&!(e.motion.x>(*largeur)/2+175 && e.motion.x<(*largeur)/2+175+150 && e.motion.y>15 && e.motion.y<15+50)&&!(e.motion.x>10 && e.motion.x<240 && e.motion.y>300 && e.motion.y<500)){
-																		//if( (calc_vert1 + calc_hori1 )<=100 && (calc_vert2 + calc_hori2 )<=100 && (calc_vert3 + calc_hori3 )<=100 && (calc_vert4 + calc_hori4 )<=100 ){
+																		//if(e.motion.y > terrain[compteur][compteur2].y1+20 && e.motion.y < terrain[compteur][compteur2].y3-20 && e.motion.x > terrain[compteur][compteur2].x4+20 && e.motion.x < terrain[compteur][compteur2].x2-20 &&!(e.motion.x>(*largeur)/2+175 && e.motion.x<(*largeur)/2+175+150 && e.motion.y>15 && e.motion.y<15+50)&&!(e.motion.x>10 && e.motion.x<240 && e.motion.y>300 && e.motion.y<500)){
+																		if( (calc_vert1 + calc_hori1 )<=100 && (calc_vert2 + calc_hori2 )<=100 && (calc_vert3 + calc_hori3 )<=100 && (calc_vert4 + calc_hori4 )<=100 ){
 
 																		/*fprintf(stderr,"\n=========TEST============\n");
 																		fprintf(stderr,"y1 = %d\n",terrain[compteur][compteur2].y1);
@@ -537,11 +611,12 @@ if( pWindow )
 																		fprintf(stderr,"motion y = %d\n",e.motion.y);*/
 
 																			//=================SELECTION D'UNE PIECE====================//
-																			if(terrain[compteur][compteur2].piece || (terrain[compteur][compteur2].est_block==1 && terrain[compteur][compteur2].block_allie!=joueur_actu && terrain[compteur][compteur2].attaque==1)){
+																			if(terrain[compteur][compteur2].piece || (terrain[compteur][compteur2].bloc!=NULL && terrain[compteur][compteur2].bloc->block_allie!=joueur_actu && terrain[compteur][compteur2].attaque==1)){
 																				clicout=1;
 																				for(int indice=0;indice<N;indice++){
 																					for(int indice2=0;indice2<M; indice2++){
-																						terrain[indice][indice2].block_sel=0;
+																						if(terrain[indice][indice2].bloc && terrain[indice][indice2].bloc->block_sel==1)
+																							terrain[indice][indice2].bloc->block_sel=0;
 																					}
 																				}
 
@@ -552,35 +627,47 @@ if( pWindow )
 																						}
 																					}
 																				}
-																				for(int indice=0;indice<N;indice++){
-																					for(int indice2=0;indice2<M; indice2++){
-																						if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
-																							terrain[indice][indice2].piece->select=0;
+																				if(terrain[compteur][compteur2].piece && terrain[compteur][compteur2].piece->select!=1){
+																					for(int indice=0;indice<N;indice++){
+																						for(int indice2=0;indice2<M; indice2++){
+																							if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
+																								terrain[indice][indice2].piece->select=0;
+																							}
 																						}
 																					}
+
+																					if(terrain[compteur][compteur2].piece){
+																						terrain[compteur][compteur2].piece->select=1;
+																					}
+																				}else if(terrain[compteur][compteur2].bloc){
+																					for(int indice=0;indice<N;indice++){
+																						for(int indice2=0;indice2<M; indice2++){
+																							if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
+																								terrain[indice][indice2].piece->select=0;
+																							}
+																						}
+																					}
+																					terrain[compteur][compteur2].bloc->block_sel=1;
 																				}
 
-																				if(terrain[compteur][compteur2].piece){
-																					terrain[compteur][compteur2].piece->select=1;
-																				}
 
-
-																			}else if(terrain[compteur][compteur2].piece==NULL && (terrain[compteur][compteur2].est_block!=1 || (terrain[compteur][compteur2].est_block==1 && terrain[compteur][compteur2].block_allie==joueur_actu && terrain[compteur][compteur2].deplacement==1))){
+																			}else if(terrain[compteur][compteur2].piece==NULL && (terrain[compteur][compteur2].bloc==NULL || (terrain[compteur][compteur2].bloc!=NULL && terrain[compteur][compteur2].bloc->block_allie==joueur_actu && terrain[compteur][compteur2].deplacement==1))){
 																			//=================DEPLACEMENT et ATTAQUE D'UNE PIECE====================//
 
 																			move(terrain,compteur,compteur2,joueur_actu,tab,tab_info_bash,variable2);
 																			poser_block(terrain,compteur,compteur2,joueur_actu,tab,tab_info_bash,variable2);
 
-																			}else if(terrain[compteur][compteur2].piece==NULL && terrain[compteur][compteur2].est_block==1){
+																			}else if(terrain[compteur][compteur2].piece==NULL && terrain[compteur][compteur2].bloc!=NULL){
 																				clicout=1;
 																				for(int indice=0;indice<N;indice++){
 																					for(int indice2=0;indice2<M; indice2++){
-																						terrain[indice][indice2].block_sel=0;
+																						if(terrain[indice][indice2].bloc && terrain[indice][indice2].bloc->block_sel==1)
+																							terrain[indice][indice2].bloc->block_sel=0;
 																						if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1)
 																							terrain[indice][indice2].piece->select=0;
 																					}
 																				}
-																				terrain[compteur][compteur2].block_sel=1;
+																				terrain[compteur][compteur2].bloc->block_sel=1;
 																			}
 
 																		}
@@ -606,7 +693,7 @@ if( pWindow )
 																		}
 																	}
 																}
-																if(e.motion.x>22 && e.motion.x<122 && e.motion.y>420 && e.motion.y<520){
+																if(e.motion.x>10 && e.motion.x<110 && e.motion.y>420 && e.motion.y<520){
 																	camera_sur_allie(terrain,joueur_actu,tab,largeur,hauteur);
 																	compteur_bouton_cam=VITESSE_ANIM;
 																}
@@ -621,7 +708,8 @@ if( pWindow )
 																			terrain[indice][indice2].deplacement=0;
 																			terrain[indice][indice2].attaque=0;
 																			terrain[indice][indice2].block=0;
-																			terrain[indice][indice2].block_sel=0;
+																			if(terrain[indice][indice2].bloc && terrain[indice][indice2].bloc->block_sel==1)
+																				terrain[indice][indice2].bloc->block_sel=0;
 																			if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1)
 																				terrain[indice][indice2].piece->select=0;
 																		}
@@ -806,6 +894,7 @@ if( pWindow )
 
 										running=Menu;
 									}
+									
 
 									if(ISO==1){
 										affichage_principale_iso(renderer,pWindow,bordure,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,joueur_actu,image,compteur_anim,nb_joueur_restant,compteur_tour,frame_anim_montre,jour_nuit,variable2,compteur_bouton_cam);
@@ -826,6 +915,7 @@ if( pWindow )
 											joueur_actu=(joueur_actu+1)%J;
 											if(joueur_actu==0){
 												compteur_tour++;
+												update_grille(terrain,compteur_tour,tab_info_bash,variable2);
 											}
 										}while(tab[joueur_actu].id_joueur==-1);
 										if(tab[joueur_actu].humain==1){
@@ -841,12 +931,15 @@ if( pWindow )
 									jour_nuit=(jour_nuit+1)%DURE_JOUR_NUIT;
 									compteur_bouton_cam=(compteur_bouton_cam-1)%(-200);
 
+									SDL_GetWindowSize(pWindow,largeur,hauteur); //initialisation des pointeur largeur et hauteur sur la taille de la fenetre
+									test=(*largeur);
+									COEF_AFFICHAGE=test / 1920.00;
+
 
 
 								//===================================ACTUALISATION DES TOURS==========================================//
 
 								}//fin boucle de jeu
-							}
 							}
 						}
 					break;

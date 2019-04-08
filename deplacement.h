@@ -40,6 +40,7 @@ extern int CHANCE_EVOL;
 
 
 void pathfinding(case_t terrain[N][M], int x, int y); //remplis la grille de jeu (terrain[x][y].deplacement= ?) selon si la case est apte au deplacement d'un allié SELECTIONNE
+
 void move(case_t terrain[N][M],int x,int y, int joueur,joueurs_t tab[J],bash_t tab_info_bash[TAILLE_TAB_BASH],char variable2[80]); //deplacement vers une coordonné x et y de la grille
 
 #endif

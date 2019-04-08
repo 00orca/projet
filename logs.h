@@ -31,6 +31,7 @@ extern int TOUR_EVOL_FORET;
 extern int CHANCE_EVOL;
 
 
+
 typedef struct degatx_s{
   int pos_x;
   int pos_y;
@@ -40,11 +41,9 @@ typedef struct degatx_s{
 }degatx_t;
 
 
-
 typedef enum {
     info=1,degat,soins,ineficace,deplacement,kill
 }typeTxt_t;
-
 
 
 typedef struct bash_s{
@@ -54,12 +53,12 @@ typedef struct bash_s{
 }bash_t;
 
 
-
-
 void ajouter_ligne_bash(char * variable,bash_t tab_info_bash[TAILLE_TAB_BASH],typeTxt_t c,char variable2[80]);
 
 void ajouter_degat_txt(char txt[20],degatx_t aff_deg[AFF_DEG],int x,int y,int c); //ajoute un texte dans le tableau d'anim des dégats, blocks et kills
+
 void clean_degat_txt(degatx_t aff_deg[AFF_DEG]); //nettoie le tableau d'anim de texte des degats,blocks, kills etc
+
 int vide(degatx_t aff_deg[AFF_DEG]); //regarde si le tableau d'affichage des dégats sous forme d'animation est vide ou non
 
 #endif

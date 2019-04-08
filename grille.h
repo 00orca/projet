@@ -39,46 +39,84 @@ extern int CHANCE_EVOL;
 
 
 
+typedef struct bloc_s{
+	int pdv_block;    //point de vie du bloc
+	int block_allie;  //id du bloc
+	int block_sel;  //==0 si pas de bloc selectionné sinon ==1
+}bloc_t;
+
+
+
 typedef struct case_s{
 	int type;				//type d'une case
-	int climat;
-	int est_block;
-	int pdv_block;
-	int block_allie;
-	int block_sel;
+	int climat;            //climat de la case
 	piece_t *piece;		//piece sur cette case
+	bloc_t *bloc;
 	int deplacement;  // 1 -> droit de se deplacer , 0pas le droit de se deplacer
 	int attaque;    // 1 -> droit d'attaquer , 0 -> pas le droit d'attaquer
-	int block;
+	int block;		// ==1 si autorisation de poser un bloc ici, sinon ==0
 	int xImg; // ccordonné reel de l'image
 	int yImg;
 	int x1; // coordonné du losange représentant une case(pour gerer les coordonnées du clic souris)
 	int y1;
 	int x2;
 	int y2;
-  int x3;
+  	int x3;
 	int y3;
 	int x4;
 	int y4;
 }case_t;
 
 
+
 typedef struct joueurs_s{
-  int pts_action_max;
-  int pts_action_actu;
-  int nb_unite;
-  int id_joueur;
-  int humain;
-	int nb_block;
+  int pts_action_max;		//point d'action maximal du joueur(impossible a dépasser)
+  int pts_action_actu;	//point d'action actuel du joueur
+  int nb_unite;		//nb d'unité actuel du joueur
+  int id_joueur;  //id du joueur (0 a J-1)
+  int humain;  //==1 si le joueur n'est pas un bot sinon ==0
+  int nb_block; //nb de bloc en possession du joueur
 }joueurs_t;
 
 
 
 
 
-void initialisation_principale_iso(int bordure,SDL_Window * pWindow,int * largeur, int * hauteur,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG],bash_t tab_info_bash[TAILLE_TAB_BASH],case_t terrain[N][M],char variable2[80]);
-void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bordure,int * largeur,int * hauteur,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG],bash_t tab_info_bash[TAILLE_TAB_BASH],case_t terrain[N][M],int joueur_actu,image_t image[Z],int compteur_anim,int nb_joueur_restant,int compteur_tour,int frame_anim_montre,int jour_nuit,char variable2[80],int compteur_bouton_cam);
+void initialisation_principale_iso(
+	int bordure,
+	SDL_Window * pWindow,
+	int * largeur,
+	 int * hauteur,
+	 joueurs_t tab[J],
+	 degatx_t aff_deg[AFF_DEG],
+	 bash_t tab_info_bash[TAILLE_TAB_BASH],
+	 case_t terrain[N][M],
+	 char variable2[80],joueur_unite_t j_u[J]
+	 );
+
+
+
+
 void initialisation_principale(int bordure,SDL_Window * pWindow,int * largeur, int * hauteur,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG],bash_t tab_info_bash[TAILLE_TAB_BASH],case_t terrain[N][M],char variable2[80]);
+
+
+
+
+
+
+void affichage_principale_iso(
+	SDL_Renderer *renderer,SDL_Window* pWindow,
+	int bordure,int * largeur,int * hauteur,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG],
+	bash_t tab_info_bash[TAILLE_TAB_BASH],case_t terrain[N][M],int joueur_actu,
+	image_t image[Z],int compteur_anim,int nb_joueur_restant,int compteur_tour,
+	int frame_anim_montre,int jour_nuit,char variable2[80],int compteur_bouton_cam
+);
+
+
+
+
+
+
 void affichage_principale(SDL_Renderer *renderer,SDL_Window* pWindow,int bordure,int * largeur,int * hauteur,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG],bash_t tab_info_bash[TAILLE_TAB_BASH],case_t terrain[N][M],int joueur_actu,image_t image[Z],int compteur_anim,int nb_joueur_restant,int compteur_tour,int frame_anim_montre,int jour_nuit,char variable2[80],int compteur_bouton_cam);
 
 

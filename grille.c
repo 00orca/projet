@@ -202,13 +202,13 @@ void pathfinding_block(case_t terrain[N][M],int joueur_actu){
   for(int i=0;i<N;i++){
     for(int j=0;j<M;j++){
       if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu){
-        if(i-1>=0 && terrain[i-1][j].type>=1 && terrain[i-1][j].type<=4 && terrain[i-1][j].piece==NULL && terrain[i-1][j].est_block==0)
+        if(i-1>=0 && terrain[i-1][j].type>=1 && terrain[i-1][j].type<=4 && terrain[i-1][j].piece==NULL && terrain[i-1][j].bloc==NULL)
           terrain[i-1][j].block=1;
-        if(i+1<N && terrain[i+1][j].type>=1 && terrain[i+1][j].type<=4 && terrain[i+1][j].piece==NULL  && terrain[i+1][j].est_block==0)
+        if(i+1<N && terrain[i+1][j].type>=1 && terrain[i+1][j].type<=4 && terrain[i+1][j].piece==NULL  && terrain[i+1][j].bloc==NULL)
           terrain[i+1][j].block=1;
-        if(j-1>=0 && terrain[i][j-1].type>=1 && terrain[i][j-1].type<=4 && terrain[i][j-1].piece==NULL  && terrain[i][j-1].est_block==0)
+        if(j-1>=0 && terrain[i][j-1].type>=1 && terrain[i][j-1].type<=4 && terrain[i][j-1].piece==NULL  && terrain[i][j-1].bloc==NULL)
           terrain[i][j-1].block=1;
-        if(j+1<M && terrain[i][j+1].type>=1 && terrain[i][j+1].type<=4 && terrain[i][j+1].piece==NULL  && terrain[i][j+1].est_block==0)
+        if(j+1<M && terrain[i][j+1].type>=1 && terrain[i][j+1].type<=4 && terrain[i][j+1].piece==NULL  && terrain[i][j+1].bloc==NULL)
           terrain[i][j+1].block=1;
       }
     }
@@ -221,9 +221,9 @@ void poser_block(case_t terrain[N][M],int compteur,int compteur2,int joueur_actu
   if(tab[joueur_actu].pts_action_actu>0){
     char variable[80];
     if(terrain[compteur][compteur2].block==1){
-      terrain[compteur][compteur2].est_block=1;
-      terrain[compteur][compteur2].pdv_block=PDV_BLOCK;
-      terrain[compteur][compteur2].block_allie=joueur_actu;
+      terrain[compteur][compteur2].bloc=malloc(sizeof(bloc_t));
+      terrain[compteur][compteur2].bloc->pdv_block=PDV_BLOCK;
+      terrain[compteur][compteur2].bloc->block_allie=joueur_actu;
       tab[joueur_actu].nb_block--;
       tab[joueur_actu].pts_action_actu--;
       sprintf(variable, "| Joueur %d pose un bloc en %d/%d",joueur_actu,compteur,compteur2);
@@ -264,7 +264,7 @@ void update_grille(case_t terrain[N][M],int compteur_tour,bash_t tab_info_bash[T
           sprintf(variable, "| Foret en %d/%d  meurt",i,j);
           ajouter_ligne_bash(variable,tab_info_bash,info,variable2);
         }
-        if(terrain[i][j].type==1 && rand()%CHANCE_EVOL==1 && terrain[i][j].est_block==0){
+        if(terrain[i][j].type==1 && rand()%CHANCE_EVOL==1 && terrain[i][j].bloc==NULL){
           terrain[i][j].type=6;
           sprintf(variable, "| Foret en %d/%d  nait",i,j);
           ajouter_ligne_bash(variable,tab_info_bash,info,variable2);
@@ -280,7 +280,7 @@ void update_grille(case_t terrain[N][M],int compteur_tour,bash_t tab_info_bash[T
 
 
 
-void initialisation_principale_iso(int bordure,SDL_Window * pWindow,int * largeur, int * hauteur,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG],bash_t tab_info_bash[TAILLE_TAB_BASH],case_t terrain[N][M],char variable2[80]){
+void initialisation_principale_iso(int bordure,SDL_Window * pWindow,int * largeur, int * hauteur,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG],bash_t tab_info_bash[TAILLE_TAB_BASH],case_t terrain[N][M],char variable2[80],joueur_unite_t j_u[J]){
     int alea;
     SDL_Rect imgDestRect;
     int var1;
@@ -372,11 +372,7 @@ void initialisation_principale_iso(int bordure,SDL_Window * pWindow,int * largeu
         terrain[i][j].deplacement=0;
         terrain[i][j].attaque=0;
         terrain[i][j].block=0;
-        terrain[i][j].est_block=0;
-        terrain[i][j].block_allie=-1;
-        terrain[i][j].pdv_block=0;
-        terrain[i][j].block_sel=0;
-
+        terrain[i][j].bloc=NULL;
       }
     }
 
@@ -410,17 +406,17 @@ void initialisation_principale_iso(int bordure,SDL_Window * pWindow,int * largeu
 
 
 
-            terrain[compteur][compteur2].x1=imgDestRect.x+imgDestRect.w/2;// -15;
-            terrain[compteur][compteur2].y1=imgDestRect.y;// +35;
+            terrain[compteur][compteur2].x1=imgDestRect.x+imgDestRect.w/2;
+            terrain[compteur][compteur2].y1=imgDestRect.y;
 
-            terrain[compteur][compteur2].x2=imgDestRect.x+imgDestRect.w;// -15;
-            terrain[compteur][compteur2].y2=imgDestRect.y+imgDestRect.h/2;// +35;
+            terrain[compteur][compteur2].x2=imgDestRect.x+imgDestRect.w;
+            terrain[compteur][compteur2].y2=imgDestRect.y+imgDestRect.h/2;
 
-            terrain[compteur][compteur2].x3=imgDestRect.x+imgDestRect.w/2;// -15;
-            terrain[compteur][compteur2].y3=imgDestRect.y+imgDestRect.h;// +35;
+            terrain[compteur][compteur2].x3=imgDestRect.x+imgDestRect.w/2;
+            terrain[compteur][compteur2].y3=imgDestRect.y+imgDestRect.h;
 
-            terrain[compteur][compteur2].x4=imgDestRect.x;// -15;
-            terrain[compteur][compteur2].y4=imgDestRect.y+imgDestRect.h/2;// +35;
+            terrain[compteur][compteur2].x4=imgDestRect.x;
+            terrain[compteur][compteur2].y4=imgDestRect.y+imgDestRect.h/2;
 
           }
         }
@@ -470,6 +466,7 @@ void initialisation_principale_iso(int bordure,SDL_Window * pWindow,int * largeu
       int nb_place=0;
       int porte=0;
       int unit_gen;
+      int ini=0;
       for(int i=0;i<J;i++){
         do{
           rem_piece_joueur(terrain,i);
@@ -484,15 +481,37 @@ void initialisation_principale_iso(int bordure,SDL_Window * pWindow,int * largeu
                     else if(nb_place>=2 && nb_place<=9)porte=1;
                     else if(nb_place>=10 && nb_place<=25)porte=2;
                     else if(nb_place>=26 && nb_place<=49)porte=3;
-                    for(int a=compteur-porte;a<=compteur+porte;a++){
-                      for(int b=compteur2-porte;b<=compteur2+porte;b++){
-                        if(a<N && a>=0 && b<M && b>=0 && case_libre(terrain,a,b) && unit_gen<nb_place){
-                          terrain[a][b].piece=init_piece(((rand()%NB_CLASSE)+1),i);
-                          unit_gen++;
+                    fprintf(stderr, "joueur %d : restant %d\n",i, j_u[i].restant_unite);
+                    for(int m = 0; m < NB_CLASSE; m++){
+                      if(j_u[i].unit[m]>0){
+                        for(int n = 0; n < j_u[i].unit[m]; n++){
+                          ini=0;
+                          for(int a=compteur-porte;a<=compteur+porte;a++){
+                            for(int b=compteur2-porte;b<=compteur2+porte;b++){
+                              if(a<N && a>=0 && b<M && b>=0 && case_libre(terrain,a,b) && unit_gen<nb_place && ini==0){
+                                  terrain[a][b].piece=init_piece(m+1,i);
+                                  unit_gen++;
+                                  ini=1;
+                                  fprintf(stderr, "ajout %d : %d\n", i, n);
+                              }
+                            }
+                          }
                         }
                       }
                     }
-
+                    if(j_u[i].restant_unite > 0){
+                      for(int j = 0 ; j < j_u[i].restant_unite;j++){
+                        for(int a=compteur-porte;a<=compteur+porte;a++){
+                          for(int b=compteur2-porte;b<=compteur2+porte;b++){
+                            if(a<N && a>=0 && b<M && b>=0 && case_libre(terrain,a,b) && unit_gen<nb_place){
+                                terrain[a][b].piece=init_piece(((rand()%NB_CLASSE)+1),i);
+                                unit_gen++;
+                                fprintf(stderr, "ajout %d : %d\n", i, j);
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -516,8 +535,7 @@ void initialisation_principale_iso(int bordure,SDL_Window * pWindow,int * largeu
 
 
     }
-
-
+    
 
 }
 
@@ -714,13 +732,14 @@ void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bor
                       else if(terrain[compteur][compteur2].type==7){
 												afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-175,250,150,"images/rocherISO.png",image,renderer,coefZoom,0,img_anim);
                       }
-                      if(terrain[compteur][compteur2].est_block==1 && (terrain[compteur][compteur2].deplacement==1 || terrain[compteur][compteur2].attaque==1 || (compteur2+1<M && (terrain[compteur][compteur2+1].piece || terrain[compteur][compteur2+1].deplacement || terrain[compteur][compteur2+1].attaque)) || (compteur+1<N && (terrain[compteur+1][compteur2].piece || terrain[compteur+1][compteur2].deplacement || terrain[compteur+1][compteur2].attaque)) || (compteur2+1<M && compteur+1<N && (terrain[compteur+1][compteur2+1].piece || terrain[compteur+1][compteur2+1].deplacement || terrain[compteur+1][compteur2+1].attaque)) || terrain[compteur][compteur2].piece)){
-                        afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-175,250,150,"images/blockISO_trans.png",image,renderer,coefZoom,0,img_anim);
-                      }else if(terrain[compteur][compteur2].est_block==1){
-                        afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-175,250,150,"images/blockISO.png",image,renderer,1,0,img_anim);
+                      if(terrain[compteur][compteur2].bloc!=NULL && (terrain[compteur][compteur2].deplacement==1 || terrain[compteur][compteur2].attaque==1 || (compteur2+1<M && (terrain[compteur][compteur2+1].piece || terrain[compteur][compteur2+1].deplacement || terrain[compteur][compteur2+1].attaque)) || (compteur+1<N && (terrain[compteur+1][compteur2].piece || terrain[compteur+1][compteur2].deplacement || terrain[compteur+1][compteur2].attaque)) || (compteur2+1<M && compteur+1<N && (terrain[compteur+1][compteur2+1].piece || terrain[compteur+1][compteur2+1].deplacement || terrain[compteur+1][compteur2+1].attaque)) || (compteur2+2<M && compteur+1<N && (terrain[compteur+1][compteur2+2].piece || terrain[compteur+1][compteur2+2].deplacement || terrain[compteur+1][compteur2+2].attaque)) || (compteur2+2<M && compteur+2<N && (terrain[compteur+2][compteur2+2].piece || terrain[compteur+2][compteur2+2].deplacement || terrain[compteur+2][compteur2+2].attaque)) || terrain[compteur][compteur2].piece)){
+                        afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-165,250,150,"images/bloc_trans.png",image,renderer,1,0,img_anim);
+                      }else if(terrain[compteur][compteur2].bloc!=NULL){
+                        afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-165,250,150,"images/bloc.png",image,renderer,1,0,img_anim);
                       }
 										}
 									}
+
 
 									//affichage des fleche de deplacement transparentes sur les ennemis a portee de l'allie selectionné si il y en a un
 									for (int compteur=0;compteur<N;compteur++){
@@ -878,7 +897,7 @@ void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bor
 
 
                   afficher_img(10,550,200,100,"images/block_menu.png",image,renderer,1,0,img_anim);
-                  afficher_img(40,630,90,35,"images/blockISO.png",image,renderer,1,0,img_anim);
+                  afficher_img(40,650,70,30,"images/bloc.png",image,renderer,1,0,img_anim);
                   AfficherText("BLOCS :","arial.ttf",c,15,renderer,28,588);
                   sprintf(variable, "%d",tab[joueur_actu].nb_block);
 									AfficherText(variable,"arial.ttf",c,30,renderer,38,625);
@@ -998,13 +1017,13 @@ void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bor
 												}
 
 
-											}else if(terrain[i][j].block_sel==1){
-                        afficher_img(30,-20,125,75,"images/blockISO.png",image,renderer,1,0,img_anim);
+											}else if(terrain[i][j].bloc && terrain[i][j].bloc->block_sel==1){
+                        afficher_img(35,20,100,66,"images/bloc.png",image,renderer,1,0,img_anim);
 
-                        sprintf(variable, "%d",  terrain[i][j].block_allie);
+                        sprintf(variable, "%d",  terrain[i][j].bloc->block_allie);
 												AfficherText(variable,"arial.ttf",c,25,renderer,65,110);
 
-												sprintf(variable, "%d", terrain[i][j].pdv_block);
+												sprintf(variable, "%d", terrain[i][j].bloc->pdv_block);
 												AfficherText(variable,"arial.ttf",c,12,renderer,90,155);
 
 												sprintf(variable, "%d", 50);
@@ -1138,10 +1157,7 @@ void initialisation_principale(int bordure,SDL_Window * pWindow,int * largeur, i
         terrain[i][j].deplacement=0;
         terrain[i][j].attaque=0;
         terrain[i][j].block=0;
-        terrain[i][j].est_block=0;
-        terrain[i][j].block_allie=-1;
-        terrain[i][j].pdv_block=0;
-        terrain[i][j].block_sel=0;
+        terrain[i][j].bloc=NULL;
 
       }
     }
@@ -1742,13 +1758,13 @@ void affichage_principale(SDL_Renderer *renderer,SDL_Window* pWindow,int bordure
 												}
 
 
-											}else if(terrain[i][j].block_sel==1){
+											}else if(terrain[i][j].bloc->block_sel==1){
                         afficher_img(20,20,100,100,"images/blockISO.png",image,renderer,1,0,img_anim);
 
-                        sprintf(variable, "%d",  terrain[i][j].block_allie);
+                        sprintf(variable, "%d",  terrain[i][j].bloc->block_allie);
 												AfficherText(variable,"arial.ttf",c,25,renderer,65,110);
 
-												sprintf(variable, "%d", terrain[i][j].pdv_block);
+												sprintf(variable, "%d", terrain[i][j].bloc->pdv_block);
 												AfficherText(variable,"arial.ttf",c,12,renderer,90,155);
 
 												sprintf(variable, "%d", 50);

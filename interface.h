@@ -30,6 +30,9 @@ extern int NB_MAX_PRIEST;
 extern int ISO;
 extern int VITESSE_INCREMENTATION;
 extern int NB_BLOCK;
+extern float COEF_AFFICHAGE;
+extern int TOUR_EVOL_FORET;
+extern int CHANCE_EVOL;
 
 
 
@@ -38,10 +41,10 @@ typedef int bool;
 #define TRUE  1
 #define FALSE 0
 #define Z 150 //nb images
+#define nb_class 6
 
-typedef enum menu_e_s{Menu,Menu2,Play,Load,About,Quit,In_menu,Help,Play_load,option,erreur}menu_e;
+typedef enum {Menu,Menu2,Play,Load,About,Quit,In_menu,Help,Play_load,option,Menu3}menu_e;
 //typedef enum {None,Reculer,Save,Help,Quitg,Ok}ingame_menu_e;
-typedef enum check_erreur_s{none,erreur1,erreur2,erreur3}check_erreur;
 
 menu_e running;
 
@@ -59,6 +62,13 @@ typedef struct image_s{
   SDL_Texture * texture;
   char loc_image[50];
 }image_t;
+
+
+typedef struct joueur_unite_s{
+  int id_joueur;
+  int restant_unite;
+  int unit[nb_class];
+}joueur_unite_t;
 
 /*Declarer les couleurs communes*/
 extern const SDL_Color RGB_Black;
@@ -79,6 +89,8 @@ void ingame_menu(SDL_Renderer *renderer,SDL_Window* pWindow);
 void help(SDL_Renderer *renderer,SDL_Window* pWindow);
 void mod_menu(SDL_Renderer *renderer,SDL_Window* pWindow,image_t image[Z]);
 void mod_option(SDL_Renderer *renderer,SDL_Window* pWindow,image_t *image);
-void erreur_window(char * s,SDL_Renderer *renderer,SDL_Window* pWindow);
-check_erreur verif_erreur(int J,int NB_UNITE,int M, int N);
+void unit_menu(SDL_Renderer *renderer,SDL_Window* pWindow, joueur_unite_t joueur_unite);
+void init_joueur_unit(joueur_unite_t joueur_unite[],int J,int NB_UNIT);
+
+
 #endif
