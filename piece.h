@@ -30,6 +30,7 @@ extern int ISO;
 extern float COEF_AFFICHAGE;
 extern int TOUR_EVOL_FORET;
 extern int CHANCE_EVOL;
+extern int PTS_ACTION_UNI;
 
 
 
@@ -56,6 +57,8 @@ typedef struct piece_s{
     int frame; //pour les images successive utile a l'animation
     int frame_interface;
     int start_anim;
+    int pts_action_max;		//point d'action maximal de l'unité
+    int pts_action_actu;	//point d'action actuel de l'unité
 }piece_t;
 
 

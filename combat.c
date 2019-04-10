@@ -186,7 +186,7 @@ int calc_block(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def){
 
 
 void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int joueur,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG],bash_t tab_info_bash[TAILLE_TAB_BASH],char variable2[80]){
-  if(tab[joueur].pts_action_actu>0){
+  if(tab[joueur].pts_action_actu>0 && terrain[x_att][y_att].piece!=NULL && terrain[x_att][y_att].piece->pts_action_actu>0){
       if(terrain[x_att][y_att].piece->classe==priest){//soin si la piece selectionné est un pretre
           soin(terrain,x_att,y_att,x_def,y_def,joueur,tab,aff_deg,tab_info_bash,variable2);
           return;
@@ -246,6 +246,7 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
           ajouter_degat_txt("BLOCK",aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),0);
         }
         tab[joueur].pts_action_actu--;
+        terrain[x_att][y_att].piece->pts_action_actu--;
 
       }else if(terrain[x_def][y_def].attaque==1 && terrain[x_def][y_def].bloc!=NULL){ // cas ou c'est un block
         char variable[80];
@@ -292,6 +293,7 @@ void combat(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int 
         }
 
         tab[joueur].pts_action_actu--;
+        terrain[x_att][y_att].piece->pts_action_actu--;
       }
     }
 }
@@ -305,6 +307,7 @@ void soin(case_t terrain [N][M],int x_att, int y_att, int x_def,int y_def,int jo
 				ajouter_ligne_bash(variable,tab_info_bash,soins,variable2);
 
         tab[joueur].pts_action_actu--;
+        terrain[x_att][y_att].piece->pts_action_actu--;
         sprintf(variable, "%d", terrain[x_att][y_att].piece->puissance);
         ajouter_degat_txt(variable,aff_deg,(terrain[x_def][y_def].xImg+50),(terrain[x_def][y_def].yImg),2);
     }
@@ -434,6 +437,7 @@ void update_stats(case_t terrain[N][M],int x,int y,int joueur_actu,joueurs_t tab
       //===bonus a chaque kill=====//
     terrain[x][y].piece->puissance+=terrain[x][y].piece->kill;
     tab[joueur_actu].pts_action_actu+=1;
+    terrain[x][y].piece->pts_action_actu++;
     terrain[x][y].piece->pdv+=(terrain[x][y].piece->kill)*3;
     //===bonus tous les 5 kills=====//
     if(terrain[x][y].piece->kill % 5==0){

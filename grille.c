@@ -432,7 +432,7 @@ void initialisation_principale_iso(int bordure,SDL_Window * pWindow,int * largeu
           tab[i].humain=0;
         }
         tab[i].id_joueur=i;
-        tab[i].pts_action_max=PTS_ACTION_MAX;
+        tab[i].pts_action_max= NB_UNITE*PTS_ACTION_UNI;
         tab[i].pts_action_actu=tab[i].pts_action_max;
         tab[i].nb_unite=NB_UNITE;
         tab[i].nb_block=NB_BLOCK;
@@ -897,7 +897,7 @@ void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bor
 
 
                   afficher_img(10,550,200,100,"images/block_menu.png",image,renderer,1,0,img_anim);
-                  afficher_img(40,650,70,30,"images/bloc.png",image,renderer,1,0,img_anim);
+                  afficher_img(40,655,70,40,"images/bloc.png",image,renderer,1,0,img_anim);
                   AfficherText("BLOCS :","arial.ttf",c,15,renderer,28,588);
                   sprintf(variable, "%d",tab[joueur_actu].nb_block);
 									AfficherText(variable,"arial.ttf",c,30,renderer,38,625);
@@ -998,6 +998,10 @@ void affichage_principale_iso(SDL_Renderer *renderer,SDL_Window* pWindow,int bor
 													sprintf(variable, "%d", terrain[i][j].piece->kill);
 													AfficherText(variable,"arial.ttf",c_rouge,24,renderer,114,75);
 												}
+
+                        sprintf(variable, "%d", terrain[i][j].piece->pts_action_actu);
+												AfficherText(variable,"arial.ttf",c,20,renderer,20,75);
+
 												//DIRECTION affichage
 
 
@@ -1218,7 +1222,7 @@ void initialisation_principale(int bordure,SDL_Window * pWindow,int * largeur, i
           tab[i].humain=0;
         }
         tab[i].id_joueur=i;
-        tab[i].pts_action_max=PTS_ACTION_MAX;
+        tab[i].pts_action_max= NB_UNITE*PTS_ACTION_UNI;
         tab[i].pts_action_actu=tab[i].pts_action_max;
         tab[i].nb_unite=NB_UNITE;
         tab[i].nb_block=NB_BLOCK;

@@ -8,6 +8,23 @@
 
 
 
+
+
+
+int action_possible(case_t terrain[N][M],int joueur_actu){
+  for(int i=0;i<N;i++){
+    for(int j=0;j<M;j++){
+      if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu && terrain[i][j].piece->pts_action_actu>0 &&( (allie_adjacent(terrain,i,j,joueur_actu)==0 && reste_allie(terrain,joueur_actu)>1) || a_portee(terrain,i,j,joueur_actu)==0  )){
+        return 1;
+      }
+      if(terrain[i][j].piece && ((a_portee(terrain,i,j,joueur_actu)>=1 && terrain[i][j].piece->classe!=priest)|| (a_portee(terrain,i,j,joueur_actu)>=2 && terrain[i][j].piece->classe==priest) || (reste_allie(terrain,joueur_actu)==1 && terrain[i][j].piece->classe==priest))){
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
 void depla_atk_mov(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu,joueurs_t tab[J],bash_t tab_info_bash[TAILLE_TAB_BASH],char variable2[80]){
   //V2
   //addition de la difference des pos x et y de l'unité par rapport a ses allié,
@@ -21,7 +38,6 @@ void depla_atk_mov(case_t terrain[N][M],int x_bot,int y_bot,int joueur_actu,joue
     fprintf(stderr,"VERS allie\n");
     depla_allie_plus_proche(terrain,x_bot,y_bot,joueur_actu,tab,tab_info_bash,variable2);
   }else{
-    fprintf(stderr,"RIEN A FAIRE\n");
     move_alea(terrain,x_bot,y_bot,joueur_actu,tab,tab_info_bash,variable2);
   }
 }
@@ -308,6 +324,8 @@ void move_alea(case_t terrain[N][M],int x,int y, int joueur,joueurs_t tab[J],bas
     move(terrain,x_dest,y_dest,joueur,tab,tab_info_bash,variable2);
   }else{
     fprintf(stderr,"AUCUNE ACTION POSSIBLE");
+    terrain[x][y].piece->pts_action_actu--;
+    tab[joueur].pts_action_actu--;
   }
 }
 

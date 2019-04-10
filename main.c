@@ -33,7 +33,8 @@ int PDV_BLOCK=150;
 //==============================//
 
 //===========VITESSE DU JEU=====//
-int PTS_ACTION_MAX= 8 ; //pts d'action max pour chaque tours de chaque joueur
+int PTS_ACTION_MAX= 0 ; //pts d'action max pour chaque tours de chaque joueur
+int PTS_ACTION_UNI=2; //pts action max pour chaque unité
 int VITESSE_JEU_BOT= 1 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
 int VITESSE_ANIM=15;
 //==============================//
@@ -84,7 +85,8 @@ int WinMain(int argc, char** argv)
 	srand(time(NULL));
 	int souris=0;
 	int nb_joueur_restant;
-	int joueur_actu=0;
+	int joueur_start=0;
+	int joueur_actu=joueur_start;
 	int frame_anim_montre=0;
 	int compteur_tour=1;
 	int clicout;//sert a ne pas deselectionner la piece actuel dans la gestion des clics
@@ -94,6 +96,7 @@ int WinMain(int argc, char** argv)
 	char variable2[80];
 	int compteur_bouton_cam=0;
 	int wait=0;
+	
 
 
 
@@ -290,11 +293,11 @@ if( pWindow )
 								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60*COEF_AFFICHAGE) && N>10 ){
 									N--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && PTS_ACTION_MAX<100 ){
-									PTS_ACTION_MAX++;
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && PTS_ACTION_UNI<15 ){
+									PTS_ACTION_UNI++;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE)&& e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && PTS_ACTION_MAX>1 ){
-									PTS_ACTION_MAX--;
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE)&& e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && PTS_ACTION_UNI>1 ){
+									PTS_ACTION_UNI--;
 								}
 								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && NB_MAX_PRIEST<30 ){
 									NB_MAX_PRIEST++;
@@ -302,7 +305,7 @@ if( pWindow )
 								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && NB_MAX_PRIEST>0 ){
 									NB_MAX_PRIEST--;
 								}
-								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && DURE_JOUR_NUIT<30000 ){
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && DURE_JOUR_NUIT<15000 ){
 									DURE_JOUR_NUIT+=100;
 								}
 								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && DURE_JOUR_NUIT>1000 ){
@@ -430,7 +433,8 @@ if( pWindow )
 
 								frame_anim_montre=4;
 								jour_nuit=((DURE_JOUR_NUIT/24)*7);
-								joueur_actu=0;
+								joueur_start=rand()%J;
+								joueur_actu=joueur_start;
 								compteur_tour=1;
 
 
@@ -802,7 +806,6 @@ if( pWindow )
 									if(tab[joueur_actu].humain==0){ 	//===================================================TOUR DU BOT===================================================//
 										if(nb_tour>=VITESSE_JEU_BOT){
 											if(sel==0){ //SELECTION
-												fprintf(stderr,"TOUR DU BOT %d : PTS D'ACTION = %d\n",joueur_actu,tab[joueur_actu].pts_action_actu);
 												for (int i=0;i<N;i++){ //deselectionne toutes les pieces
 													for (int j=0;j<M;j++){
 														if(terrain[i][j].piece && terrain[i][j].piece->select==1){
@@ -810,17 +813,17 @@ if( pWindow )
 														}
 													}
 												}
-												int var5=0;
-												int var6=(rand()%tab[joueur_actu].nb_unite);
+												int ini=0;
 												for (int i=0;i<N;i++){ //selection d'une piece
 													for (int j=0;j<M;j++){
-														if(terrain[i][j].piece && terrain[i][j].piece->select==0 && terrain[i][j].piece->joueur==joueur_actu && var5==var6){
+														if(terrain[i][j].piece && terrain[i][j].piece->select==0 && terrain[i][j].piece->joueur==joueur_actu && ini==0 && terrain[i][j].piece->pts_action_actu>0 && rand()%tab[joueur_actu].nb_unite==0){
 															terrain[i][j].piece->select=1;
 															x_bot=i;
 															y_bot=j;
+															ini=1;
 														}
-														if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu)
-															var5++;
+														if(i==N-1 && j==M-1 && ini==0)
+															i=0;
 													}
 												}
 
@@ -835,12 +838,14 @@ if( pWindow )
 													fprintf(stderr,"DEPLACEMENT\n");
 													depla_atk_mov(terrain,x_bot,y_bot,joueur_actu,tab,tab_info_bash,variable2);
 												}
-
+												/*if(action_possible(terrain,joueur_actu)==0){
+													fin_tour=1;
+												}*/
 
 												sel=0;
 											}
 											nb_tour=0;
-											if(tab[joueur_actu].pts_action_actu<=0){ //direction blockage
+											if(tab[joueur_actu].pts_action_actu<=0 || fin_tour==1){ //direction blockage
 												for (int i=0;i<N;i++){
 													for (int j=0;j<M;j++){
 														if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu){
@@ -883,17 +888,7 @@ if( pWindow )
 
 
 
-									if(nb_joueur_restant==1){
-										for(int i=0;i<J;i++){
-											if(tab[i].id_joueur!=-1 && tab[i].id_joueur!=-2){
-													sprintf(variable,"LE JOUEUR %d GAGNE EN %d TOURS !\n",i,compteur_tour);
-				    							ajouter_ligne_bash(variable,tab_info_bash,info,variable2);
-											}
-										}
-										//ecran de victoire/defaite
-
-										running=Menu;
-									}
+									
 									
 
 									if(ISO==1){
@@ -910,10 +905,20 @@ if( pWindow )
 									}
 
 									if((tab[joueur_actu].pts_action_actu<=0 && tab[joueur_actu].humain==0 )|| (tab[joueur_actu].pts_action_actu<=0 && fin_tour==1) || (fin_tour==1)){				//gestion des tours de jeu
+										tab[joueur_actu].pts_action_max=0;
+										for(int i=0;i<N;i++){
+											for(int j=0;j<M;j++){
+												if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu){
+														tab[joueur_actu].pts_action_max+=terrain[i][j].piece->pts_action_max;
+														terrain[i][j].piece->pts_action_actu=terrain[i][j].piece->pts_action_max;
+												}
+											}
+										}
 										tab[joueur_actu].pts_action_actu=tab[joueur_actu].pts_action_max;
+
 										do{
 											joueur_actu=(joueur_actu+1)%J;
-											if(joueur_actu==0){
+											if(joueur_actu==joueur_start){
 												compteur_tour++;
 												update_grille(terrain,compteur_tour,tab_info_bash,variable2);
 											}
@@ -921,7 +926,29 @@ if( pWindow )
 										if(tab[joueur_actu].humain==1){
 											camera_sur_allie(terrain,joueur_actu,tab,largeur,hauteur);
 										}
+										tab[joueur_actu].pts_action_max=0;
+										for(int i=0;i<N;i++){
+											for(int j=0;j<M;j++){
+												if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu){
+														tab[joueur_actu].pts_action_max+=terrain[i][j].piece->pts_action_max;
+														terrain[i][j].piece->pts_action_actu=terrain[i][j].piece->pts_action_max;
+												}
+											}
+										}
+										tab[joueur_actu].pts_action_actu=tab[joueur_actu].pts_action_max;
 										fin_tour=0;
+									}
+
+									if(nb_joueur_restant==1){
+										for(int i=0;i<J;i++){
+											if(tab[i].id_joueur!=-1 && tab[i].id_joueur!=-2){
+													sprintf(variable,"LE JOUEUR %d GAGNE EN %d TOURS !\n",i,compteur_tour);
+				    							ajouter_ligne_bash(variable,tab_info_bash,info,variable2);
+											}
+										}
+										//ecran de victoire/defaite
+
+										running=Menu;
 									}
 
 									//incrémentation a chaque tours

@@ -77,5 +77,7 @@ degatx_t aff_deg[AFF_DEG],bash_t tab_info_bash[TAILLE_TAB_BASH],
 char variable2[80]
 ); //IA d'attaque des bots
 
+int action_possible(case_t terrain[N][M],int joueur_actu);
+
 
 #endif

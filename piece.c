@@ -32,6 +32,8 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->frame=frame;
             piece->frame_interface=frame;
             piece->start_anim=start_anim;
+            piece->pts_action_max=PTS_ACTION_UNI;
+            piece->pts_action_actu=piece->pts_action_max;
         break;
         case scout:
             piece->classe = scout;
@@ -48,6 +50,8 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->frame=frame;
             piece->frame_interface=frame;
             piece->start_anim=start_anim;
+            piece->pts_action_max=PTS_ACTION_UNI;
+            piece->pts_action_actu=piece->pts_action_max;
         break;
         case priest:
             piece->classe = priest;
@@ -64,6 +68,8 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->frame=frame;
             piece->frame_interface=frame;
             piece->start_anim=start_anim;
+            piece->pts_action_max=PTS_ACTION_UNI;
+            piece->pts_action_actu=piece->pts_action_max;
         break;
         case magician:
             piece->classe = magician;
@@ -80,6 +86,8 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->frame=frame;
             piece->frame_interface=frame;
             piece->start_anim=start_anim;
+            piece->pts_action_max=PTS_ACTION_UNI;
+            piece->pts_action_actu=piece->pts_action_max;
         break;
         case faucheuse:
             piece->classe = faucheuse;
@@ -96,6 +104,8 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->frame=frame;
             piece->frame_interface=frame;
             piece->start_anim=start_anim;
+            piece->pts_action_max=PTS_ACTION_UNI;
+            piece->pts_action_actu=piece->pts_action_max;
         break;
         case ange:
             piece->classe = ange;
@@ -112,6 +122,8 @@ piece_t * init_piece(classe_t classe,int id_joueur){
             piece->frame=frame2;
             piece->frame_interface=frame2;
             piece->start_anim=start_anim;
+            piece->pts_action_max=PTS_ACTION_UNI;
+            piece->pts_action_actu=piece->pts_action_max;
         break;
         default: printf("Cette classe n'existe pas.\n");
     }

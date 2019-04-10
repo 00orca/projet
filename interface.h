@@ -33,6 +33,7 @@ extern int NB_BLOCK;
 extern float COEF_AFFICHAGE;
 extern int TOUR_EVOL_FORET;
 extern int CHANCE_EVOL;
+extern int PTS_ACTION_UNI;
 
 
 

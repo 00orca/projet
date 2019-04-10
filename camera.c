@@ -67,17 +67,21 @@ void centrer_camera(case_t terrain[N][M],int x,int y,int largeur,int hauteur){
 void camera_sur_allie(case_t terrain[N][M],int joueur_actu,joueurs_t tab[J],int * largeur,int * hauteur){
   int compteur=0;
   int var=rand()%tab[joueur_actu].nb_unite;
+	int x=-1,y=-1;
 	for(int i=0;i<N;i++){
     for(int j=0;j<M;j++){
-			if(terrain[i][j].piece && terrain[i][j].piece->select==1)
+			if(terrain[i][j].piece && terrain[i][j].piece->select==1){
 				terrain[i][j].piece->select=0;
+				x=i;
+				y=j;
+			}
 		}
 	}
   for(int i=0;i<N;i++){
     for(int j=0;j<M;j++){
       if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu)
         compteur++;
-      if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu && terrain[i][j].piece->select==0 && compteur>=var){
+      if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu && terrain[i][j].piece->select==0 && compteur>=var && terrain[i][j].piece->pts_action_actu>0 && (x!=i || y!=j)){
 				terrain[i][j].piece->select=1;
         centrer_camera(terrain,terrain[i][j].xImg,terrain[i][j].yImg,*largeur,*hauteur);
         return;

@@ -166,7 +166,7 @@ void mod_menu(SDL_Renderer *renderer,SDL_Window* pWindow,image_t *image){
 	AfficherText("points actions: ", "arial.ttf",o,40*COEF_AFFICHAGE,renderer,largeur,hauteur);
 	afficher_img((largeur+400*COEF_AFFICHAGE),hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_plus.png",image,renderer,1,0,useless);
 	afficher_img((largeur+470*COEF_AFFICHAGE),hauteur,60*COEF_AFFICHAGE,60*COEF_AFFICHAGE,"images/bouton_moins.png",image,renderer,1,0,useless);
-	sprintf(variable, "%d",  PTS_ACTION_MAX);
+	sprintf(variable, "%d",  PTS_ACTION_UNI);
 	AfficherText(variable, "arial.ttf",o,40*COEF_AFFICHAGE,renderer,(largeur+300*COEF_AFFICHAGE),hauteur);
 
 	largeur=gpScreen->w/100 * 14;

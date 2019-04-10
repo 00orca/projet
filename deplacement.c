@@ -85,7 +85,7 @@ void move(case_t terrain[N][M],int x,int y,int joueur,joueurs_t tab[J],bash_t ta
     if(terrain[x][y].deplacement==1){
       for(int compteur=0;compteur<N;compteur++){
         for(int compteur2=0;compteur2<M; compteur2++){
-          if(terrain[compteur][compteur2].piece && terrain[compteur][compteur2].piece->select==1 && terrain[compteur][compteur2].piece->joueur==joueur){
+          if(terrain[compteur][compteur2].piece && terrain[compteur][compteur2].piece->select==1 && terrain[compteur][compteur2].piece->joueur==joueur && terrain[compteur][compteur2].piece->pts_action_actu>0){
 
             sprintf(variable, "| Unite de Joueur %d en %d/%d se deplace vers %d/%d",joueur,compteur,compteur2,x,y);
 				    ajouter_ligne_bash(variable,tab_info_bash,deplacement,variable2);
@@ -106,6 +106,8 @@ void move(case_t terrain[N][M],int x,int y,int joueur,joueurs_t tab[J],bash_t ta
             terrain[x][y].piece->frame = terrain[compteur][compteur2].piece->frame;
             terrain[x][y].piece->frame_interface = terrain[compteur][compteur2].piece->frame_interface;
             terrain[x][y].piece->start_anim = terrain[compteur][compteur2].piece->start_anim;
+            terrain[x][y].piece->pts_action_max = terrain[compteur][compteur2].piece->pts_action_max;
+            terrain[x][y].piece->pts_action_actu = terrain[compteur][compteur2].piece->pts_action_actu;
 
 
             free(terrain[compteur][compteur2].piece);
@@ -114,6 +116,7 @@ void move(case_t terrain[N][M],int x,int y,int joueur,joueurs_t tab[J],bash_t ta
             terrain[x][y].piece->select=1;
 
             tab[joueur].pts_action_actu--;
+            terrain[x][y].piece->pts_action_actu--;
 
             return;
           }
