@@ -28,8 +28,10 @@ int NB_CLASSE= 6 ; //nb de classe actuelement dans le jeu !!!!!A ne pas modifier
 int NB_UNITE= 7 ; //nb unité pour chaque joueurs au debut de la partie
 int ESPACE_GEN= 2; //espace (nb de case de chaque coté au minimum) entre deux équipes d'unitée
 int NB_MAX_PRIEST=2;
-int NB_BLOCK=5;
-int PDV_BLOCK=150;
+int NB_BLOCK=25;
+int PDV_BLOCK=25;
+int NB_GOLD=50;
+int NB_BOIS=25;
 //==============================//
 
 //===========VITESSE DU JEU=====//
@@ -60,7 +62,7 @@ int DEGAT_EBOULEMENT=30;
 
 //=====================================MAIN=============================//
 
-int WinMain(int argc, char** argv)
+int main(int argc, char** argv)
 {
 
 
@@ -96,7 +98,8 @@ int WinMain(int argc, char** argv)
 	char variable2[80];
 	int compteur_bouton_cam=0;
 	int wait=0;
-	
+	int bloc_actu=1;
+	int compteur_erreur=0;
 
 
 
@@ -132,6 +135,9 @@ int WinMain(int argc, char** argv)
 	SDL_GetWindowSize(pWindow,largeur,hauteur); //initialisation des pointeur largeur et hauteur sur la taille de la fenetre
 	float test=(*largeur);
 	COEF_AFFICHAGE=test / 1920.00;
+
+SDL_SetWindowFullscreen(pWindow,SDL_WINDOW_FULLSCREEN_DESKTOP);
+//SDL_WINDOW_FULLSCREEN
 
 
 	if(!pWindow){
@@ -430,12 +436,15 @@ if( pWindow )
 								degatx_t aff_deg[AFF_DEG];
 								joueurs_t tab[J];
 								case_t terrain[N][M];
+								page_t page_actu=rien;
 
 								frame_anim_montre=4;
 								jour_nuit=((DURE_JOUR_NUIT/24)*7);
 								joueur_start=rand()%J;
 								joueur_actu=joueur_start;
 								compteur_tour=1;
+								bloc_actu=1;
+								int fin_partie=0;
 
 
 								if(ISO==1){
@@ -543,6 +552,20 @@ if( pWindow )
 												case SDL_MOUSEBUTTONDOWN:
 													switch (e.button.button)
 													{
+														case SDL_BUTTON_RIGHT:
+															for(int indice=0;indice<N;indice++){
+																for(int indice2=0;indice2<M; indice2++){
+																	terrain[indice][indice2].deplacement=0;
+																	terrain[indice][indice2].attaque=0;
+																	terrain[indice][indice2].block=0;
+																	if(terrain[indice][indice2].bloc && terrain[indice][indice2].bloc->block_sel==1)
+																		terrain[indice][indice2].bloc->block_sel=0;
+																	if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1)
+																		terrain[indice][indice2].piece->select=0;
+																}
+															}
+														break;
+
 														case SDL_BUTTON_LEFT:
 															if(e.button.x > gpScreen->w - 60 && e.button.y >  gpScreen->h - 30){
 																ingame_menu(renderer,pWindow);
@@ -572,111 +595,113 @@ if( pWindow )
 
 															clicout=0;
 															//int a,b,a2,b2,a3,b3,a4,b4,res1,res2,res3,res4;
-															for(int compteur=0;compteur<N;compteur++){
-																for(int compteur2=0;compteur2<M; compteur2++){
-																		/* VERSION AVANCER NE FONCTIONNANT PAS ENCORE*/
-																		float vert=abs((terrain[compteur][compteur2].y3 - terrain[compteur][compteur2].y1))/2;
-																		float hori=abs((terrain[compteur][compteur2].x4 - terrain[compteur][compteur2].x2))/2;
-																		float y_mid=terrain[compteur][compteur2].y2;
-																		float x_mid=terrain[compteur][compteur2].x1;
+															if(page_actu==rien){
+																for(int compteur=0;compteur<N;compteur++){
+																	for(int compteur2=0;compteur2<M; compteur2++){
+																			/* VERSION AVANCER NE FONCTIONNANT PAS ENCORE*/
+																			float vert=abs((terrain[compteur][compteur2].y3 - terrain[compteur][compteur2].y1))/2;
+																			float hori=abs((terrain[compteur][compteur2].x4 - terrain[compteur][compteur2].x2))/2;
+																			float y_mid=terrain[compteur][compteur2].y2;
+																			float x_mid=terrain[compteur][compteur2].x1;
 
-																		int calc_vert1=(((y_mid-e.motion.y)/vert)*100);
-																		int calc_hori1=(((e.motion.x-x_mid)/hori)*100);
+																			int calc_vert1=(((y_mid-e.motion.y)/vert)*100);
+																			int calc_hori1=(((e.motion.x-x_mid)/hori)*100);
 
-																		int calc_vert2=(((e.motion.y-y_mid)/vert)*100);
-																		int calc_hori2=(((e.motion.x-x_mid)/hori)*100);
+																			int calc_vert2=(((e.motion.y-y_mid)/vert)*100);
+																			int calc_hori2=(((e.motion.x-x_mid)/hori)*100);
 
-																		int calc_vert3=(((e.motion.y-y_mid)/vert)*100);
-																		int calc_hori3=(((x_mid-e.motion.x)/hori)*100);
+																			int calc_vert3=(((e.motion.y-y_mid)/vert)*100);
+																			int calc_hori3=(((x_mid-e.motion.x)/hori)*100);
 
-																		int calc_vert4=(((y_mid-e.motion.y)/vert)*100);
-																		int calc_hori4=(((x_mid-e.motion.x)/hori)*100);
-
-
-
-
-
-																		//VERSION BASIQUE QUI FONCTIONNE MAL
-																		//if(e.motion.y > terrain[compteur][compteur2].y1+20 && e.motion.y < terrain[compteur][compteur2].y3-20 && e.motion.x > terrain[compteur][compteur2].x4+20 && e.motion.x < terrain[compteur][compteur2].x2-20 &&!(e.motion.x>(*largeur)/2+175 && e.motion.x<(*largeur)/2+175+150 && e.motion.y>15 && e.motion.y<15+50)&&!(e.motion.x>10 && e.motion.x<240 && e.motion.y>300 && e.motion.y<500)){
-																		if( (calc_vert1 + calc_hori1 )<=100 && (calc_vert2 + calc_hori2 )<=100 && (calc_vert3 + calc_hori3 )<=100 && (calc_vert4 + calc_hori4 )<=100 ){
-
-																		/*fprintf(stderr,"\n=========TEST============\n");
-																		fprintf(stderr,"y1 = %d\n",terrain[compteur][compteur2].y1);
-																		fprintf(stderr,"y3 = %d\n",terrain[compteur][compteur2].y3);
-																		fprintf(stderr,"x4 = %d\n",terrain[compteur][compteur2].x4);
-																		fprintf(stderr,"x2 = %d\n",terrain[compteur][compteur2].x2);
+																			int calc_vert4=(((y_mid-e.motion.y)/vert)*100);
+																			int calc_hori4=(((x_mid-e.motion.x)/hori)*100);
 
 
 
-																		fprintf(stderr,"\ncalc_vert1 = %d\n",calc_vert1);
-																		fprintf(stderr,"calc_hori1 = %d\n",calc_hori1);
 
-																		fprintf(stderr,"\nmotion x = %d\n",e.motion.x);
-																		fprintf(stderr,"motion y = %d\n",e.motion.y);*/
 
-																			//=================SELECTION D'UNE PIECE====================//
-																			if(terrain[compteur][compteur2].piece || (terrain[compteur][compteur2].bloc!=NULL && terrain[compteur][compteur2].bloc->block_allie!=joueur_actu && terrain[compteur][compteur2].attaque==1)){
-																				clicout=1;
-																				for(int indice=0;indice<N;indice++){
-																					for(int indice2=0;indice2<M; indice2++){
-																						if(terrain[indice][indice2].bloc && terrain[indice][indice2].bloc->block_sel==1)
-																							terrain[indice][indice2].bloc->block_sel=0;
-																					}
-																				}
+																			//VERSION BASIQUE QUI FONCTIONNE MAL
+																			//if(e.motion.y > terrain[compteur][compteur2].y1+20 && e.motion.y < terrain[compteur][compteur2].y3-20 && e.motion.x > terrain[compteur][compteur2].x4+20 && e.motion.x < terrain[compteur][compteur2].x2-20 &&!(e.motion.x>(*largeur)/2+175 && e.motion.x<(*largeur)/2+175+150 && e.motion.y>15 && e.motion.y<15+50)&&!(e.motion.x>10 && e.motion.x<240 && e.motion.y>300 && e.motion.y<500)){
+																			if( (calc_vert1 + calc_hori1 )<=100 && (calc_vert2 + calc_hori2 )<=100 && (calc_vert3 + calc_hori3 )<=100 && (calc_vert4 + calc_hori4 )<=100 ){
 
-																				for(int x=0;x<N;x++){
-																					for(int y=0;y<M;y++){
-																						if(terrain[x][y].piece && terrain[x][y].piece->joueur==joueur_actu && terrain[x][y].piece->select==1){
-																							combat(terrain,x,y,compteur,compteur2,joueur_actu,tab,aff_deg,tab_info_bash,variable2);
-																						}
-																					}
-																				}
-																				if(terrain[compteur][compteur2].piece && terrain[compteur][compteur2].piece->select!=1){
+																			/*fprintf(stderr,"\n=========TEST============\n");
+																			fprintf(stderr,"y1 = %d\n",terrain[compteur][compteur2].y1);
+																			fprintf(stderr,"y3 = %d\n",terrain[compteur][compteur2].y3);
+																			fprintf(stderr,"x4 = %d\n",terrain[compteur][compteur2].x4);
+																			fprintf(stderr,"x2 = %d\n",terrain[compteur][compteur2].x2);
+
+
+
+																			fprintf(stderr,"\ncalc_vert1 = %d\n",calc_vert1);
+																			fprintf(stderr,"calc_hori1 = %d\n",calc_hori1);
+
+																			fprintf(stderr,"\nmotion x = %d\n",e.motion.x);
+																			fprintf(stderr,"motion y = %d\n",e.motion.y);*/
+
+																				//=================SELECTION D'UNE PIECE====================//
+																				if(terrain[compteur][compteur2].piece || (terrain[compteur][compteur2].bloc!=NULL && terrain[compteur][compteur2].bloc->block_allie!=joueur_actu && terrain[compteur][compteur2].attaque==1)){
+																					clicout=1;
 																					for(int indice=0;indice<N;indice++){
 																						for(int indice2=0;indice2<M; indice2++){
-																							if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
-																								terrain[indice][indice2].piece->select=0;
-																							}
+																							if(terrain[indice][indice2].bloc && terrain[indice][indice2].bloc->block_sel==1)
+																								terrain[indice][indice2].bloc->block_sel=0;
 																						}
 																					}
 
-																					if(terrain[compteur][compteur2].piece){
-																						terrain[compteur][compteur2].piece->select=1;
+																					for(int x=0;x<N;x++){
+																						for(int y=0;y<M;y++){
+																							if(terrain[x][y].piece && terrain[x][y].piece->joueur==joueur_actu && terrain[x][y].piece->select==1 && fin_partie==0){
+																								combat(terrain,x,y,compteur,compteur2,joueur_actu,tab,aff_deg,tab_info_bash,variable2);
+																							}
+																						}
 																					}
-																				}else if(terrain[compteur][compteur2].bloc){
+																					if(terrain[compteur][compteur2].piece && terrain[compteur][compteur2].piece->select!=1){
+																						for(int indice=0;indice<N;indice++){
+																							for(int indice2=0;indice2<M; indice2++){
+																								if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
+																									terrain[indice][indice2].piece->select=0;
+																								}
+																							}
+																						}
+
+																						if(terrain[compteur][compteur2].piece){
+																							terrain[compteur][compteur2].piece->select=1;
+																						}
+																					}else if(terrain[compteur][compteur2].bloc){
+																						for(int indice=0;indice<N;indice++){
+																							for(int indice2=0;indice2<M; indice2++){
+																								if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
+																									terrain[indice][indice2].piece->select=0;
+																								}
+																							}
+																						}
+																						terrain[compteur][compteur2].bloc->block_sel=1;
+																					}
+
+
+																				}else if(terrain[compteur][compteur2].piece==NULL && (terrain[compteur][compteur2].bloc==NULL || (terrain[compteur][compteur2].bloc!=NULL && terrain[compteur][compteur2].bloc->block_allie==joueur_actu && terrain[compteur][compteur2].deplacement==1)) && fin_partie==0){
+																				//=================DEPLACEMENT et ATTAQUE D'UNE PIECE====================//
+
+																				move(terrain,compteur,compteur2,joueur_actu,tab,tab_info_bash,variable2);
+																				poser_block(terrain,compteur,compteur2,joueur_actu,tab,tab_info_bash,variable2,bloc_actu);
+
+																				}else if(terrain[compteur][compteur2].piece==NULL && terrain[compteur][compteur2].bloc!=NULL){
+																					clicout=1;
 																					for(int indice=0;indice<N;indice++){
 																						for(int indice2=0;indice2<M; indice2++){
-																							if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
+																							if(terrain[indice][indice2].bloc && terrain[indice][indice2].bloc->block_sel==1)
+																								terrain[indice][indice2].bloc->block_sel=0;
+																							if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1)
 																								terrain[indice][indice2].piece->select=0;
-																							}
 																						}
 																					}
 																					terrain[compteur][compteur2].bloc->block_sel=1;
 																				}
 
-
-																			}else if(terrain[compteur][compteur2].piece==NULL && (terrain[compteur][compteur2].bloc==NULL || (terrain[compteur][compteur2].bloc!=NULL && terrain[compteur][compteur2].bloc->block_allie==joueur_actu && terrain[compteur][compteur2].deplacement==1))){
-																			//=================DEPLACEMENT et ATTAQUE D'UNE PIECE====================//
-
-																			move(terrain,compteur,compteur2,joueur_actu,tab,tab_info_bash,variable2);
-																			poser_block(terrain,compteur,compteur2,joueur_actu,tab,tab_info_bash,variable2);
-
-																			}else if(terrain[compteur][compteur2].piece==NULL && terrain[compteur][compteur2].bloc!=NULL){
-																				clicout=1;
-																				for(int indice=0;indice<N;indice++){
-																					for(int indice2=0;indice2<M; indice2++){
-																						if(terrain[indice][indice2].bloc && terrain[indice][indice2].bloc->block_sel==1)
-																							terrain[indice][indice2].bloc->block_sel=0;
-																						if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1)
-																							terrain[indice][indice2].piece->select=0;
-																					}
-																				}
-																				terrain[compteur][compteur2].bloc->block_sel=1;
 																			}
-
-																		}
-																		else if(e.motion.x>(*largeur)/3+420 && e.motion.x<(*largeur)/2+175+150 && e.motion.y>15 && e.motion.y<15+50){
-																			fin_tour=1;
+																			else if(e.motion.x>(*largeur)/3+420 && e.motion.x<(*largeur)/2+175+150 && e.motion.y>15 && e.motion.y<15+50){
+																				fin_tour=1;
+																			}
 																		}
 																	}
 																}
@@ -701,11 +726,54 @@ if( pWindow )
 																	camera_sur_allie(terrain,joueur_actu,tab,largeur,hauteur);
 																	compteur_bouton_cam=VITESSE_ANIM;
 																}
-																if(e.motion.x>40 && e.motion.x<75 && e.motion.y>670 && e.motion.y<720 && tab[joueur_actu].nb_block>0){
-																	//fonction qui met certaine cases du terrain a block=1;(les 4 cases adjacente a chaque unité si le case est une case normal et que aucune unité n'est dessus)
-																	clicout=1;
-																	pathfinding_block(terrain,joueur_actu);
+
+
+																//=================MENU SUD============================//
+																if(page_actu==rien){ //acces aux sous menus
+
+																	if(e.motion.x>(*largeur/4 *COEF_AFFICHAGE) && e.motion.x<(*largeur/4 *COEF_AFFICHAGE)+75 && e.motion.y>(*hauteur-60) && e.motion.y<(*hauteur-10)){
+																		page_actu=craft;
+																	}else if(e.motion.x>(*largeur/4 *COEF_AFFICHAGE)+75 && e.motion.x<(*largeur/4 *COEF_AFFICHAGE)+150 && e.motion.y>(*hauteur-60) && e.motion.y<(*hauteur-10)){
+																		page_actu=recherche;
+																	}
+
+																}else if(page_actu==craft){ //action de la page de craft
+																				//quitter
+																				if(e.motion.x>(*largeur/6 *COEF_AFFICHAGE)+940 && e.motion.x<(*largeur/6 *COEF_AFFICHAGE)+1000 && e.motion.y>300 && e.motion.y<360){
+																					page_actu=rien;
+																					compteur_erreur=0;
+																				}
+																				//choix du batiment
+																				if(e.motion.x>(*largeur/6 *COEF_AFFICHAGE)+120 && e.motion.x<(*largeur/6 *COEF_AFFICHAGE)+230 && e.motion.y>630 && e.motion.y<730 && tab[joueur_actu].nb_block>0){
+																					clicout=1;
+																					bloc_actu=1;
+																					if(pathfinding_block(terrain,joueur_actu,bloc_actu)){
+																						page_actu=rien;
+																						compteur_erreur=0;
+																					}
+																					else{
+																						compteur_erreur=40;
+																					}
+																				}else if(e.motion.x>(*largeur/6 *COEF_AFFICHAGE)+235 && e.motion.x<(*largeur/6 *COEF_AFFICHAGE)+345 && e.motion.y>630 && e.motion.y<730 && tab[joueur_actu].nb_block>8){
+																					clicout=1;
+																					bloc_actu=2;
+																					if(pathfinding_block(terrain,joueur_actu,bloc_actu)){
+																						page_actu=rien;
+																						compteur_erreur=0;
+																					}
+																					else{
+																						compteur_erreur=40;
+																					}
+																				}
+																			
+
+																}else if(page_actu==recherche){ //action de la page de recherche
+																				//quitter
+																				if(e.motion.x>(*largeur/6 *COEF_AFFICHAGE)+940 && e.motion.x<(*largeur/6 *COEF_AFFICHAGE)+1000 && e.motion.y>300 && e.motion.y<360){
+																					page_actu=rien;
+																				}
 																}
+																//===============FIN MENU SUD==========================//
 																if(clicout==0){
 																	for(int indice=0;indice<N;indice++){
 																		for(int indice2=0;indice2<M; indice2++){
@@ -718,8 +786,8 @@ if( pWindow )
 																				terrain[indice][indice2].piece->select=0;
 																		}
 
+																	}
 																}
-															}
 															}
 														break;
 													}
@@ -755,7 +823,7 @@ if( pWindow )
 
 
 										gpScreen = SDL_GetWindowSurface(pWindow);
-										if( e.motion.x >=0 && e.motion.x <=30 && e.type==SDL_MOUSEMOTION){
+										if( e.motion.x >=0 && e.motion.x <=3 && e.type==SDL_MOUSEMOTION){
 											for (int compteur=0;compteur<N;compteur++){
 												for (int compteur2=0;compteur2<M;compteur2++){
 													terrain[compteur][compteur2].xImg+=scroll_speed;
@@ -766,7 +834,7 @@ if( pWindow )
 												}
 											}
 										}
-										if(e.motion.x >= gpScreen->w - 30 && e.motion.x <= gpScreen->w && e.type==SDL_MOUSEMOTION){
+										if(e.motion.x >= gpScreen->w - 3 && e.motion.x <= gpScreen->w && e.type==SDL_MOUSEMOTION){
 											for (int compteur=0;compteur<N;compteur++){
 												for (int compteur2=0;compteur2<M;compteur2++){
 													terrain[compteur][compteur2].xImg-=scroll_speed;
@@ -777,7 +845,7 @@ if( pWindow )
 												}
 											}
 										}
-										if( e.motion.y >=0 && e.motion.y <=30 && e.type==SDL_MOUSEMOTION){
+										if( e.motion.y >=0 && e.motion.y <=3 && e.type==SDL_MOUSEMOTION){
 											for (int compteur=0;compteur<N;compteur++){
 												for (int compteur2=0;compteur2<M;compteur2++){
 													terrain[compteur][compteur2].yImg+=scroll_speed;
@@ -788,7 +856,7 @@ if( pWindow )
 												}
 											}
 										}
-										if(e.motion.y >= gpScreen->h - 30 && e.motion.y <= gpScreen->h && e.type==SDL_MOUSEMOTION){
+										if(e.motion.y >= gpScreen->h - 3 && e.motion.y <= gpScreen->h && e.type==SDL_MOUSEMOTION){
 											for (int compteur=0;compteur<N;compteur++){
 												for (int compteur2=0;compteur2<M;compteur2++){
 													terrain[compteur][compteur2].yImg-=scroll_speed;
@@ -816,7 +884,7 @@ if( pWindow )
 												int ini=0;
 												for (int i=0;i<N;i++){ //selection d'une piece
 													for (int j=0;j<M;j++){
-														if(terrain[i][j].piece && terrain[i][j].piece->select==0 && terrain[i][j].piece->joueur==joueur_actu && ini==0 && terrain[i][j].piece->pts_action_actu>0 && rand()%tab[joueur_actu].nb_unite==0){
+														if(terrain[i][j].piece && terrain[i][j].piece->select==0 && terrain[i][j].piece->joueur==joueur_actu && ini==0 && terrain[i][j].piece->pts_action_actu>0 && rand()%tab[joueur_actu].nb_unite<=tab[joueur_actu].nb_unite/2){
 															terrain[i][j].piece->select=1;
 															x_bot=i;
 															y_bot=j;
@@ -890,19 +958,40 @@ if( pWindow )
 
 									
 									
-
+									
 									if(ISO==1){
-										affichage_principale_iso(renderer,pWindow,bordure,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,joueur_actu,image,compteur_anim,nb_joueur_restant,compteur_tour,frame_anim_montre,jour_nuit,variable2,compteur_bouton_cam);
+										affichage_principale_iso(renderer,pWindow,bordure,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,joueur_actu,image,compteur_anim,nb_joueur_restant,compteur_tour,frame_anim_montre,jour_nuit,variable2,compteur_bouton_cam,bloc_actu,e,page_actu);
 									}else{
 										affichage_principale(renderer,pWindow,bordure,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,joueur_actu,image,compteur_anim,nb_joueur_restant,compteur_tour,frame_anim_montre,jour_nuit,variable2,compteur_bouton_cam);
-
 									}
+									af_erreur(renderer,pWindow,hauteur,largeur,&compteur_erreur,image);
+
+
+
 
 									for(int i=0;i<J;i++){
 										if(tab[i].id_joueur==-2){
 											tab[i].id_joueur=-1;
 										}
 									}
+
+
+									if(nb_joueur_restant==1 && fin_partie==0){
+										for(int i=0;i<J;i++){
+											if(tab[i].id_joueur!=-1 && tab[i].id_joueur!=-2){
+													sprintf(variable,"LE JOUEUR %d GAGNE EN %d TOURS !",i,compteur_tour);
+				    							ajouter_ligne_bash(variable,tab_info_bash,info,variable2);
+													fin_partie=1;
+													tab[i].humain=1;
+											}
+										}
+										//ecran de victoire/defaite
+									}
+
+									if(fin_tour==1 && fin_partie==1){
+											running=Menu;
+									}
+
 
 									if((tab[joueur_actu].pts_action_actu<=0 && tab[joueur_actu].humain==0 )|| (tab[joueur_actu].pts_action_actu<=0 && fin_tour==1) || (fin_tour==1)){				//gestion des tours de jeu
 										tab[joueur_actu].pts_action_max=0;
@@ -939,17 +1028,6 @@ if( pWindow )
 										fin_tour=0;
 									}
 
-									if(nb_joueur_restant==1){
-										for(int i=0;i<J;i++){
-											if(tab[i].id_joueur!=-1 && tab[i].id_joueur!=-2){
-													sprintf(variable,"LE JOUEUR %d GAGNE EN %d TOURS !\n",i,compteur_tour);
-				    							ajouter_ligne_bash(variable,tab_info_bash,info,variable2);
-											}
-										}
-										//ecran de victoire/defaite
-
-										running=Menu;
-									}
 
 									//incrémentation a chaque tours
 									nb_tour=(nb_tour+1)%(VITESSE_JEU_BOT*2);
@@ -961,6 +1039,18 @@ if( pWindow )
 									SDL_GetWindowSize(pWindow,largeur,hauteur); //initialisation des pointeur largeur et hauteur sur la taille de la fenetre
 									test=(*largeur);
 									COEF_AFFICHAGE=test / 1920.00;
+
+
+
+
+
+
+
+
+
+									clean_degat_txt(aff_deg);
+									SDL_RenderPresent(renderer);
+									SDL_Delay(16);
 
 
 

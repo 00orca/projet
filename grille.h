@@ -37,12 +37,26 @@ extern float COEF_AFFICHAGE;
 extern int TOUR_EVOL_FORET;
 extern int CHANCE_EVOL;
 extern int PTS_ACTION_UNI;
+extern int NB_GOLD;
+extern int NB_BOIS;
 
+
+
+typedef enum {
+    tour=1,chateau
+}type_bloc_t;
+
+typedef enum {
+    rien=1,craft,recherche
+}page_t;
 
 typedef struct bloc_s{
 	int pdv_block;    //point de vie du bloc
 	int block_allie;  //id du bloc
 	int block_sel;  //==0 si pas de bloc selectionné sinon ==1
+	int aire; //nb de case composant le batiment
+	int armure; //armure du batiment en % de reduc dégat
+	type_bloc_t type;
 }bloc_t;
 
 
@@ -61,7 +75,7 @@ typedef struct case_s{
 	int y1;
 	int x2;
 	int y2;
-  	int x3;
+  int x3;
 	int y3;
 	int x4;
 	int y4;
@@ -76,6 +90,8 @@ typedef struct joueurs_s{
   int id_joueur;  //id du joueur (0 a J-1)
   int humain;  //==1 si le joueur n'est pas un bot sinon ==0
   int nb_block; //nb de bloc en possession du joueur
+	int nb_gold;
+	int nb_bois;
 }joueurs_t;
 
 
@@ -109,7 +125,7 @@ void affichage_principale_iso(
 	int bordure,int * largeur,int * hauteur,joueurs_t tab[J],degatx_t aff_deg[AFF_DEG],
 	bash_t tab_info_bash[TAILLE_TAB_BASH],case_t terrain[N][M],int joueur_actu,
 	image_t image[Z],int compteur_anim,int nb_joueur_restant,int compteur_tour,
-	int frame_anim_montre,int jour_nuit,char variable2[80],int compteur_bouton_cam
+	int frame_anim_montre,int jour_nuit,char variable2[80],int compteur_bouton_cam,int bloc_actu,SDL_Event e,page_t page_actu
 );
 
 
@@ -138,9 +154,14 @@ void rem_piece_joueur(case_t terrain[N][M],int joueur_actu);
 void save(case_t terrain[N][M],int compteur_tour,int joueur_actu,joueurs_t tab[J]);
 SDL_Rect afficher_anim(int compteur_anim,classe_t classe,case_t terrain[N][M],int compteur,int compteur2,int inter); //return un rectangle pour afficher la bonne frame d'animation
 
-void pathfinding_block(case_t terrain[N][M],int joueur_actu);
+int pathfinding_block(case_t terrain[N][M],int joueur_actu,int type);
 void reset_block(case_t terrain[N][M]);
-void poser_block(case_t terrain[N][M],int compteur,int compteur2,int joueur_actu,joueurs_t tab[J],bash_t tab_info_bash[TAILLE_TAB_BASH],char variable2[80]);
+void poser_block(case_t terrain[N][M],int compteur,int compteur2,int joueur_actu,joueurs_t tab[J],bash_t tab_info_bash[TAILLE_TAB_BASH],char variable2[80],type_bloc_t type);
 void update_grille(case_t terrain[N][M],int compteur_tour,bash_t tab_info_bash[TAILLE_TAB_BASH],char variable2[80]);
+
+int viser_block(case_t terrain[N][M]);
+
+void af_erreur(SDL_Renderer *renderer,SDL_Window* pWindow,int *hauteur,int *largeur,int *compteur_erreur,image_t image[Z]);
+
 
 #endif

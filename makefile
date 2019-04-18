@@ -3,7 +3,7 @@ FLAGS =-Wall -g
 SDL_DIR=${HOME}/projet/SDL2
 SDL_LIB_DIR=${SDL_DIR}/lib
 SDL_INC_DIR=${SDL_DIR}/include/
-LIBS=-L${SDL_LIB_DIR} -lSDL2 -lSDL2_image -lSDL2_ttf -lm -lmingw32
+LIBS=-L${SDL_LIB_DIR} -lSDL2 -lSDL2_image -lSDL2_ttf -lm
 INCS=-I${SDL_INC_DIR}
 PROG=main
 
