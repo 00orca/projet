@@ -60,7 +60,7 @@ int DEGAT_EBOULEMENT=30;
 
 //=====================================MAIN=============================//
 
-int WinMain(int argc, char** argv)
+int main(int argc, char** argv)
 {
 
 
