@@ -1,3 +1,16 @@
+/**
+* \file main.c
+* \brief programme principal.
+*\author Eliot Lepoittevin, Willhem Liban, Liu Yicheng
+*\version 17
+*\date 12 avril 2019
+*/
+/**
+ * \mainpage Tactics Arena
+ * Dans le jeu tactics arena on controle des unités, 
+ * à la manière des echecs pour vaincre 1 ou plusieurs adversaires.
+ * Ceci est la documentation du projet réalisé par Eliot Lepoittevin, Willhem Liban et Liu Yicheng.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -6,52 +19,103 @@
 #include <SDL2/SDL_image.h>
 
 
+
+#include "grille.h"
 #include "piece.h"
 #include "interface.h"
+#include "logs.h"
+#include "bot.h"
+#include "camera.h"
+#include "deplacement.h"
+#include "combat.h"
 
 
+//=NB JOUEURS,JOUEUR TOTAUX=====//
+int J= 2 ; //nb de joueur total
+int J_HUMAIN= 1 ;//nb de joueur humain parmis les joueurs totales
+int J_BOT= 1 ;//nb de joueur humain parmis les joueurs totales
+//==============================//
 
+//==UNITEES=====================//
+int NB_CLASSE= 6 ; //nb de classe actuelement dans le jeu !!!!!A ne pas modifier!!!!!!
+int NB_UNITE= 7 ; //nb unité pour chaque joueurs au debut de la partie
+int ESPACE_GEN= 2; //espace (nb de case de chaque coté au minimum) entre deux équipes d'unitée
+int NB_MAX_PRIEST=2;
+int NB_BLOCK=5;
+int PDV_BLOCK=150;
+//==============================//
 
+//===========VITESSE DU JEU=====//
+int PTS_ACTION_MAX= 0 ; //pts d'action max pour chaque tours de chaque joueur
+int PTS_ACTION_UNI=2; //pts action max pour chaque unité
+int VITESSE_JEU_BOT= 1 ; //nb de boucle d'affichage entre chaque action d'un bot (vitesse max=1)
+int VITESSE_ANIM=15;
+//==============================//
 
+//========AFFICHAGE/GRILLE======//
+int AFF_DEG= 10 ; //nombre d'affichage max a la fois par boucle d'affichage d'info texte de dégats, morts et soins
+int TAILLE_TAB_BASH=1000; //taille max de ligne de bash sauvegardé
+int BASH_SCROLL_SPEED=2;
+int DURE_JOUR_NUIT=4000;
+int PRESET=1 ; //1 pour generation alea, autre pour preset de carte via fichier
+int PRESET_U=1; //1 pour gene aleatoire et autre pour preset d'unité
+
+int N= 20 ; //taille de la grille (ne peux pas eccéder 200x200 actuelement (mettre en place des fichier ou enregistrer et reouvrir pour chargement dynamique de la map et grandeur infini))
+int M= 20 ;
+//==============================//
+int ISO=1;
+int VITESSE_INCREMENTATION=10;
+float COEF_AFFICHAGE=0;
+int TOUR_EVOL_FORET=1;
+int CHANCE_EVOL=100;
+
+int DEGAT_EBOULEMENT=30;
 
 //=====================================MAIN=============================//
 
-int main(int argc, char** argv)
+int WinMain(int argc, char** argv)
 {
 
 
 	SDL_Window* pWindow = NULL;
 	SDL_Renderer *renderer=NULL;
-  SDL_Rect imgDestRect;
-	SDL_Rect img_anim;
-	char variable[50];
+
 	int *largeur=0,*hauteur=0;
 	largeur=malloc(sizeof(*largeur));
 	hauteur=malloc(sizeof(*hauteur));
-	float coefZoom=1;
-  int alea;
+
+	int bordure=43;
+
 	int sel=0;
 	int fin_tour=0;
-  int var1;
-	int test_bash=0,varBash;
+
+
 	bash_t tab_info_bash[TAILLE_TAB_BASH];
 	int nb_tour=0;
 	int compteur_anim=VITESSE_ANIM;
-	int scroll_speed=20;
+	int scroll_speed=30;
 	int x_bot,y_bot;
 	srand(time(NULL));
-	FILE * fp;
+	int souris=0;
 	int nb_joueur_restant;
-	int joueur_actu=0;
-	int clicout;
+	int joueur_start=0;
+	int joueur_actu=joueur_start;
+	int frame_anim_montre=0;
+	int compteur_tour=1;
+	int clicout;//sert a ne pas deselectionner la piece actuel dans la gestion des clics
+	long int jour_nuit;
 	image_t image[Z];
+	char variable[80];
+	char variable2[80];
+	int compteur_bouton_cam=0;
+	int wait=0;
+	
 
-	SDL_Color c = {0,0,0,0};
-	SDL_Color c_rouge = {255,0,0,0};
-	SDL_Color c_verte = {125,255,125,0};
-	SDL_Color c_verte2 = {15,109,15,0};
-	SDL_Color b = {255,255,255,255};
-	SDL_Color c_bash = {0,255,0,0};
+
+
+
+
+
 
     /* Initialisation SDL*/
     if (SDL_Init(SDL_INIT_VIDEO) != 0 ) {
@@ -77,7 +141,11 @@ int main(int argc, char** argv)
 
 
 
+
 	SDL_GetWindowSize(pWindow,largeur,hauteur); //initialisation des pointeur largeur et hauteur sur la taille de la fenetre
+	float test=(*largeur);
+	COEF_AFFICHAGE=test / 1920.00;
+
 
 	if(!pWindow){
 		fprintf(stderr, "Erreur à la création de la fenetre : %s\n", SDL_GetError());
@@ -130,222 +198,264 @@ if( pWindow )
 					break;
 				}
 			}
-			//================================================================================================================================================//
-			//================================================================================================================================================//
-			//=============================================================CHOIX DES PROPRIÉTÉ PARTIE=========================================================//
-			//===================================================================ET===========================================================================//
-			//=================================================================DEBUT DE PARTIE================================================================//
-		}else if(running == Menu2){
-			int nb_j=J,nb_o=0,nb_unit=NB_UNITE,taille=N;
-			int x1 = gpScreen->w - gpScreen->w/5;
-			int x2 = gpScreen->w - gpScreen->w/10;
-			int fontsize = gpScreen->h/10;
-			int y = fontsize/2;
-			while(SDL_PollEvent(&e)||running == Menu2) {
-				mod_menu(renderer,pWindow,nb_j,nb_o,taille,nb_unit);
+		}else if(running==option){
+			int delay_clic=0;
+			while(SDL_PollEvent(&e) || running == option){
+				mod_option(renderer,pWindow,image);
 				switch(e.type) {
 					case SDL_QUIT:	//cas ou l'on souhaite quitter
 						running = Quit;
 					break;
 					case SDL_MOUSEBUTTONDOWN:
 						if(e.button.button == SDL_BUTTON_LEFT){
-							if((nb_j+nb_o)<50){
-								if(e.button.x>x1&&e.button.x<x1+fontsize){
-									if(e.button.y>y && e.button.y<y+fontsize)nb_j++;
-									if(e.button.y>y*5 && e.button.y<y*5+fontsize)nb_o++;
+							gpScreen = SDL_GetWindowSurface(pWindow);
+							if(delay_clic>=VITESSE_INCREMENTATION){
+								delay_clic=0;
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && ESPACE_GEN<N/(2*J) && ESPACE_GEN<M/(2*J)){
+									ESPACE_GEN++;
 								}
-							}
-							if((nb_j+nb_o)>2){
-								if(e.button.x>x2&&e.button.x<x2+fontsize){
-									if(e.button.y>y && e.button.y<y+fontsize&&nb_j>0)nb_j--;
-									if(e.button.y>y*5 && e.button.y<y*5+fontsize&&nb_o>0)nb_o--;
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && ESPACE_GEN>0){
+									ESPACE_GEN--;
 								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && TAILLE_TAB_BASH<10000){
+									TAILLE_TAB_BASH+=10;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && TAILLE_TAB_BASH>30){
+									TAILLE_TAB_BASH-=10;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE)){
+									ISO=1;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE)){
+									ISO=0;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && VITESSE_JEU_BOT<100 ){
+									VITESSE_JEU_BOT++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && VITESSE_JEU_BOT>1 ){
+									VITESSE_JEU_BOT--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && BASH_SCROLL_SPEED<15 ){
+									BASH_SCROLL_SPEED++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && BASH_SCROLL_SPEED>0 ){
+									BASH_SCROLL_SPEED--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && VITESSE_INCREMENTATION<20 ){
+									VITESSE_INCREMENTATION++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && VITESSE_INCREMENTATION>2 ){
+									VITESSE_INCREMENTATION--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 64)) && e.motion.x<((gpScreen->w/100 * 64)+320*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+100*COEF_AFFICHAGE)){
+									running=Menu2;
+									wait=20;
+								}
+
 							}
-							if(taille>=10&&taille<=100){
-								if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*9&&e.button.y<y*9+fontsize&&taille<100)taille++;
-								if(e.button.x>x2&&e.button.x<x2+fontsize&&e.button.y>y*9&&e.button.y<y*9+fontsize&&taille>10)taille--;
+							delay_clic=(delay_clic+1)%51;
+
+						}
+				}
+			}
+			//================================================================================================================================================//
+			//================================================================================================================================================//
+			//=============================================================CHOIX DES PROPRIÉTÉ PARTIE=========================================================//
+			//===================================================================ET===========================================================================//
+			//=================================================================DEBUT DE PARTIE================================================================//
+		}else if(running == Menu2 || running==Play_load){
+			int delay_clic=0;
+			while(SDL_PollEvent(&e)||running == Menu2 || running==Play_load) {
+				mod_menu(renderer,pWindow,image);
+				switch(e.type) {
+					case SDL_QUIT:	//cas ou l'on souhaite quitter
+						running = Quit;
+					break;
+					case SDL_MOUSEBUTTONDOWN:
+						if(e.button.button == SDL_BUTTON_LEFT){
+							gpScreen = SDL_GetWindowSurface(pWindow);
+							if(delay_clic>=VITESSE_INCREMENTATION){
+								delay_clic=0;
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && J<50 && J_HUMAIN<50){
+									J_HUMAIN++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && J>2 && J_HUMAIN>0){
+									J_HUMAIN--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && J<50 && J_BOT<50){
+									J_BOT++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && J>2 && J_BOT>0){
+									J_BOT--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && NB_UNITE<30 ){
+									NB_UNITE++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && NB_UNITE>1 ){
+									NB_UNITE--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60*COEF_AFFICHAGE) && M<100 ){
+									M++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+60*COEF_AFFICHAGE) && M>10 ){
+									M--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60*COEF_AFFICHAGE) && N<100 ){
+									N++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 14)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 14)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+60*COEF_AFFICHAGE) && N>10 ){
+									N--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && PTS_ACTION_UNI<15 ){
+									PTS_ACTION_UNI++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE)&& e.motion.y>(gpScreen->h/100 * 18) && e.motion.y<((gpScreen->h/100 * 18)+60*COEF_AFFICHAGE) && PTS_ACTION_UNI>1 ){
+									PTS_ACTION_UNI--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && NB_MAX_PRIEST<30 ){
+									NB_MAX_PRIEST++;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 34) && e.motion.y<((gpScreen->h/100 * 34)+60*COEF_AFFICHAGE) && NB_MAX_PRIEST>0 ){
+									NB_MAX_PRIEST--;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+400*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+460*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && DURE_JOUR_NUIT<15000 ){
+									DURE_JOUR_NUIT+=100;
+								}
+								if(e.motion.x>((gpScreen->w/100 * 58)+470*COEF_AFFICHAGE) && e.motion.x<((gpScreen->w/100 * 58)+520*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 50) && e.motion.y<((gpScreen->h/100 * 50)+60*COEF_AFFICHAGE) && DURE_JOUR_NUIT>1000 ){
+									DURE_JOUR_NUIT-=100;
+								}
+
+
+								if(e.motion.x>((gpScreen->w/100 * 50)) && e.motion.x<((gpScreen->w/100 * 50)+150*COEF_AFFICHAGE) && e.motion.y>(gpScreen->h/100 * 71) && e.motion.y<((gpScreen->h/100 * 71)+150*COEF_AFFICHAGE)){
+									running=option;
+								}
+
+
+
+
+
+
 							}
-							if(nb_unit>=1&&nb_unit<=30){
-								if(e.button.x>x1&&e.button.x<x1+fontsize&&e.button.y>y*13&&e.button.y<y*13+fontsize&&nb_unit<30)nb_unit++;
-								if(e.button.x>x2&&e.button.x<x2+fontsize&&e.button.y>y*13&&e.button.y<y*13+fontsize&&nb_unit>1)nb_unit--;
+							delay_clic=(delay_clic+1)%(VITESSE_INCREMENTATION*5);
+							J=J_HUMAIN+J_BOT;
+							wait=(wait-1)%(-200);
+
+							if(e.motion.x>((gpScreen->w/100 * 64)) && e.motion.x<((gpScreen->w/100 * 64)+320) && e.motion.y>(gpScreen->h/100 * 66) && e.motion.y<((gpScreen->h/100 * 66)+100) && wait<=0){
+								running=Menu;
 							}
-							if(e.button.y > gpScreen->h/5*4 && e.button.y < gpScreen->h){
+
+							if(e.motion.x>((gpScreen->w/100 * 66))&& e.motion.x<((gpScreen->w/100 * 66)+300) && e.motion.y>(gpScreen->h/100 * 79) && e.motion.y<((gpScreen->h/100 * 79)+100)){
+								running=Menu3;
+							}
+
+					}
+					break;
+				}
+			}
+		}else if(running == Menu3){
+			joueur_unite_t joueur_unite[J];
+			init_joueur_unit(joueur_unite,J,NB_UNITE);
+			fprintf(stderr, "%d %d\n", J,NB_UNITE);
+			int id = 0;
+			int delay_clic=0;
+			while(SDL_PollEvent(&e)||running == Menu3) {
+				gpScreen = SDL_GetWindowSurface(pWindow);
+				int longeur = gpScreen->h/5;
+				int fonsize = longeur/3.5;
+				int y3 = fonsize/2;
+				int x3 = gpScreen->w/10;
+				if(running == Menu3)unit_menu(renderer,pWindow,joueur_unite[id]);
+				switch(e.type) {
+					case SDL_QUIT:	//cas ou l'on souhaite quitter
+						running = Quit;
+					break;
+					case SDL_MOUSEBUTTONDOWN:
+							if(e.button.button == SDL_BUTTON_LEFT){
+								if(delay_clic%10==0){
+								if(e.button.y>y3&&e.button.y<y3+fonsize){
+									if(e.button.x>x3*3&&e.button.x<x3*3+fonsize&&id>0)id--;
+									if(e.button.x>x3*6&&e.button.x<x3*6+fonsize&&id<J-1)id++;
+								}
+								if(e.button.y>y3*14&&e.button.y<y3*14+fonsize){
+									if(e.button.x>x3&&e.button.x<x3+fonsize&&joueur_unite[id].unit[0]>0){
+										joueur_unite[id].unit[0]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3+fonsize*3&&e.button.x<x3+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[0]++;
+										joueur_unite[id].restant_unite--;
+									}
+									if(e.button.x>x3*4&&e.button.x<x3*4+fonsize&&joueur_unite[id].unit[1]>0){
+										joueur_unite[id].unit[1]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3*4+fonsize*3&&e.button.x<x3*4+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[1]++;
+										joueur_unite[id].restant_unite--;
+									}
+									if(e.button.x>x3*7&&e.button.x<x3*7+fonsize&&joueur_unite[id].unit[2]>0){
+										joueur_unite[id].unit[2]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3*7+fonsize*3&&e.button.x<x3*7+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[2]++;
+										joueur_unite[id].restant_unite--;
+									}
+								}
+								if(e.button.y>y3*25&&e.button.y<y3*25+fonsize){
+									if(e.button.x>x3&&e.button.x<x3+fonsize&&joueur_unite[id].unit[3]>0){
+										joueur_unite[id].unit[3]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3+fonsize*3&&e.button.x<x3+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[3]++;
+										joueur_unite[id].restant_unite--;
+									}
+									if(e.button.x>x3*4&&e.button.x<x3*4+fonsize&&joueur_unite[id].unit[4]>0){
+										joueur_unite[id].unit[4]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3*4+fonsize*3&&e.button.x<x3*4+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[4]++;
+										joueur_unite[id].restant_unite--;
+									}
+									if(e.button.x>x3*7&&e.button.x<x3*7+fonsize&&joueur_unite[id].unit[5]>0){
+										joueur_unite[id].unit[5]--;
+										joueur_unite[id].restant_unite++;
+									}
+									if(e.button.x>x3*7+fonsize*3&&e.button.x<x3*7+fonsize*4&&joueur_unite[id].restant_unite>0){
+										joueur_unite[id].unit[5]++;
+										joueur_unite[id].restant_unite--;
+									}
+								}
+								delay_clic=0;
+							}
+						delay_clic=(delay_clic+1)%51;
+						if(e.button.y>y3*30&&e.button.x < x3*4)running = Menu2;
+						if(e.button.y>y3*30&&e.button.x > x3*7){
+
 								//==================================INITIALISATION GRILLE============================//
 								    //choix du mode de génération
 								//	printf("1 POUR CARTE ALEATOIRE, AUTRE CHIFFRE POUR UNE DES CARTES PRESET : ");
 								//	scanf("%d",&preset);
 
-								J_HUMAIN = nb_j;
-								J = nb_j + nb_o;
-								NB_UNITE = nb_unit;
-								N = taille;
-								M = N;
 
-
-								degatx_t aff_deg[N*M];
+								degatx_t aff_deg[AFF_DEG];
 								joueurs_t tab[J];
 								case_t terrain[N][M];
 
-								for(int i=0;i<TAILLE_TAB_BASH;i++){ //ini du tab bash
-									tab_info_bash[i].pos_x=0;
-									tab_info_bash[i].pos_y=0;
-									strcpy(tab_info_bash[i].txt,"");
+								frame_anim_montre=4;
+								jour_nuit=((DURE_JOUR_NUIT/24)*7);
+								joueur_start=rand()%J;
+								joueur_actu=joueur_start;
+								compteur_tour=1;
+
+
+								if(ISO==1){
+									initialisation_principale_iso(bordure,pWindow,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,variable2,joueur_unite);
+								}else{
+									initialisation_principale(bordure,pWindow,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,variable2);
 								}
-
-
-								if(PRESET>1){
-									fp = fopen ("fichiers/preset1.txt", "r"); //preset en 7x7
-								}
-								for(int i=0;i<N;i++){
-									for(int j=0;j<M;j++){
-
-										if(PRESET==1){			//======preset=======//
-
-											if(i==0 && j==0){
-												terrain[i][j].type=2;
-											}
-											else if(i==0 && j>0){
-												terrain[i][j].type=4;
-											}
-											else if(i>0 && j==0){
-												terrain[i][j].type=3;
-											}
-											else if((j==N-1 && i!=0 )||( i==M-1 && j!=0)){
-												terrain[i][j].type=1;
-											}
-											else{												//ALEA "INTELLIGENTE"//
-												alea=rand()%(N*M);
-												if((alea<(0.05*N*M) )||( (i-1<N && terrain[i-1][j].type==5 && alea<(0.4*N*M)) || (j-1<N && terrain[i][j-1].type==5 && alea<(0.4*N*M)) || (i+1<N && terrain[i+1][j].type==5 && alea<(0.4*N*M)) || (i<N && terrain[i][j+1].type==5 && alea<(0.4*N*M)) )){
-													terrain[i][j].type=5;
-
-												}
-												else if(((alea<(0.15*N*M) && alea>(0.05*N*M) )|| (i-1<N && terrain[i-1][j].type==7 && alea<(0.45*N*M)) || (j-1<N && terrain[i][j-1].type==7 && alea<(0.45*N*M)) || (i+1<N && terrain[i+1][j].type==7 && alea<(0.45*N*M)) || (i<N && terrain[i][j+1].type==7 && alea<(0.45*N*M)) )){
-													terrain[i][j].type=7;
-												}
-												else if(((alea<(0.25*N*M) && alea>(0.15*N*M) )|| (i-1<N && terrain[i-1][j].type==6 && alea<(0.55*N*M)) || (j-1<N && terrain[i][j-1].type==6 && alea<(0.55*N*M)) || (i+1<N && terrain[i+1][j].type==6 && alea<(0.55*N*M)) || (i<N && terrain[i][j+1].type==6 && alea<(0.55*N*M)) )){
-													terrain[i][j].type=6;
-												}
-												else{
-													terrain[i][j].type=1;
-												}
-											}
-
-										}else{						//=====preset de carte chargé par fichiers=====//
-
-											fscanf(fp, "%i", &var1);
-											terrain[i][j].type=var1;
-										}
-
-									}
-
-								}
-								carte_valide(terrain);
-								if(PRESET>1){
-									fclose(fp);
-								}
-
-								//initialisation de la matrice terrain,variables d'affichages;
-
-								  for(int i=0;i<N;i++){
-								    for(int j=0;j<M;j++){
-								      terrain[i][j].climat=0;
-								      terrain[i][j].xImg=0;
-								      terrain[i][j].yImg=0;
-								      terrain[i][j].x1=0;
-								      terrain[i][j].y1=0;
-								      terrain[i][j].x2=0;
-								      terrain[i][j].y2=0;
-								      terrain[i][j].x3=0;
-								      terrain[i][j].y3=0;
-								      terrain[i][j].x4=0;
-								      terrain[i][j].y4=0;
-								      terrain[i][j].piece=NULL;
-								      terrain[i][j].deplacement=0;
-								      terrain[i][j].attaque=0;
-
-								    }
-								  }
-
-								//initialisation tableau d'affichage des degats morts et soins
-
-								  for(int i=0;i<(N*M);i++){
-								    aff_deg[i].time=-1;
-								    aff_deg[i].pos_x=0;
-								    aff_deg[i].pos_y=0;
-								    aff_deg[i].c=0;
-								    strcpy(aff_deg[i].txt,"");
-								  }
-
-								  //initialisation de la grille//
-
-								  (imgDestRect.w)=100;
-								  (imgDestRect.h)=100;
-								  int bordure=43;                                                                                                                    //les coef ci dessous permettent d'aligner les images car elle ne sont pas totalement droite dans le sprite
-								  for(int compteur=0, indice = (*hauteur)/2, indice2=(*largeur)/2; compteur<N; compteur++,indice-=(bordure+(imgDestRect.h)/2)/2.1,indice2-=(bordure+(imgDestRect.w)/2)/1.5){
-								    for(int compteur2=0, indice3= indice , indice4 = indice2; compteur2<M; compteur2++,indice3-=(bordure+(imgDestRect.h)/2)/1.5,indice4+=(bordure+(imgDestRect.w)/2)/1.98){
-
-								        imgDestRect.x = indice4;
-								        imgDestRect.y = indice3;
-								        imgDestRect.w=100;
-								        imgDestRect.h=100;
-
-								        if(!terrain[compteur][compteur2].x1 || !terrain[compteur][compteur2].x2 || !terrain[compteur][compteur2].y1 || !terrain[compteur][compteur2].y2){
-
-								          terrain[compteur][compteur2].xImg=indice4;
-								          terrain[compteur][compteur2].yImg=indice3;
-								           //point en haut du losange puis les trois points suivant sont les sommet dans le sens des aiguille d'une montre.
-
-
-
-								          terrain[compteur][compteur2].x1=imgDestRect.x+imgDestRect.w/2;
-								          terrain[compteur][compteur2].y1=imgDestRect.y;
-
-								          terrain[compteur][compteur2].x2=imgDestRect.x+imgDestRect.w;
-								          terrain[compteur][compteur2].y2=imgDestRect.y+imgDestRect.h/2;
-
-								          terrain[compteur][compteur2].x3=imgDestRect.x+imgDestRect.w/2;
-								          terrain[compteur][compteur2].y3=imgDestRect.y+imgDestRect.h;
-
-								          terrain[compteur][compteur2].x4=imgDestRect.x;
-								          terrain[compteur][compteur2].y4=imgDestRect.y+imgDestRect.h/2;
-
-								        }
-								      }
-								    }
-
-
-								//=========================================================INITIALISATION DES JOUEURS=============================================//
-
-								    for(int i=0;i<J;i++){
-								      if(i<J_HUMAIN){
-								          tab[i].humain=1;
-								      }else{
-								        tab[i].humain=0;
-								      }
-								      tab[i].id_joueur=i;
-								      tab[i].pts_action_max=PTS_ACTION_MAX;
-								      tab[i].pts_action_actu=tab[i].pts_action_max;
-								      tab[i].nb_unite=NB_UNITE;
-								    }
-
-
-								//=========================================================INITIALISATION DES UNITEES===========================================//
-								    int unit_gen;
-								    for(int i=0;i<J;i++){
-								      unit_gen=0;
-								      while(unit_gen<tab[i].nb_unite){
-								        for(int compteur=0;compteur<N; compteur++){
-								          for(int compteur2=0;compteur2<M; compteur2++){
-								            if(terrain[compteur][compteur2].piece==NULL && terrain[compteur][compteur2].type != 5){
-								              if(rand()%(N*M) ==1 && unit_gen<tab[i].nb_unite){
-								                terrain[compteur][compteur2].piece=init_piece(((rand()%NB_CLASSE)+1),i); //(((rand()%NB_CLASSE)+1),i)
-								                unit_gen++;
-								              }
-								            }
-								          }
-								        }
-								      }
-								    }
 
 								running = Play;
 								while(running == Play){ //boucle de jeu
@@ -402,6 +512,10 @@ if( pWindow )
 															}
 														}
 														break;
+													case SDLK_y:
+															camera_sur_allie(terrain,joueur_actu,tab,largeur,hauteur);
+															compteur_bouton_cam=VITESSE_ANIM;
+														break;
 													case SDLK_SPACE:
 														ingame_menu(renderer,pWindow);
 														running = In_menu;
@@ -415,7 +529,11 @@ if( pWindow )
 																		if(e.button.button == SDL_BUTTON_LEFT){
 																			if(e.button.x > gpScreen->w - 260 && e.button.x < gpScreen->w - 60){
 																				if(e.button.y>gpScreen->h - 330 && e.button.y<gpScreen->h - 330+75)running = Play;
-																				if(e.button.y>gpScreen->h - 330+75 && e.button.y<gpScreen->h - 330+75*2)running = Play;
+																				if(e.button.y>gpScreen->h - 330+75 && e.button.y<gpScreen->h - 330+75*2){
+																					//==========================//sauvegarder//=============================================//
+																					save(terrain,compteur_tour,joueur_actu,tab);
+																					running = Menu;
+																				}
 																				if(e.button.y>gpScreen->h - 330+75*2 && e.button.y<gpScreen->h - 330+75*3)running = Help;
 																				if(e.button.y>gpScreen->h - 330+75*3 && e.button.y<gpScreen->h - 330+75*4)running = Menu;
 																			}else{
@@ -464,67 +582,109 @@ if( pWindow )
 																}
 															}
 															if(tab[joueur_actu].humain==1){
+
 															clicout=0;
 															//int a,b,a2,b2,a3,b3,a4,b4,res1,res2,res3,res4;
 															for(int compteur=0;compteur<N;compteur++){
 																for(int compteur2=0;compteur2<M; compteur2++){
-																		/* VERSION AVANCER NE FONCTIONNANT PAS ENCORE
-																		fprintf(stderr,"POUR  %d | %d : \n",compteur,compteur2);
-																		//Y
-																		a=((terrain[compteur][compteur2].y1-terrain[compteur][compteur2].y4)/(terrain[compteur][compteur2].x1-terrain[compteur][compteur2].x4));
-																		b= (terrain[compteur][compteur2].y4-a*terrain[compteur][compteur2].x4);
-																		res1=a*e.motion.x+b;j
-																		fprintf(stderr,"a = %d et b = %d pour x= %d et y = %d , doit dépasser %d en y \n",a,b,e.motion.x,e.motion.y,res1);
-																		//X
-																		a2=((terrain[compteur][compteur2].y2-terrain[compteur][compteur2].y1)/(terrain[compteur][compteur2].x2-terrain[compteur][compteur2].x1));
-																		b2= (terrain[compteur][compteur2].y1-a*terrain[compteur][compteur2].x1);
-																		res2=-1*(e.motion.y-b2)/a2;
-																		fprintf(stderr,"a2 = %d et b2= %d pour x= %d et y = %d ,doit dépasser %d en x \n",a2,b2,e.motion.x,e.motion.y,res2);
-																		//Y
-																		a3=((terrain[compteur][compteur2].y2-terrain[compteur][compteur2].y3)/(terrain[compteur][compteur2].x2-terrain[compteur][compteur2].x3));
-																		b3= (terrain[compteur][compteur2].y3-a*terrain[compteur][compteur2].x3);
-																		res3 = a3*e.motion.x+b3;
-																		fprintf(stderr,"a3 = %d et b3= %d pour x= %d et y = %d , ne doit pas dépasser %d en y \n",a3,b3,e.motion.x,e.motion.y,res3);
-																		//X
-																		a4=((terrain[compteur][compteur2].y3-terrain[compteur][compteur2].y4)/(terrain[compteur][compteur2].x3-terrain[compteur][compteur2].x4));
-																		b4= (terrain[compteur][compteur2].y4-a*terrain[compteur][compteur2].x4);
-																		res4 = -1*(e.motion.y-b4)/a4;
-																		fprintf(stderr,"a4 = %d et b4= %d pour x= %d et y = %d , ne doit pas dépasser %d en x \n",a4,b4,e.motion.x,e.motion.y,res4);
+																		/* VERSION AVANCER NE FONCTIONNANT PAS ENCORE*/
+																		float vert=abs((terrain[compteur][compteur2].y3 - terrain[compteur][compteur2].y1))/2;
+																		float hori=abs((terrain[compteur][compteur2].x4 - terrain[compteur][compteur2].x2))/2;
+																		float y_mid=terrain[compteur][compteur2].y2;
+																		float x_mid=terrain[compteur][compteur2].x1;
 
-																		if(e.motion.y >  res1 && e.motion.x > res2  && e.motion.y <  res3 && e.motion.x <  res4 ){
-																			fprintf(stderr,"la case %d | %d a été selectionné. \n",compteur,compteur2);
-																		}
-																		*/
+																		int calc_vert1=(((y_mid-e.motion.y)/vert)*100);
+																		int calc_hori1=(((e.motion.x-x_mid)/hori)*100);
+
+																		int calc_vert2=(((e.motion.y-y_mid)/vert)*100);
+																		int calc_hori2=(((e.motion.x-x_mid)/hori)*100);
+
+																		int calc_vert3=(((e.motion.y-y_mid)/vert)*100);
+																		int calc_hori3=(((x_mid-e.motion.x)/hori)*100);
+
+																		int calc_vert4=(((y_mid-e.motion.y)/vert)*100);
+																		int calc_hori4=(((x_mid-e.motion.x)/hori)*100);
+
+
+
+
 
 																		//VERSION BASIQUE QUI FONCTIONNE MAL
-																		if(e.motion.y > terrain[compteur][compteur2].y1+10 && e.motion.y < terrain[compteur][compteur2].y3-10 && e.motion.x > terrain[compteur][compteur2].x4+10 && e.motion.x < terrain[compteur][compteur2].x2-10 &&!(e.motion.x>(*largeur)/2+175 && e.motion.x<(*largeur)/2+175+150 && e.motion.y>15 && e.motion.y<15+50)&&!(e.motion.x>10 && e.motion.x<240 && e.motion.y>300 && e.motion.y<500)){
+																		//if(e.motion.y > terrain[compteur][compteur2].y1+20 && e.motion.y < terrain[compteur][compteur2].y3-20 && e.motion.x > terrain[compteur][compteur2].x4+20 && e.motion.x < terrain[compteur][compteur2].x2-20 &&!(e.motion.x>(*largeur)/2+175 && e.motion.x<(*largeur)/2+175+150 && e.motion.y>15 && e.motion.y<15+50)&&!(e.motion.x>10 && e.motion.x<240 && e.motion.y>300 && e.motion.y<500)){
+																		if( (calc_vert1 + calc_hori1 )<=100 && (calc_vert2 + calc_hori2 )<=100 && (calc_vert3 + calc_hori3 )<=100 && (calc_vert4 + calc_hori4 )<=100 ){
+
+																		/*fprintf(stderr,"\n=========TEST============\n");
+																		fprintf(stderr,"y1 = %d\n",terrain[compteur][compteur2].y1);
+																		fprintf(stderr,"y3 = %d\n",terrain[compteur][compteur2].y3);
+																		fprintf(stderr,"x4 = %d\n",terrain[compteur][compteur2].x4);
+																		fprintf(stderr,"x2 = %d\n",terrain[compteur][compteur2].x2);
+
+
+
+																		fprintf(stderr,"\ncalc_vert1 = %d\n",calc_vert1);
+																		fprintf(stderr,"calc_hori1 = %d\n",calc_hori1);
+
+																		fprintf(stderr,"\nmotion x = %d\n",e.motion.x);
+																		fprintf(stderr,"motion y = %d\n",e.motion.y);*/
+
 																			//=================SELECTION D'UNE PIECE====================//
-																			if(terrain[compteur][compteur2].piece){
+																			if(terrain[compteur][compteur2].piece || (terrain[compteur][compteur2].bloc!=NULL && terrain[compteur][compteur2].bloc->block_allie!=joueur_actu && terrain[compteur][compteur2].attaque==1)){
 																				clicout=1;
+																				for(int indice=0;indice<N;indice++){
+																					for(int indice2=0;indice2<M; indice2++){
+																						if(terrain[indice][indice2].bloc && terrain[indice][indice2].bloc->block_sel==1)
+																							terrain[indice][indice2].bloc->block_sel=0;
+																					}
+																				}
 
 																				for(int x=0;x<N;x++){
 																					for(int y=0;y<M;y++){
 																						if(terrain[x][y].piece && terrain[x][y].piece->joueur==joueur_actu && terrain[x][y].piece->select==1){
-																							combat(terrain,x,y,compteur,compteur2,joueur_actu,tab,aff_deg);
+																							combat(terrain,x,y,compteur,compteur2,joueur_actu,tab,aff_deg,tab_info_bash,variable2);
 																						}
 																					}
 																				}
-																				for(int indice=0;indice<N;indice++){
-																					for(int indice2=0;indice2<M; indice2++){
-																						if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
-																							terrain[indice][indice2].piece->select=0;
+																				if(terrain[compteur][compteur2].piece && terrain[compteur][compteur2].piece->select!=1){
+																					for(int indice=0;indice<N;indice++){
+																						for(int indice2=0;indice2<M; indice2++){
+																							if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
+																								terrain[indice][indice2].piece->select=0;
+																							}
 																						}
 																					}
+
+																					if(terrain[compteur][compteur2].piece){
+																						terrain[compteur][compteur2].piece->select=1;
+																					}
+																				}else if(terrain[compteur][compteur2].bloc){
+																					for(int indice=0;indice<N;indice++){
+																						for(int indice2=0;indice2<M; indice2++){
+																							if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1){
+																								terrain[indice][indice2].piece->select=0;
+																							}
+																						}
+																					}
+																					terrain[compteur][compteur2].bloc->block_sel=1;
 																				}
 
-																				if(terrain[compteur][compteur2].piece)
-																					terrain[compteur][compteur2].piece->select=1;
 
-
-																			}else{
+																			}else if(terrain[compteur][compteur2].piece==NULL && (terrain[compteur][compteur2].bloc==NULL || (terrain[compteur][compteur2].bloc!=NULL && terrain[compteur][compteur2].bloc->block_allie==joueur_actu && terrain[compteur][compteur2].deplacement==1))){
 																			//=================DEPLACEMENT et ATTAQUE D'UNE PIECE====================//
 
-																			move(terrain,compteur,compteur2,joueur_actu,tab);
+																			move(terrain,compteur,compteur2,joueur_actu,tab,tab_info_bash,variable2);
+																			poser_block(terrain,compteur,compteur2,joueur_actu,tab,tab_info_bash,variable2);
+
+																			}else if(terrain[compteur][compteur2].piece==NULL && terrain[compteur][compteur2].bloc!=NULL){
+																				clicout=1;
+																				for(int indice=0;indice<N;indice++){
+																					for(int indice2=0;indice2<M; indice2++){
+																						if(terrain[indice][indice2].bloc && terrain[indice][indice2].bloc->block_sel==1)
+																							terrain[indice][indice2].bloc->block_sel=0;
+																						if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1)
+																							terrain[indice][indice2].piece->select=0;
+																					}
+																				}
+																				terrain[compteur][compteur2].bloc->block_sel=1;
 																			}
 
 																		}
@@ -550,9 +710,23 @@ if( pWindow )
 																		}
 																	}
 																}
+																if(e.motion.x>10 && e.motion.x<110 && e.motion.y>420 && e.motion.y<520){
+																	camera_sur_allie(terrain,joueur_actu,tab,largeur,hauteur);
+																	compteur_bouton_cam=VITESSE_ANIM;
+																}
+																if(e.motion.x>40 && e.motion.x<75 && e.motion.y>670 && e.motion.y<720 && tab[joueur_actu].nb_block>0){
+																	//fonction qui met certaine cases du terrain a block=1;(les 4 cases adjacente a chaque unité si le case est une case normal et que aucune unité n'est dessus)
+																	clicout=1;
+																	pathfinding_block(terrain,joueur_actu);
+																}
 																if(clicout==0){
 																	for(int indice=0;indice<N;indice++){
 																		for(int indice2=0;indice2<M; indice2++){
+																			terrain[indice][indice2].deplacement=0;
+																			terrain[indice][indice2].attaque=0;
+																			terrain[indice][indice2].block=0;
+																			if(terrain[indice][indice2].bloc && terrain[indice][indice2].bloc->block_sel==1)
+																				terrain[indice][indice2].bloc->block_sel=0;
 																			if(terrain[indice][indice2].piece && terrain[indice][indice2].piece->select==1)
 																				terrain[indice][indice2].piece->select=0;
 																		}
@@ -563,50 +737,38 @@ if( pWindow )
 														break;
 													}
 										break;
-										//ZOOM
-										/*case SDL_MOUSEWHEEL:
+										case SDL_MOUSEWHEEL:  //SCROLLING BASH
 											if(e.wheel.y==1){
-												coefZoom+=0.01;
-												for(int a=0;a<N;a++){
-													for(int b=0;b<M;b++){
-														terrain[a][b].xImg-=15;
-														terrain[a][b].yImg-=15;
-														terrain[a][b].x1-=15;
-														terrain[a][b].x2-=15;
-														terrain[a][b].x3-=15;
-														terrain[a][b].x4-=15;
-														terrain[a][b].y1-=15;
-														terrain[a][b].y2-=15;
-														terrain[a][b].y3-=15;
-														terrain[a][b].y4-=15;
-													}
-												}
-
+												souris=BASH_SCROLL_SPEED;
+											}else if (e.wheel.y==-1){
+												souris=-BASH_SCROLL_SPEED;
 											}
-											else{
-												coefZoom-=0.01;
-												for(int a=0;a<N;a++){
-													for(int b=0;b<M;b++){
-														terrain[a][b].xImg+=15;
-														terrain[a][b].yImg+=15;
-														terrain[a][b].x1+=15;
-														terrain[a][b].x2+=15;
-														terrain[a][b].x3+=15;
-														terrain[a][b].x4+=15;
-														terrain[a][b].y1+=15;
-														terrain[a][b].y2+=15;
-														terrain[a][b].y3+=15;
-														terrain[a][b].y4+=15;
-													}
-												}
-											}
-
 										break;
-										*/
+
+
 											}
 										}
+										if(tab[joueur_actu].humain==1){
+									//if(e.motion.x>((*largeur)-450+25) && e.motion.x<(*largeur) && e.motion.y>0 && e.motion.y<300){
+										if(souris>0 && tab_info_bash[TAILLE_TAB_BASH-1].pos_y<=0){
+											for(int a=0;a<TAILLE_TAB_BASH;a++){
+												//VERS LE HAUT
+												tab_info_bash[a].pos_y+=25;
+											}
+											souris-=1;
+										}
+										else if (souris<0 && tab_info_bash[0].pos_y>265){
+											for(int a=0;a<TAILLE_TAB_BASH;a++){
+												//VERS LE BAS
+												tab_info_bash[a].pos_y-=25;
+											}
+											souris+=1;
+										}
+									//	}
+
+
 										gpScreen = SDL_GetWindowSurface(pWindow);
-										if( e.motion.x >0 && e.motion.x <30 && e.type!=SDL_MOUSEWHEEL){
+										if( e.motion.x >=0 && e.motion.x <=30 && e.type==SDL_MOUSEMOTION){
 											for (int compteur=0;compteur<N;compteur++){
 												for (int compteur2=0;compteur2<M;compteur2++){
 													terrain[compteur][compteur2].xImg+=scroll_speed;
@@ -617,7 +779,7 @@ if( pWindow )
 												}
 											}
 										}
-										if(e.motion.x > gpScreen->w - 30 && e.motion.x < gpScreen->w && e.type!=SDL_MOUSEWHEEL){
+										if(e.motion.x >= gpScreen->w - 30 && e.motion.x <= gpScreen->w && e.type==SDL_MOUSEMOTION){
 											for (int compteur=0;compteur<N;compteur++){
 												for (int compteur2=0;compteur2<M;compteur2++){
 													terrain[compteur][compteur2].xImg-=scroll_speed;
@@ -628,7 +790,7 @@ if( pWindow )
 												}
 											}
 										}
-										if( e.motion.y >0 && e.motion.y <30 && e.type!=SDL_MOUSEWHEEL){
+										if( e.motion.y >=0 && e.motion.y <=30 && e.type==SDL_MOUSEMOTION){
 											for (int compteur=0;compteur<N;compteur++){
 												for (int compteur2=0;compteur2<M;compteur2++){
 													terrain[compteur][compteur2].yImg+=scroll_speed;
@@ -639,7 +801,7 @@ if( pWindow )
 												}
 											}
 										}
-										if(e.motion.y > gpScreen->h - 30 && e.motion.y < gpScreen->h && e.type!=SDL_MOUSEWHEEL){
+										if(e.motion.y >= gpScreen->h - 30 && e.motion.y <= gpScreen->h && e.type==SDL_MOUSEMOTION){
 											for (int compteur=0;compteur<N;compteur++){
 												for (int compteur2=0;compteur2<M;compteur2++){
 													terrain[compteur][compteur2].yImg-=scroll_speed;
@@ -650,12 +812,13 @@ if( pWindow )
 												}
 											}
 										}
+										}
 
 									//fin action du joueur
+
 									if(tab[joueur_actu].humain==0){ 	//===================================================TOUR DU BOT===================================================//
 										if(nb_tour>=VITESSE_JEU_BOT){
 											if(sel==0){ //SELECTION
-												fprintf(stderr,"TOUR DU BOT %d : PTS D'ACTION = %d\n",joueur_actu,tab[joueur_actu].pts_action_actu);
 												for (int i=0;i<N;i++){ //deselectionne toutes les pieces
 													for (int j=0;j<M;j++){
 														if(terrain[i][j].piece && terrain[i][j].piece->select==1){
@@ -663,17 +826,17 @@ if( pWindow )
 														}
 													}
 												}
-												int var5=0;
-												int var6=(rand()%tab[joueur_actu].nb_unite);
+												int ini=0;
 												for (int i=0;i<N;i++){ //selection d'une piece
 													for (int j=0;j<M;j++){
-														if(terrain[i][j].piece && terrain[i][j].piece->select==0 && terrain[i][j].piece->joueur==joueur_actu && var5==var6){
+														if(terrain[i][j].piece && terrain[i][j].piece->select==0 && terrain[i][j].piece->joueur==joueur_actu && ini==0 && terrain[i][j].piece->pts_action_actu>0 && rand()%tab[joueur_actu].nb_unite==0){
 															terrain[i][j].piece->select=1;
 															x_bot=i;
 															y_bot=j;
+															ini=1;
 														}
-														if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu)
-															var5++;
+														if(i==N-1 && j==M-1 && ini==0)
+															i=0;
 													}
 												}
 
@@ -683,17 +846,19 @@ if( pWindow )
 												int nb_ennemies_portee=a_portee(terrain,x_bot,y_bot,joueur_actu);
 												if((nb_ennemies_portee>=1 && terrain[x_bot][y_bot].piece->classe!=priest)|| (nb_ennemies_portee>=2 && terrain[x_bot][y_bot].piece->classe==priest) || (reste_allie(terrain,joueur_actu)==1 && terrain[x_bot][y_bot].piece->classe==priest)){
 													fprintf(stderr,"ATTAQUE\n");
-													attaquer_meilleur_cible(terrain,x_bot,y_bot,nb_ennemies_portee,joueur_actu,tab,aff_deg);
+													attaquer_meilleur_cible(terrain,x_bot,y_bot,nb_ennemies_portee,joueur_actu,tab,aff_deg,tab_info_bash,variable2);
 												}else{
 													fprintf(stderr,"DEPLACEMENT\n");
-													depla_atk_mov(terrain,x_bot,y_bot,joueur_actu,tab);
+													depla_atk_mov(terrain,x_bot,y_bot,joueur_actu,tab,tab_info_bash,variable2);
 												}
-
+												/*if(action_possible(terrain,joueur_actu)==0){
+													fin_tour=1;
+												}*/
 
 												sel=0;
 											}
 											nb_tour=0;
-											if(tab[joueur_actu].pts_action_actu<=0){ //direction blockage
+											if(tab[joueur_actu].pts_action_actu<=0 || fin_tour==1){ //direction blockage
 												for (int i=0;i<N;i++){
 													for (int j=0;j<M;j++){
 														if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu){
@@ -710,7 +875,7 @@ if( pWindow )
 
 
 									for(int i=0;i<J;i++){
-										if(tab[i].nb_unite<=0){
+										if(tab[i].nb_unite<=0 && tab[i].id_joueur!=-1){
 											tab[i].id_joueur=-2;
 										}
 									}
@@ -723,447 +888,96 @@ if( pWindow )
 										}
 									}
 
-						//=================================================================================================================================//
-						//=================================================================================================================================//
-						//====================================================AFFICHAGE====================================================================//
-						//=================================================================================================================================//
-						//=================================================================================================================================//
-
-
-									SDL_RenderClear(renderer);
-
-									SDL_GetWindowSize(pWindow,largeur,hauteur);
-									afficher_img(0,0,*hauteur,*largeur,"images/fond.png",image,renderer,1,0,img_anim);
-
-									for (int compteur=0;compteur<N;compteur++){
-										for (int compteur2=0;compteur2<M;compteur2++){
-
-											if(terrain[compteur][compteur2].type==1){
-												afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg,100,100,"images/case_normalv2.png",image,renderer,coefZoom,0,img_anim);
-											}
-											else if(terrain[compteur][compteur2].type==2){
-												afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg,100,100,"images/case_normal_coinv2.png",image,renderer,coefZoom,0,img_anim);
-											}
-											else if(terrain[compteur][compteur2].type==3){
-												afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg,100,100,"images/case_normal_bordure_gauchev2.png",image,renderer,coefZoom,0,img_anim);
-											}
-											else if(terrain[compteur][compteur2].type==4){
-												afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg,100,100,"images/case_normal_bordure_droitev2.png",image,renderer,coefZoom,0,img_anim);
-											}
-											else if(terrain[compteur][compteur2].type==5){
-												afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg,100,100,"images/case_eauv2.png",image,renderer,coefZoom,0,img_anim);
-											}
-											else if(terrain[compteur][compteur2].type==6){
-												afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg,100,100,"images/case_foretv2.png",image,renderer,coefZoom,0,img_anim);
-											}
-											else if(terrain[compteur][compteur2].type==7){
-												afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg,100,100,"images/case_montagnev2.png",image,renderer,coefZoom,0,img_anim);
-											}
-										}
+									if((jour_nuit%((DURE_JOUR_NUIT/24)*3))>=-20 && (jour_nuit%((DURE_JOUR_NUIT/24)*3))<=20){
+										jour_nuit+=40;
+										frame_anim_montre++;
 									}
-
-									for (int compteur=0;compteur<N;compteur++){
-										for (int compteur2=0;compteur2<M;compteur2++){
-											if(terrain[compteur][compteur2].piece){
-												if(terrain[compteur][compteur2].piece->select){		//affichage case possible déplacement ou attaque si allié, sinon affiche le stats de la cible et sa direction d'arret;
-													if(terrain[compteur][compteur2].piece->joueur==joueur_actu){
-																			//deplacement
-														pathfinding(terrain,compteur,compteur2);
-
-														for (int ind=0;ind<N;ind++){
-															for (int ind2=0;ind2<M;ind2++){
-																if(terrain[ind][ind2].deplacement==1 && (compteur_anim%(VITESSE_ANIM*2))<(VITESSE_ANIM/2)*2){
-
-																	afficher_img(terrain[ind][ind2].xImg-bordure/15+8,terrain[ind][ind2].yImg-bordure/8+3,100,100,"images/deplacement.png",image,renderer,coefZoom,0,img_anim);
-
-																}else if(terrain[ind][ind2].deplacement==1 && (compteur_anim%(VITESSE_ANIM*2))>=(VITESSE_ANIM/2)*2){
-
-																	afficher_img(terrain[ind][ind2].xImg-bordure/15+8,terrain[ind][ind2].yImg-bordure/8+3,100,100,"images/deplacement2.png",image,renderer,coefZoom,0,img_anim);
-
-																}
-															}
-														}
-															//attaque
-														pathfinding_combat(terrain,compteur,compteur2,joueur_actu);
-
-														for (int ind=0;ind<N;ind++){
-															for (int ind2=0;ind2<M;ind2++){
-																if(terrain[ind][ind2].attaque==1 && ((compteur_anim%VITESSE_ANIM)<(VITESSE_ANIM/2) || (compteur_anim%VITESSE_ANIM)>((VITESSE_ANIM/4)*3)) ){
-
-																	afficher_img(terrain[ind][ind2].xImg-bordure/15+8,terrain[ind][ind2].yImg-bordure/8+3,100,100,"images/attaque.png",image,renderer,coefZoom,0,img_anim);
-
-																}else if(terrain[ind][ind2].attaque==1 && ((compteur_anim%VITESSE_ANIM)>(VITESSE_ANIM/2) || (compteur_anim%VITESSE_ANIM)<=((VITESSE_ANIM/4)*3)) ){
-
-																	afficher_img(terrain[ind][ind2].xImg-bordure/15+8,terrain[ind][ind2].yImg-bordure/8+3,100,100,"images/attaque2.png",image,renderer,coefZoom,0,img_anim);
-
-																}
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-
-									for (int compteur=0;compteur<N;compteur++){
-										for (int compteur2=0;compteur2<M;compteur2++){
-											if(terrain[compteur][compteur2].piece){ 		//AFFICHAGE DES CERCLE UNITES ALLIEES ET UNITES SELECTIONNEES
-
-												if(terrain[compteur][compteur2].piece->joueur==joueur_actu && terrain[compteur][compteur2].piece->select==0){ //cercle des unité du joueur_actu affichage
-													afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg+5,100,100,"images/image_allie.png",image,renderer,coefZoom,0,img_anim);
-												}else if(terrain[compteur][compteur2].piece->joueur==joueur_actu && terrain[compteur][compteur2].piece->select==1){ //cercle de l'unité selectionné du joueur_actu
-													afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg+5,100,100,"images/image_select_allie.png",image,renderer,coefZoom,0,img_anim);
-												}
-											}
-										}
+									if(frame_anim_montre>=8 && (jour_nuit%((DURE_JOUR_NUIT/24)*3))>=20 && (jour_nuit%((DURE_JOUR_NUIT/24)*3))<=60){
+										frame_anim_montre=0;
 									}
 
 
-									for (int compteur=0;compteur<N;compteur++){
-										for (int compteur2=0;compteur2<M;compteur2++){
-											if(terrain[compteur][compteur2].piece){ 		//AFFICHAGE DES UNITEES
-												switch (terrain[compteur][compteur2].piece->classe){
-													case 1:
 
-													img_anim=afficher_anim(compteur_anim,terrain[compteur][compteur2].piece->classe,terrain,compteur,compteur2,0);
-													afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-10,100,100,"images/knight_anim.png",image,renderer,coefZoom,1,img_anim);
 
-													break;
-													case 2:
 
-													img_anim=afficher_anim(compteur_anim,terrain[compteur][compteur2].piece->classe,terrain,compteur,compteur2,0);
-													afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-10,100,100,"images/scout_anim.png",image,renderer,coefZoom,1,img_anim);
 
-													break;
-													case 3:
+									
+									
 
-													img_anim=afficher_anim(compteur_anim,terrain[compteur][compteur2].piece->classe,terrain,compteur,compteur2,0);
-													afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-10,100,100,"images/priest_anim.png",image,renderer,coefZoom,1,img_anim);
+									if(ISO==1){
+										affichage_principale_iso(renderer,pWindow,bordure,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,joueur_actu,image,compteur_anim,nb_joueur_restant,compteur_tour,frame_anim_montre,jour_nuit,variable2,compteur_bouton_cam);
+									}else{
+										affichage_principale(renderer,pWindow,bordure,largeur,hauteur,tab,aff_deg,tab_info_bash,terrain,joueur_actu,image,compteur_anim,nb_joueur_restant,compteur_tour,frame_anim_montre,jour_nuit,variable2,compteur_bouton_cam);
 
-													break;
-													case 4:
-
-													img_anim=afficher_anim(compteur_anim,terrain[compteur][compteur2].piece->classe,terrain,compteur,compteur2,0);
-													afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-10,100,100,"images/magician_anim.png",image,renderer,coefZoom,1,img_anim);
-
-													break;
-													case 5:
-
-													afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-10,100,100,"images/faucheuse.png",image,renderer,coefZoom,0,img_anim);
-
-													break;
-													case 6:
-
-													img_anim=afficher_anim(compteur_anim,terrain[compteur][compteur2].piece->classe,terrain,compteur,compteur2,0);
-													afficher_img(terrain[compteur][compteur2].xImg,terrain[compteur][compteur2].yImg-10,100,100,"images/ange_anim.png",image,renderer,coefZoom,1,img_anim);
-
-													break;
-												}
-											}
-										}
 									}
 
-									//affichage des fleche de deplacement transparentes sur les ennemis a portee de l'allie selectionné si il y en a un
-									for (int compteur=0;compteur<N;compteur++){
-										for (int compteur2=0;compteur2<M;compteur2++){
-											if(terrain[compteur][compteur2].piece && terrain[compteur][compteur2].piece->select == 1 && terrain[compteur][compteur2].piece->joueur==joueur_actu && terrain[compteur][compteur2].piece->classe!=priest){
-												for (int i=0;i<N;i++){
-													for (int j=0;j<M;j++){
-														if(terrain[i][j].attaque==1){
-															switch(terrain[i][j].piece->direction){
-																case 1:
-																	afficher_img(terrain[i][j].xImg+10,terrain[i][j].yImg+10,80,80,"images/fleche_nord_trans.png",image,renderer,1,0,img_anim);
-																break;
-																case 2:
-																	afficher_img(terrain[i][j].xImg+10,terrain[i][j].yImg+10,80,80,"images/fleche_sud_trans.png",image,renderer,1,0,img_anim);
-																break;
-																case 3:
-																	afficher_img(terrain[i][j].xImg+10,terrain[i][j].yImg+10,80,80,"images/fleche_ouest_trans.png",image,renderer,1,0,img_anim);
-																break;
-																case 4:
-																	afficher_img(terrain[i][j].xImg+10,terrain[i][j].yImg+10,80,80,"images/fleche_est_trans.png",image,renderer,1,0,img_anim);
-																break;
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-
-
-									//drap rouge en haut
-									afficher_img(0,0,*hauteur,*largeur,"images/drap_rouge.png",image,renderer,1,0,img_anim);
-
-									//fin du tour bouton
-
-									afficher_img((*largeur)/3+420,15,50,150,"images/fin_du_tour.png",image,renderer,1,0,img_anim);
-
-									//menu nord
-
-									afficher_img((*largeur)/3,0,75,400,"images/menu_nord.png",image,renderer,1,0,img_anim);
-
-									AfficherText("ACTION RESTANTE:","arial.ttf",c,12,renderer,(*largeur)/3+200,30);
-
-									AfficherText("TOUR DU JOUEUR ","arial.ttf",c,12,renderer,(*largeur)/3+50,30);
-
-									sprintf(variable, "%d",  tab[joueur_actu].pts_action_actu);
-
-									AfficherText(variable,"arial.ttf",c,30,renderer,(*largeur)/3+325,18);
-
-									sprintf(variable, "%d",  joueur_actu);
-
-									AfficherText(variable,"arial.ttf",c,30,renderer,(*largeur)/3+165,18);
-									//stats
-
-
-									afficher_img(0,0,400,150,"images/inter.png",image,renderer,1,0,img_anim);
-
-									AfficherText("PDV        :","arial.ttf",c,12,renderer,30,155);
-
-									AfficherText("ATK        :","arial.ttf",c,12,renderer,30,175);
-
-									AfficherText("DEF        :","arial.ttf",c,12,renderer,30,195);
-
-									AfficherText("BLOCK  :","arial.ttf",c,12,renderer,30,215);
-
-									AfficherText("RANGE  :","arial.ttf",c,12,renderer,30,235);
-
-									AfficherText("MS          :","arial.ttf",c,12,renderer,30,255);
-
-									AfficherText("MENU", "arial.ttf",b,15,renderer,gpScreen->w - 60,gpScreen->h - 30);
-
-
-
-									//infos générales de la partie
-									afficher_img(150,0,200,300,"images/menu_nord.png",image,renderer,1,0,img_anim);
-
-									AfficherText("Joueurs Restants :        ","arial.ttf",c,20,renderer,185,30);
-									sprintf(variable, "%d",  nb_joueur_restant);
-									AfficherText(variable,"arial.ttf",c,30,renderer,365,22);
-
-									AfficherText("Unit Allies :        ","arial.ttf",c,20,renderer,185,80);
-									sprintf(variable, "%d",  reste_allie(terrain,joueur_actu));
-									AfficherText(variable,"arial.ttf",c,30,renderer,365,72);
-
-									AfficherText("Unit Ennemis:        ","arial.ttf",c,20,renderer,185,130);
-									sprintf(variable, "%d",  reste_ennemi(terrain,joueur_actu));
-									AfficherText(variable,"arial.ttf",c,30,renderer,365,122);
-
-
-						//==============BASH=======================//
-									afficher_img(((*largeur)-350),0,300,350,"images/bash.png",image,renderer,1,0,img_anim);
-									test_bash=0;
 									for(int i=0;i<J;i++){
 										if(tab[i].id_joueur==-2){
-											varBash=i;
-											test_bash=1;
+											tab[i].id_joueur=-1;
 										}
-									}
-									if(test_bash==1){
-										for(int j=0;j<TAILLE_TAB_BASH-1;j++){
-											if((tab_info_bash[j].pos_x==0 && tab_info_bash[j+1].pos_x!=0 )){
-												tab_info_bash[j].pos_x=tab_info_bash[j+1].pos_x;
-												tab_info_bash[j].pos_y=tab_info_bash[j+1].pos_y-25; ///ICI POUR PLACE ENTRE LES LIGNE DE BASH (-TAILLE ENTRE LES LIGNES).
-												strcpy(tab_info_bash[j].txt,tab_info_bash[j+1].txt);
-											}
-										}
-
-
-										tab_info_bash[TAILLE_TAB_BASH-1].pos_x=((*largeur)-350+40);
-										tab_info_bash[TAILLE_TAB_BASH-1].pos_y=265;
-										sprintf(variable, "| Le Joueur %d a ete elimine.",varBash);
-										strcpy(tab_info_bash[TAILLE_TAB_BASH-1].txt,variable);
-									}
-
-									for(int i=0;i<TAILLE_TAB_BASH;i++){
-										if(tab_info_bash[i].pos_x!=0){
-											fprintf(stderr,"test :%s: \n",tab_info_bash[i].txt);
-											AfficherText(tab_info_bash[i].txt,"arial.ttf",c_bash,15,renderer,tab_info_bash[i].pos_x,tab_info_bash[i].pos_y);
-										}
-									}
-
-				//==============BASH=======================//
-
-									for(int i=0;i<N;i++){
-										for(int j=0;j<M;j++){
-											if(terrain[i][j].piece && terrain[i][j].piece->select==1){
-												//affichage des infos de l'unité en haut a gauche.
-
-												switch (terrain[i][j].piece->classe){
-													case 1:
-
-													img_anim=afficher_anim(compteur_anim,terrain[i][j].piece->classe,terrain,i,j,1);
-													afficher_img(20,20,100,100,"images/knight_anim.png",image,renderer,coefZoom,1,img_anim);
-
-												break;
-												case 2:
-
-													img_anim=afficher_anim(compteur_anim,terrain[i][j].piece->classe,terrain,i,j,1);
-													afficher_img(20,20,100,100,"images/scout_anim.png",image,renderer,coefZoom,1,img_anim);
-
-												break;
-												case 3:
-
-													img_anim=afficher_anim(compteur_anim,terrain[i][j].piece->classe,terrain,i,j,1);
-													afficher_img(20,20,100,100,"images/priest_anim.png",image,renderer,coefZoom,1,img_anim);
-
-												break;
-												case 4:
-
-												img_anim=afficher_anim(compteur_anim,terrain[i][j].piece->classe,terrain,i,j,1);
-												afficher_img(20,20,100,100,"images/magician_anim.png",image,renderer,coefZoom,1,img_anim);
-
-												break;
-												case 5:
-
-												afficher_img(20,20,100,100,"images/faucheuse.png",image,renderer,1,0,img_anim);
-												break;
-												case 6:
-
-													img_anim=afficher_anim(compteur_anim,terrain[i][j].piece->classe,terrain,i,j,1);
-													afficher_img(20,20,100,100,"images/ange_anim.png",image,renderer,coefZoom,1,img_anim);
-
-												break;
-												}
-												//text
-
-
-															//affichage des stats de l'unité selectionné en fonction du terrain
-												sprintf(variable, "%d",  terrain[i][j].piece->joueur);
-												AfficherText(variable,"arial.ttf",c,25,renderer,65,110);
-
-												sprintf(variable, "%d", terrain[i][j].piece->pdv);
-												AfficherText(variable,"arial.ttf",c,12,renderer,90,155);
-
-												sprintf(variable, "%d", terrain[i][j].piece->puissance);
-												AfficherText(variable,"arial.ttf",c,12,renderer,90,175);
-
-												if(terrain[i][j].type==6){
-													sprintf(variable, "%d", (terrain[i][j].piece->armure+3));
-													AfficherText(variable,"arial.ttf",c_verte2,12,renderer,90,195);
-												}else{
-													sprintf(variable, "%d", terrain[i][j].piece->armure);
-													AfficherText(variable,"arial.ttf",c,12,renderer,90,195);
-												}
-
-
-												if(terrain[i][j].type==6){
-													sprintf(variable, "%d", (terrain[i][j].piece->block+10));
-													AfficherText(variable,"arial.ttf",c_verte2,12,renderer,90,215);
-												}else{
-													sprintf(variable, "%d", terrain[i][j].piece->block);
-													AfficherText(variable,"arial.ttf",c,12,renderer,90,215);
-												}
-
-												if(terrain[i][j].type==7){
-													sprintf(variable, "%d", (terrain[i][j].piece->portee+1));
-													AfficherText(variable,"arial.ttf",c_verte2,12,renderer,90,235);
-												}else{
-													sprintf(variable, "%d", terrain[i][j].piece->portee);
-													AfficherText(variable,"arial.ttf",c,12,renderer,90,235);
-												}
-
-												if(terrain[i][j].type==6 || terrain[i][j].type==7){
-													sprintf(variable, "%d", (terrain[i][j].piece->deplacement-1));
-													AfficherText(variable,"arial.ttf",c_rouge,12,renderer,90,255);
-												}else{
-													sprintf(variable, "%d", terrain[i][j].piece->deplacement);
-													AfficherText(variable,"arial.ttf",c,12,renderer,90,255);
-												}
-
-
-
-												//affichage de nombre de kills actuel de l'unité si ce n'est pas un pretre
-												if(terrain[i][j].piece->classe!=priest){
-													afficher_img(106,48,30,30,"images/kills.png",image,renderer,1,0,img_anim);
-													sprintf(variable, "%d", terrain[i][j].piece->kill);
-													AfficherText(variable,"arial.ttf",c_rouge,24,renderer,114,75);
-												}
-												//DIRECTION affichage
-
-
-												switch(terrain[i][j].piece->direction){
-													case 1:
-														afficher_img(25,275,100,100,"images/fleche_nord.png",image,renderer,1,0,img_anim);
-													break;
-													case 2:
-														afficher_img(25,275,100,100,"images/fleche_sud.png",image,renderer,1,0,img_anim);
-													break;
-													case 3:
-														afficher_img(25,275,100,100,"images/fleche_ouest.png",image,renderer,1,0,img_anim);
-													break;
-													case 4:
-														afficher_img(25,275,100,100,"images/fleche_est.png",image,renderer,1,0,img_anim);
-													break;
-												}
-
-
-											}
-										}
-									}
-
-									for(int i=0;i<AFF_DEG;i++){ //affichage des dégats, morts soins etc
-										if(aff_deg[i].time>0){
-											if(aff_deg[i].c==1){//couleur degat
-												AfficherText(aff_deg[i].txt,"arial.ttf",c_rouge,30,renderer,aff_deg[i].pos_x,aff_deg[i].pos_y);
-											}else if(aff_deg[i].c==2){//couleur soin
-												AfficherText(aff_deg[i].txt,"arial.ttf",c_verte,30,renderer,aff_deg[i].pos_x,aff_deg[i].pos_y);
-											}else{//couleur noire
-												AfficherText(aff_deg[i].txt,"arial.ttf",c,30,renderer,aff_deg[i].pos_x,aff_deg[i].pos_y);
-											}
-										}
-									}
-
-									clean_degat_txt(aff_deg);
-
-
-
-									SDL_RenderPresent(renderer);
-									SDL_Delay(16);
-
-
-
-						//=================================================================================================================================//
-						//=======================================================FIN=======================================================================//
-						//====================================================AFFICHAGE====================================================================//
-						//=======================================================...=======================================================================//
-						//=================================================================================================================================//
-
-
-
-
-								//===================================ACTUALISATION DES TOURS==========================================//
-
-								for(int i=0;i<J;i++){
-									if(tab[i].id_joueur==-2){
-										tab[i].id_joueur=-1;
-									}
-								}
-
-
-									if(nb_joueur_restant==1){
-										for(int i=0;i<J;i++){
-											if(tab[i].id_joueur!=-1)
-													fprintf(stderr,"LE JOUEUR %d GAGNE\n",i);
-										}
-										//ecran de victoire/defaite
-
-										running=Quit;
 									}
 
 									if((tab[joueur_actu].pts_action_actu<=0 && tab[joueur_actu].humain==0 )|| (tab[joueur_actu].pts_action_actu<=0 && fin_tour==1) || (fin_tour==1)){				//gestion des tours de jeu
+										tab[joueur_actu].pts_action_max=0;
+										for(int i=0;i<N;i++){
+											for(int j=0;j<M;j++){
+												if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu){
+														tab[joueur_actu].pts_action_max+=terrain[i][j].piece->pts_action_max;
+														terrain[i][j].piece->pts_action_actu=terrain[i][j].piece->pts_action_max;
+												}
+											}
+										}
 										tab[joueur_actu].pts_action_actu=tab[joueur_actu].pts_action_max;
+
 										do{
 											joueur_actu=(joueur_actu+1)%J;
+											if(joueur_actu==joueur_start){
+												compteur_tour++;
+												update_grille(terrain,compteur_tour,tab_info_bash,variable2);
+											}
 										}while(tab[joueur_actu].id_joueur==-1);
+										if(tab[joueur_actu].humain==1){
+											camera_sur_allie(terrain,joueur_actu,tab,largeur,hauteur);
+										}
+										tab[joueur_actu].pts_action_max=0;
+										for(int i=0;i<N;i++){
+											for(int j=0;j<M;j++){
+												if(terrain[i][j].piece && terrain[i][j].piece->joueur==joueur_actu){
+														tab[joueur_actu].pts_action_max+=terrain[i][j].piece->pts_action_max;
+														terrain[i][j].piece->pts_action_actu=terrain[i][j].piece->pts_action_max;
+												}
+											}
+										}
+										tab[joueur_actu].pts_action_actu=tab[joueur_actu].pts_action_max;
 										fin_tour=0;
+									}
+
+									if(nb_joueur_restant==1){
+										for(int i=0;i<J;i++){
+											if(tab[i].id_joueur!=-1 && tab[i].id_joueur!=-2){
+													sprintf(variable,"LE JOUEUR %d GAGNE EN %d TOURS !\n",i,compteur_tour);
+				    							ajouter_ligne_bash(variable,tab_info_bash,info,variable2);
+											}
+										}
+										//ecran de victoire/defaite
+
+										running=Menu;
 									}
 
 									//incrémentation a chaque tours
 									nb_tour=(nb_tour+1)%(VITESSE_JEU_BOT*2);
 									compteur_anim=compteur_anim%(VITESSE_ANIM*4);
 									compteur_anim++;
+									jour_nuit=(jour_nuit+1)%DURE_JOUR_NUIT;
+									compteur_bouton_cam=(compteur_bouton_cam-1)%(-200);
+
+									SDL_GetWindowSize(pWindow,largeur,hauteur); //initialisation des pointeur largeur et hauteur sur la taille de la fenetre
+									test=(*largeur);
+									COEF_AFFICHAGE=test / 1920.00;
+
+
+
+								//===================================ACTUALISATION DES TOURS==========================================//
 
 								}//fin boucle de jeu
 							}
@@ -1181,7 +995,53 @@ if( pWindow )
 
 		}else if(running == Load){
 
-			running = Play;
+			/*frame_anim_montre=4;
+			jour_nuit=((DURE_JOUR_NUIT/24)*7);
+
+		  FILE * fp;
+		  fp=fopen("fichiers/saves/save_2201_1628", "r");
+		  //on commence par save les variable principales de la partie et les types de cases
+		  fscanf(fp,"N=%d M=%d J=%d J_HUMAIN=%d VITESSE_JEU_BOT=%d VITESSE_ANIM=%d DURE_JOUR_NUIT=%d compteur_tour=%d joueur_actu=%d\n",&N,&M,&J,&J_HUMAIN,&VITESSE_JEU_BOT,&VITESSE_ANIM,&DURE_JOUR_NUIT,&compteur_tour,&joueur_actu);
+			fprintf(stderr,"ok\n");
+			for(int i=0;i<N;i++){
+		    for(int j=0;j<M;j++){
+		      fscanf(fp,"{%d %d} type=%d xImg=%d yImg=%d x1=%d x2=%d x3=%d x4=%d y1=%d y2=%d y3=%d y4=%d\n",&i,&j,&terrain[i][j].type,&terrain[i][j].xImg,&terrain[i][j].yImg,&terrain[i][j].x1,&terrain[i][j].x2,&terrain[i][j].x3,&terrain[i][j].x4,&terrain[i][j].y1,&terrain[i][j].y2,&terrain[i][j].y3,&terrain[i][j].y4);
+					//terrain[i][j].deplacement=0;
+					//terrain[i][j].attaque=0;
+				}
+		  }
+		  //on sauvegarde le tableau de joueurs
+		  for(int i=0;i<J;i++){
+		    fscanf(fp,"id_joueur=%d nb_unite=%d humain=%d pts_action_max=%d pts_action_actu=%d\n",&tab[i].id_joueur,&tab[i].nb_unite,&tab[i].humain,&tab[i].pts_action_max,&tab[i].pts_action_actu);
+		  }
+		  //on sauvegarde chaque piece
+			int test=-1;
+		  for(int i=0;i<N;i++){
+		    for(int j=0;j<M;j++){
+					fscanf(fp,"{%d %d} classe=%d",&i,&j,&test);
+					fprintf(stderr,"%d\n",test);
+					if(test!=-1){
+						terrain[i][j].piece=malloc(sizeof(piece_t));
+						terrain[i][j].piece->classe=test;
+						fscanf(fp,"pdv=%d puissance=%d armure=%d block=%d portee=%d deplacement=%d joueur=%d direction=%d kill=%d frame=%d frame_interface=%d start_anim=%d \n",&terrain[i][j].piece->pdv,&terrain[i][j].piece->puissance,&terrain[i][j].piece->armure,&terrain[i][j].piece->block,&terrain[i][j].piece->portee,&terrain[i][j].piece->deplacement,&terrain[i][j].piece->joueur,&terrain[i][j].piece->direction,&terrain[i][j].piece->kill,&terrain[i][j].piece->frame,&terrain[i][j].piece->frame_interface,&terrain[i][j].piece->start_anim);
+						terrain[i][j].piece->select=0;
+					}else{
+						terrain[i][j].piece=NULL;
+					}
+		    }
+		  }
+
+			for(int i=0;i<N;i++){
+				for(int j=0;j<M;j++){
+					if(terrain[i][j].piece)
+						fprintf(stderr,"%d %d : pdv piece %d portee piece : %d\n",i,j,terrain[i][j].piece->pdv,terrain[i][j].piece->portee);
+				}
+			}
+			exit(1);
+		  fclose(fp);
+			fprintf(stderr,"ok\n");
+			running = Play_load;*/
+			running = Menu2;
 
 			//================================================================================================================================================//
 			//================================================================================================================================================//
