@@ -1,1 +1,2 @@
-# projet
+# Tactics Arena
+Tactics Arena est un jeu de stratégie se jouant sur un plateau opposant plusieurs équipes. Le plateau comporte des obstacles (étendues d’eau, blocs) et différents terrains conférant des bonus ou des malus aux différentes unités. Chaque unité a ses statistiques sont apparence etc. Le terrain peut être personnalisé à chaque (taille du plateau, nombre d’unités…) parties et est généré aléatoirement. On peut jouer contre l’ordinateur ou contre un autre joueur au tour par tour.
